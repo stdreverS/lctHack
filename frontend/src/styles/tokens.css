@@ -1,0 +1,109 @@
+/* Дизайн-токены платформы (CLAUDE.md, раздел 8). Цвета используются только через эти переменные. */
+:root {
+  /* Основа */
+  --color-bg: #f4f6f7;
+  --color-surface: #ffffff;
+  --color-text: #1e2a33;
+  --color-text-secondary: #5b6b77;
+  --color-border: #d5dce1;
+
+  /* Основной цвет — стальной синий */
+  --color-primary: #2f5d7c;
+
+  /* Акцент — «разметочный» жёлтый: активный шаг мастера, маршруты роботов, одна ключевая цифра */
+  --color-accent: #f2b705;
+
+  /* Статусы */
+  --color-success: #2e8b57; /* подходит / окупается до 3 лет */
+  --color-warning: #c98a00; /* требует проверки / 3–5 лет */
+  --color-danger: #c0392b; /* не подходит / более 5 лет */
+
+  /* Типографика */
+  --font-family: 'Golos Text', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-size-base: 14px;
+  --line-height-base: 1.5;
+
+  /* Геометрия */
+  --radius: 4px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  --focus-ring: 2px solid var(--color-primary);
+}
+
+/* Тема Element Plus через наши токены. Оттенки light/dark — смешение с белым/чёрным,
+   как это делает сама Element Plus. */
+:root {
+  --el-font-family: var(--font-family);
+  --el-font-size-base: var(--font-size-base);
+  --el-border-radius-base: var(--radius);
+  --el-border-radius-small: 2px;
+
+  --el-bg-color: var(--color-surface);
+  --el-bg-color-page: var(--color-bg);
+  --el-bg-color-overlay: var(--color-surface);
+
+  --el-text-color-primary: var(--color-text);
+  --el-text-color-regular: var(--color-text);
+  --el-text-color-secondary: var(--color-text-secondary);
+  --el-text-color-placeholder: color-mix(in srgb, var(--color-text-secondary) 70%, white);
+
+  --el-border-color: var(--color-border);
+  --el-border-color-light: color-mix(in srgb, var(--color-border) 70%, white);
+  --el-border-color-lighter: color-mix(in srgb, var(--color-border) 50%, white);
+  --el-border-color-extra-light: color-mix(in srgb, var(--color-border) 30%, white);
+  --el-border-color-dark: color-mix(in srgb, var(--color-border) 85%, black);
+
+  --el-color-primary: var(--color-primary);
+  --el-color-primary-light-3: color-mix(in srgb, var(--color-primary) 70%, white);
+  --el-color-primary-light-5: color-mix(in srgb, var(--color-primary) 50%, white);
+  --el-color-primary-light-7: color-mix(in srgb, var(--color-primary) 30%, white);
+  --el-color-primary-light-8: color-mix(in srgb, var(--color-primary) 20%, white);
+  --el-color-primary-light-9: color-mix(in srgb, var(--color-primary) 10%, white);
+  --el-color-primary-dark-2: color-mix(in srgb, var(--color-primary) 80%, black);
+
+  --el-color-success: var(--color-success);
+  --el-color-success-light-3: color-mix(in srgb, var(--color-success) 70%, white);
+  --el-color-success-light-5: color-mix(in srgb, var(--color-success) 50%, white);
+  --el-color-success-light-7: color-mix(in srgb, var(--color-success) 30%, white);
+  --el-color-success-light-8: color-mix(in srgb, var(--color-success) 20%, white);
+  --el-color-success-light-9: color-mix(in srgb, var(--color-success) 10%, white);
+  --el-color-success-dark-2: color-mix(in srgb, var(--color-success) 80%, black);
+
+  --el-color-warning: var(--color-warning);
+  --el-color-warning-light-3: color-mix(in srgb, var(--color-warning) 70%, white);
+  --el-color-warning-light-5: color-mix(in srgb, var(--color-warning) 50%, white);
+  --el-color-warning-light-7: color-mix(in srgb, var(--color-warning) 30%, white);
+  --el-color-warning-light-8: color-mix(in srgb, var(--color-warning) 20%, white);
+  --el-color-warning-light-9: color-mix(in srgb, var(--color-warning) 10%, white);
+  --el-color-warning-dark-2: color-mix(in srgb, var(--color-warning) 80%, black);
+
+  --el-color-danger: var(--color-danger);
+  --el-color-danger-light-3: color-mix(in srgb, var(--color-danger) 70%, white);
+  --el-color-danger-light-5: color-mix(in srgb, var(--color-danger) 50%, white);
+  --el-color-danger-light-7: color-mix(in srgb, var(--color-danger) 30%, white);
+  --el-color-danger-light-8: color-mix(in srgb, var(--color-danger) 20%, white);
+  --el-color-danger-light-9: color-mix(in srgb, var(--color-danger) 10%, white);
+  --el-color-danger-dark-2: color-mix(in srgb, var(--color-danger) 80%, black);
+
+  /* error в Element Plus — синоним danger (валидация форм) */
+  --el-color-error: var(--color-danger);
+  --el-color-error-light-3: var(--el-color-danger-light-3);
+  --el-color-error-light-5: var(--el-color-danger-light-5);
+  --el-color-error-light-7: var(--el-color-danger-light-7);
+  --el-color-error-light-8: var(--el-color-danger-light-8);
+  --el-color-error-light-9: var(--el-color-danger-light-9);
+  --el-color-error-dark-2: var(--el-color-danger-dark-2);
+
+  --el-color-info: var(--color-text-secondary);
+  --el-color-info-light-3: color-mix(in srgb, var(--color-text-secondary) 70%, white);
+  --el-color-info-light-5: color-mix(in srgb, var(--color-text-secondary) 50%, white);
+  --el-color-info-light-7: color-mix(in srgb, var(--color-text-secondary) 30%, white);
+  --el-color-info-light-8: color-mix(in srgb, var(--color-text-secondary) 20%, white);
+  --el-color-info-light-9: color-mix(in srgb, var(--color-text-secondary) 10%, white);
+  --el-color-info-dark-2: color-mix(in srgb, var(--color-text-secondary) 80%, black);
+}
