@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Robo.Api/Robo.Api.csproj" />
+    <Project Path="src/Robo.Core/Robo.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Robo.Tests/Robo.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,21 @@
+# Node / Vite
+node_modules/
+dist/
+*.local
+
+# .NET
+bin/
+obj/
+*.user
+.vs/
+TestResults/
+
+# Окружение и секреты
+.env
+!.env.example
+
+# IDE / система
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
