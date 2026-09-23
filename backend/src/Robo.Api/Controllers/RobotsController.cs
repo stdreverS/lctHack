@@ -51,4 +51,17 @@ public class RobotsController : ControllerBase
         return Ok(robot);
     }
 
+    [HttpPut("{id}")]
+    public IActionResult UpdateRobot(string id)
+    {
+        // TODO: query to data base
+        return Ok();
+    }
+
+    [HttpDelete("{id}")]
+    public IActionResult DeleteRobot(string id)
+    {
+        // TODO: query to data base
+        return StatusCode(204, new { });
+    }
 }
