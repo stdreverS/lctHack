@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Robo.Api.Contracts;
-using System.Collections.Generic;
+using Robo.Api.Data;
+using Robo.Api.Data.Entities;
 
 namespace Robo.Api.Controllers;
 
@@ -9,28 +11,41 @@ namespace Robo.Api.Controllers;
 public class RobotsController : ControllerBase
 {
 
-    private static readonly List<RobotResponse> _mocDb = new();
+    private readonly AppDbContext _db;
     private static string _nextId = "";
 
-    [HttpGet]
-    public IActionResult GetAllRobots()
+    RobotsController(AppDbContext db)
     {
-        return Ok(_mocDb);
+        _db = db;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAllRobots()
+    {
+        var robots = await _db.Robots.ToListAsync();
+        return Ok(robots);
+    }
+
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetRobot(string id)
+    {
+        var robot = await _db.Robots.FirstOrDefaultAsync(r => r.Id == id);
+        if (robot == null)
+            return NotFound(new { status = 404, code = "NOT_FOUND", title = "Робот не найден - возможно, он был удален" });
+        return Ok(robot);
     }
 
     [HttpPost]
-    public IActionResult CreateRobot([FromBody] CreateRobotRequest request)
+    public async Task<IActionResult> CreateRobot([FromBody] CreateRobotRequest request)
     {
-        RobotResponse response = new RobotResponse
+        var robot = new Robot
         {
             Id = _nextId,
             Name = request.Name,
-            Manufactures = request.Manufactures,
+            Manufacturer = request.Manufactures,
             SolutionType = request.SolutionType,
-            SolutionTypeName = request.SolutionTypeName,
             ObjectTypes = request.ObjectTypes,
-            Country = request.Country,
-            Availability = request.Availability,
             Price = request.Price,
             RaasMothlyPrice = request.RaasMothlyPrice,
             MaintenancePerYear = request.MaintenancePerYear,
@@ -39,29 +54,42 @@ public class RobotsController : ControllerBase
             SourceDate = request.SourceDate,
             Confirmed = request.Confirmed
         };
-        return StatusCode(201, response);
+        _db.Robots.Add(robot);
+        await _db.SaveChangesAsync();
+        return StatusCode(201, robot);
     }
 
-    [HttpGet("{id}")]
-    public IActionResult GetRobot(string id)
-    {
-        var robot = _mocDb.FirstOrDefault(r => r.Id == id);
-        if (robot == null)
-            return NotFound(new { Error = $"Робот с id {id} не найден" });
-        return Ok(robot);
-    }
 
     [HttpPut("{id}")]
-    public IActionResult UpdateRobot(string id)
+    public async Task<IActionResult> UpdateRobot(string id, [FromBody] CreateRobotRequest request)
     {
-        // TODO: query to data base
+        var robot = await _db.Robots.FirstOrDefaultAsync(r => r.Id == id);
+        if (robot == null)
+            return NotFound(new { status = 404, code = "NOT_FOUND", title = "Робот не найден - возможно, он был удален" });
+        robot.Name = request.Name;
+        robot.Manufacturer = request.Manufactures;
+        robot.SolutionType = request.SolutionType;
+        robot.ObjectTypes = request.ObjectTypes;
+        robot.Price = request.Price;
+        robot.RaasMothlyPrice = request.RaasMothlyPrice;
+        robot.MaintenancePerYear = request.MaintenancePerYear;
+        robot.Specs = request.Specs;
+        robot.SourceUrl = request.SourceUrl;
+        robot.SourceDate = request.SourceDate;
+        robot.Confirmed = request.Confirmed;
+
+        await _db.SaveChangesAsync();
         return Ok();
     }
 
     [HttpDelete("{id}")]
-    public IActionResult DeleteRobot(string id)
+    public async Task<IActionResult> DeleteRobot(string id)
     {
-        // TODO: query to data base
-        return StatusCode(204, new { });
+        var robot = await _db.Robots.FirstOrDefaultAsync(r => r.Id == id);
+        if (robot == null)
+            return NotFound(new { status = 404, code = "NOT_FOUND", title = "Робот не найден - возможно, он был удален" });
+
+        _db.Robots.Remove(robot);
+        return NoContent();
     }
 }
