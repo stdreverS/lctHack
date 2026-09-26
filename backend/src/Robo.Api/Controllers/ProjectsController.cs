@@ -3,33 +3,41 @@ using Robo.Api.Data.Entities;
 using Robo.Api.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Robo.Api.Controllers;
 
+[Authorize]
 [ApiController]
-[Route("/api/v1/projects")]
+[Route("api/v1/projects")]
 public class ProjectsController : ControllerBase
 {
     private readonly AppDbContext _db;
-    private string _nextIndex = string.Empty;
-    ProjectsController(AppDbContext db)
+    public ProjectsController(AppDbContext db)
     {
         _db = db;
+    }
+
+    private string GetUserId()
+    {
+        return User.FindFirst("userId")?.Value ?? "";
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAllProjects()
     {
-        var projects = await _db.Projects.ToListAsync();
+        var userId = GetUserId();
+        var projects = await _db.Projects.Where(p => p.UserId == userId).ToListAsync();
         return Ok(projects);
     }
 
     [HttpPost]
     public async Task<IActionResult> CreateProject([FromBody] ProjectRequest request)
     {
+        var userId = Guid.NewGuid().ToString();
         var project = new Project
         {
-            Id = _nextIndex,
+            Id = userId,
             Name = request.Name,
             ObjectType = request.ObjectType,
             Params = request.Params,
@@ -45,7 +53,8 @@ public class ProjectsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetProject(string id)
     {
-        var project = await _db.Projects.FirstOrDefaultAsync(r => r.Id == id);
+        var userId = GetUserId();
+        var project = await _db.Projects.FirstOrDefaultAsync(r => r.Id == id && r.Id == userId);
         if (project == null)
             return NotFound(new { status = 404, code = "NOT_FOUND", title = "Проект не найден - возможно, он был удален" });
         return Ok(project);
@@ -58,19 +67,29 @@ public class ProjectsController : ControllerBase
         if (project == null)
             return NotFound(new { status = 404, code = "NOT_FOUND", title = "Проект не найден - возможно, он был удален" });
         _db.Projects.Remove(project);
+        await _db.SaveChangesAsync();
         return NoContent();
     }
 
     [HttpPost("{id}/copy")]
     public async Task<IActionResult> CreateCopyProject(string id)
     {
-        var project = await _db.Projects.FirstOrDefaultAsync(r => r.Id == id);
+        var userId = GetUserId();
+        var project = await _db.Projects.FirstOrDefaultAsync(r => r.Id == id && r.Id == userId);
         if (project == null)
             return NotFound(new { status = 404, code = "NOT_FOUND", title = "Проект не найден - возможно, он был удален" });
-        var projectCopy = project;
-        projectCopy.Name += "(Копия)";
-        projectCopy.CreatedAt = DateTime.UtcNow.ToString();
-        projectCopy.UpdatedAt = DateTime.UtcNow.ToString();
+        var projectCopy = new Project
+        {
+            Id = Guid.NewGuid().ToString(),
+            UserId = userId,
+            Name = project.Name + "(Копия)",
+            ObjectType = project.ObjectType,
+            Params = project.Params,
+            Assumptions = project.Assumptions,
+            CreatedAt = DateTime.UtcNow.ToString(),
+            UpdatedAt = DateTime.UtcNow.ToString()
+        };
+        _db.Projects.Add(projectCopy);
         await _db.SaveChangesAsync();
         return StatusCode(201, project);
     }

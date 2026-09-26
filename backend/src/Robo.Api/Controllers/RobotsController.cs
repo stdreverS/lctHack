@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Robo.Api.Contracts;
@@ -36,6 +37,7 @@ public class RobotsController : ControllerBase
         return Ok(robot);
     }
 
+    [Authorize(Roles = "admin")]
     [HttpPost]
     public async Task<IActionResult> CreateRobot([FromBody] CreateRobotRequest request)
     {
@@ -60,6 +62,7 @@ public class RobotsController : ControllerBase
     }
 
 
+    [Authorize(Roles = "admin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateRobot(string id, [FromBody] CreateRobotRequest request)
     {
@@ -82,6 +85,7 @@ public class RobotsController : ControllerBase
         return Ok();
     }
 
+    [Authorize(Roles = "admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteRobot(string id)
     {

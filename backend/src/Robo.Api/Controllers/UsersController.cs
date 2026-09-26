@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens.Experimental;
 using Npgsql.Internal.Postgres;
+using Robo.Api.Auth;
 using Robo.Api.Contracts;
 using Robo.Api.Data;
 
@@ -21,26 +22,29 @@ public class ErrorParam
 public class UserController : ControllerBase
 {
     private readonly AppDbContext _db;
-    private string _nextId { get; set; } = string.Empty;
 
     UserController(AppDbContext db)
     {
         _db = db;
     }
 
-    [HttpPost("/login")]
+    [HttpPost("login")]
     public async Task<IActionResult> LoginUser([FromBody] UserRequestLogin request)
     {
         var user = await _db.Users.FirstOrDefaultAsync(r => r.Email == request.Email);
         if (user == null)
             return StatusCode(401, new { status = "401", code = "INVALID_CREDENTIALS", title = "Неверная почта или пароль. Проверьте раскладку и Caps Lock" });
 
-        if (request.Password != user.PasswordHash)
+        bool isValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
+        if (!isValid)
             return StatusCode(401, new { status = "401", code = "INVALID_CREDENTIALS", title = "Неверная почта или пароль. Проверьте раскладку и Caps Lock" });
 
+
+        var jwtProvider = new JwtProvider();
+        var tokenStr = jwtProvider.GenerateToken(user);
         var response = new UserResponse
         {
-            Token = "",
+            Token = tokenStr,
             User = new UserStruct
             {
                 Id = user.Id,
@@ -52,7 +56,7 @@ public class UserController : ControllerBase
         return Ok(response);
     }
 
-    [HttpPost("/register")]
+    [HttpPost("register")]
     public async Task<IActionResult> RegisterUser([FromBody] UserRequestRegister request)
     {
         if (request.Email.Length == 0)
@@ -92,23 +96,24 @@ public class UserController : ControllerBase
             });
 
 
-
+        var newUserId = Guid.NewGuid().ToString();
         _db.Users.Add(new Data.Entities.User
         {
-            Id = _nextId,
+            Id = newUserId,
             Email = request.Email,
             Name = request.Name,
-            PasswordHash = request.Password,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             Role = "user",
             CratedAt = DateTime.UtcNow.ToString()
         });
+        await _db.SaveChangesAsync();
 
         var response = new UserResponse
         {
             Token = "",
             User = new UserStruct
             {
-                Id = _nextId,
+                Id = newUserId,
                 Email = request.Email,
                 Name = request.Name,
                 Role = "user"
