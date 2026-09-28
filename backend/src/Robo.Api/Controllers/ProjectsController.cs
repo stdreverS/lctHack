@@ -4,6 +4,7 @@ using Robo.Api.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Npgsql.Internal.Postgres;
 
 namespace Robo.Api.Controllers;
 
@@ -56,7 +57,13 @@ public class ProjectsController : ControllerBase
         var userId = GetUserId();
         var project = await _db.Projects.FirstOrDefaultAsync(r => r.Id == id && r.Id == userId);
         if (project == null)
-            return NotFound(new { status = 404, code = "NOT_FOUND", title = "Проект не найден - возможно, он был удален" });
+            return NotFound(new ErrorResponse
+            {
+                Status = 404,
+                Code = "NOT_FOUND",
+                Title = "Проект не найден - возможно, он был удален",
+                Errors = new()
+            });
         return Ok(project);
     }
 
@@ -65,7 +72,13 @@ public class ProjectsController : ControllerBase
     {
         var project = await _db.Projects.FirstOrDefaultAsync(r => r.Id == id);
         if (project == null)
-            return NotFound(new { status = 404, code = "NOT_FOUND", title = "Проект не найден - возможно, он был удален" });
+            return NotFound(new ErrorResponse
+            {
+                Status = 404,
+                Code = "NOT_FOUND",
+                Title = "Проект не найден - возможно, он был удален",
+                Errors = new()
+            });
         _db.Projects.Remove(project);
         await _db.SaveChangesAsync();
         return NoContent();
@@ -77,7 +90,13 @@ public class ProjectsController : ControllerBase
         var userId = GetUserId();
         var project = await _db.Projects.FirstOrDefaultAsync(r => r.Id == id && r.Id == userId);
         if (project == null)
-            return NotFound(new { status = 404, code = "NOT_FOUND", title = "Проект не найден - возможно, он был удален" });
+            return NotFound(new ErrorResponse
+            {
+                Status = 404,
+                Code = "NOT_FOUND",
+                Title = "Проект не найден - возможно, он был удален",
+                Errors = new()
+            });
         var projectCopy = new Project
         {
             Id = Guid.NewGuid().ToString(),

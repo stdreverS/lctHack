@@ -10,12 +10,6 @@ using Robo.Api.Data;
 
 namespace Robo.Api.Controllers;
 
-public class ErrorParam
-{
-    public string Field { get; set; } = string.Empty;
-    public string Message { get; set; } = string.Empty;
-    public string Hint { get; set; } = string.Empty;
-}
 
 [ApiController]
 [Route("/api/v1/auth")]
@@ -33,11 +27,39 @@ public class UserController : ControllerBase
     {
         var user = await _db.Users.FirstOrDefaultAsync(r => r.Email == request.Email);
         if (user == null)
-            return StatusCode(401, new { status = "401", code = "INVALID_CREDENTIALS", title = "Неверная почта или пароль. Проверьте раскладку и Caps Lock" });
+            return StatusCode(401, new ErrorResponse
+            {
+                Status = 401,
+                Code = "INVALID_CREDENTIALS",
+                Title = "Проверьте данные",
+                Errors = new List<ErrorDetail>
+                {
+                    new ErrorDetail
+                    {
+                        Field = "email",
+                        Message ="Неверная почта.",
+                        Hint =  "Проверьте раскладку и Caps Lock"
+                    }
+                }
+            });
 
         bool isValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
         if (!isValid)
-            return StatusCode(401, new { status = "401", code = "INVALID_CREDENTIALS", title = "Неверная почта или пароль. Проверьте раскладку и Caps Lock" });
+            return StatusCode(401, new ErrorResponse
+            {
+                Status = 401,
+                Code = "INVALID_CREDENTIALS",
+                Title = "Проверьте данные",
+                Errors = new List<ErrorDetail>
+                {
+                    new ErrorDetail
+                    {
+                        Field = "password",
+                        Message ="Неверный пароль.",
+                        Hint =  "Проверьте раскладку и Caps Lock"
+                    }
+                }
+            });
 
 
         var jwtProvider = new JwtProvider();
@@ -60,39 +82,55 @@ public class UserController : ControllerBase
     public async Task<IActionResult> RegisterUser([FromBody] UserRequestRegister request)
     {
         if (request.Email.Length == 0)
-            return StatusCode(400, new
+            return StatusCode(400, new ErrorResponse
             {
-                status = 400,
-                code = "VALIDATION_ERROR",
-                title = "Проверьте введенные данные",
-                errors = new ErrorParam
+                Status = 400,
+                Code = "VALIDATION_ERROR",
+                Title = "Проверьте введенные данные",
+                Errors = new List<ErrorDetail>
                 {
-                    Field = "email",
-                    Message = "Введите корректные адрес почты",
-                    Hint = "Например: ivanov@compony.ru"
+                    new ErrorDetail
+                    {
+                        Field = "email",
+                        Message = "Введите корректные адрес почты.",
+                        Hint = "Например: ivanov@compony.ru"
+                    }
                 }
             });
         if (request.Password.Length < 8)
-            return StatusCode(400, new
+            return StatusCode(400, new ErrorResponse
             {
-                status = 400,
-                code = "VALIDATION_ERROR",
-                title = "Проверьте введенные данные",
-                errors = new ErrorParam
+                Status = 400,
+                Code = "VALIDATION_ERROR",
+                Title = "Проверьте введенные данные",
+                Errors = new List<ErrorDetail>
                 {
-                    Field = "password",
-                    Message = "Пароль должен быть не короче 8 символов",
-                    Hint = "Используйте буквы и цифры"
+                    new ErrorDetail
+                    {
+                        Field = "password",
+                        Message = "Введите корректные пароль.",
+                        Hint = "Например пароль из не менее 8 символов"
+                    }
+
                 }
             });
 
         var checkUser = await _db.Users.FirstOrDefaultAsync(r => r.Email == request.Email);
         if (checkUser != null)
-            return Conflict(new
+            return Conflict(new ErrorResponse
             {
-                status = 409,
-                code = "CONFLICT",
-                title = "Пользователь с такой почтой уже зарегестрирован - войдите или укажите другую почту"
+                Status = 409,
+                Code = "CONFLICT",
+                Title = "Введите корректные адрес почты.",
+                Errors = new List<ErrorDetail>
+                {
+                    new ErrorDetail
+                    {
+                        Field = "email",
+                        Message = "Пользователь с такой почтой уже зарегестрирован.",
+                        Hint = "Bойдите или укажите другую почту."
+                    }
+                }
             });
 
 

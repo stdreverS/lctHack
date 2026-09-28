@@ -13,7 +13,6 @@ public class RobotsController : ControllerBase
 {
 
     private readonly AppDbContext _db;
-    private static string _nextId = "";
 
     RobotsController(AppDbContext db)
     {
@@ -33,7 +32,13 @@ public class RobotsController : ControllerBase
     {
         var robot = await _db.Robots.FirstOrDefaultAsync(r => r.Id == id);
         if (robot == null)
-            return NotFound(new { status = 404, code = "NOT_FOUND", title = "Робот не найден - возможно, он был удален" });
+            return NotFound(new ErrorResponse
+            {
+                Status = 404,
+                Code = "NOT_FOUND",
+                Title = "Робот не найден - возможно, он был удален",
+                Errors = new()
+            });
         return Ok(robot);
     }
 
@@ -43,9 +48,9 @@ public class RobotsController : ControllerBase
     {
         var robot = new Robot
         {
-            Id = _nextId,
+            Id = Guid.NewGuid().ToString(),
             Name = request.Name,
-            Manufacturer = request.Manufactures,
+            Manufacturer = request.Manufacturer,
             SolutionType = request.SolutionType,
             ObjectTypes = request.ObjectTypes,
             Price = request.Price,
@@ -68,9 +73,15 @@ public class RobotsController : ControllerBase
     {
         var robot = await _db.Robots.FirstOrDefaultAsync(r => r.Id == id);
         if (robot == null)
-            return NotFound(new { status = 404, code = "NOT_FOUND", title = "Робот не найден - возможно, он был удален" });
+            return NotFound(new ErrorResponse
+            {
+                Status = 404,
+                Code = "NOT_FOUND",
+                Title = "Робот не найден - возможно, он был удален",
+                Errors = new()
+            });
         robot.Name = request.Name;
-        robot.Manufacturer = request.Manufactures;
+        robot.Manufacturer = request.Manufacturer;
         robot.SolutionType = request.SolutionType;
         robot.ObjectTypes = request.ObjectTypes;
         robot.Price = request.Price;
@@ -91,7 +102,13 @@ public class RobotsController : ControllerBase
     {
         var robot = await _db.Robots.FirstOrDefaultAsync(r => r.Id == id);
         if (robot == null)
-            return NotFound(new { status = 404, code = "NOT_FOUND", title = "Робот не найден - возможно, он был удален" });
+            return NotFound(new ErrorResponse
+            {
+                Status = 404,
+                Code = "NOT_FOUND",
+                Title = "Робот не найден - возможно, он был удален",
+                Errors = new()
+            });
 
         _db.Robots.Remove(robot);
         return NoContent();

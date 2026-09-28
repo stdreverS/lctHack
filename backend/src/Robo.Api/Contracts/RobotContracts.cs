@@ -7,8 +7,8 @@ public class CreateRobotRequest
 {
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
-    [JsonPropertyName("manufactures")]
-    public string Manufactures { get; set; } = string.Empty;
+    [JsonPropertyName("manufacturer")]
+    public string Manufacturer { get; set; } = string.Empty;
     [JsonPropertyName("solutionType")]
     public string SolutionType { get; set; } = string.Empty;
     [JsonPropertyName("solutionTypeName")]
@@ -20,11 +20,11 @@ public class CreateRobotRequest
     [JsonPropertyName("availability")]
     public string Availability { get; set; } = string.Empty;
     [JsonPropertyName("price")]
-    public decimal Price { get; set; }
+    public decimal? Price { get; set; }
     [JsonPropertyName("raasMonthlyPrice")]
-    public decimal RaasMothlyPrice { get; set; }
+    public decimal? RaasMothlyPrice { get; set; }
     [JsonPropertyName("maintenancePerYear")]
-    public decimal MaintenancePerYear { get; set; }
+    public decimal? MaintenancePerYear { get; set; }
     [JsonPropertyName("specs")]
     public RobotSpecs Specs { get; set; } = new();
     [JsonPropertyName("sourceUrl")]
@@ -32,36 +32,36 @@ public class CreateRobotRequest
     [JsonPropertyName("sourceDate")]
     public string SourceDate { get; set; } = string.Empty;
     [JsonPropertyName("confirmed")]
-    public bool Confirmed = false;
+    public bool Confirmed { get; set; } = false;
 
 }
 
 public class RobotSpecs
 {
     [JsonPropertyName("payloadKg")]
-    public int PayloadKg { get; set; }
+    public double? PayloadKg { get; set; }
     [JsonPropertyName("speedMps")]
-    public double SpeedMps { get; set; }
+    public double? SpeedMps { get; set; }
     [JsonPropertyName("perfOpsPerHouse")]
-    public int PerfOpsPerHouse { get; set; }
+    public double? PerfOpsPerHour { get; set; }
     [JsonPropertyName("autonomyH")]
-    public int AutonomyH { get; set; }
+    public double? AutonomyH { get; set; }
     [JsonPropertyName("chargeTimeH")]
-    public float ChargeTimeH { get; set; }
+    public float? ChargeTimeH { get; set; }
     [JsonPropertyName("positioningMm")]
-    public int PositioningMm { get; set; }
+    public double? PositioningMm { get; set; }
     [JsonPropertyName("navigation")]
-    public string Navigation { get; set; } = string.Empty;
+    public string? Navigation { get; set; } = string.Empty;
     [JsonPropertyName("minAislemM")]
-    public float MinAislemM { get; set; }
+    public float? MinAisleM { get; set; }
     [JsonPropertyName("widthM")]
-    public int WidthM { get; set; }
+    public double? WidthM { get; set; }
     [JsonPropertyName("lengthM")]
-    public float LengthM { get; set; }
-    [JsonPropertyName("heigthM")]
-    public float HeigthM { get; set; }
+    public float? LengthM { get; set; }
+    [JsonPropertyName("heightM")]
+    public float? HeightM { get; set; }
     [JsonPropertyName("lifeYears")]
-    public int LifeYears { get; set; }
+    public double? LifeYears { get; set; }
 }
 
 
@@ -71,8 +71,8 @@ public class RobotResponse
     public string Id { get; set; } = string.Empty;
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
-    [JsonPropertyName("manufactures")]
-    public string Manufactures { get; set; } = string.Empty;
+    [JsonPropertyName("manufacturer")]
+    public string Manufacturer { get; set; } = string.Empty;
     [JsonPropertyName("solutionType")]
     public string SolutionType { get; set; } = string.Empty;
     [JsonPropertyName("solutionTypeName")]
@@ -84,11 +84,11 @@ public class RobotResponse
     [JsonPropertyName("availability")]
     public string Availability { get; set; } = string.Empty;
     [JsonPropertyName("price")]
-    public decimal Price { get; set; }
+    public decimal? Price { get; set; }
     [JsonPropertyName("raasMonthlyPrice")]
-    public decimal RaasMothlyPrice { get; set; }
+    public decimal? RaasMothlyPrice { get; set; }
     [JsonPropertyName("maintenancePerYear")]
-    public decimal MaintenancePerYear { get; set; }
+    public decimal? MaintenancePerYear { get; set; }
     [JsonPropertyName("specs")]
     public RobotSpecs Specs { get; set; } = new();
     [JsonPropertyName("sourceUrl")]
@@ -96,6 +96,6 @@ public class RobotResponse
     [JsonPropertyName("sourceDate")]
     public string SourceDate { get; set; } = string.Empty;
     [JsonPropertyName("confirmed")]
-    public bool Confirmed = false;
+    public bool Confirmed { get; set; } = false;
 
 }
