@@ -1,48 +1,45 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { ArrowLeft, DocumentDelete, Folder } from '@element-plus/icons-vue'
-import { getObjectTypes } from '@/api/objectTypes'
-import { getProject } from '@/api/projects'
-import type { ObjectType, Project } from '@/types/api'
+import { ArrowLeft, DocumentDelete } from '@element-plus/icons-vue'
+import { useWizardStore } from '@/stores/wizard'
 import EmptyState from '@/components/common/EmptyState.vue'
 import ErrorAlert from '@/components/common/ErrorAlert.vue'
+import WizardShell from '@/components/wizard/WizardShell.vue'
+import CalcHistoryPanel from '@/components/projects/CalcHistoryPanel.vue'
+import CalcRecordView from '@/components/projects/CalcRecordView.vue'
 import { isApiError } from '@/utils/errors'
-import { formatDate } from '@/utils/format'
 
 const route = useRoute()
-
-const project = ref<Project | null>(null)
-const objectTypes = ref<ObjectType[]>([])
-const error = ref<unknown>(null)
-let requestSeq = 0
+const wizard = useWizardStore()
 
 const projectId = computed(() => (typeof route.params.id === 'string' ? route.params.id : ''))
-const notFound = computed(() => isApiError(error.value) && error.value.code === 'NOT_FOUND')
-const typeName = computed(() => {
-  const code = project.value?.objectType
-  return objectTypes.value.find((t) => t.code === code)?.name ?? code ?? ''
-})
+const notFound = computed(() => isApiError(wizard.projectError) && wizard.projectError.code === 'NOT_FOUND')
+const loaded = computed(
+  () => wizard.mode === 'project' && wizard.projectId === projectId.value && !wizard.projectLoading && !wizard.projectError,
+)
 
-async function load() {
-  const seq = ++requestSeq
-  error.value = null
-  project.value = null
-  try {
-    const [p, types] = await Promise.all([
-      getProject(projectId.value),
-      objectTypes.value.length ? Promise.resolve(objectTypes.value) : getObjectTypes(),
-    ])
-    if (seq !== requestSeq) return
-    project.value = p
-    objectTypes.value = types
-    document.title = `${p.name} — Проект`
-  } catch (e) {
-    if (seq === requestSeq) error.value = e
-  }
+/** Расчёт из истории, открытый для просмотра; null — показывается мастер. */
+const viewingId = ref<string | null>(null)
+
+function load() {
+  viewingId.value = null
+  if (projectId.value) void wizard.openProject(projectId.value)
 }
 
-watch(projectId, (id) => id && load(), { immediate: true })
+function goExport() {
+  viewingId.value = null
+  wizard.goTo(7)
+}
+
+watch(projectId, load, { immediate: true })
+
+watch(
+  () => (loaded.value ? wizard.projectName : ''),
+  (name) => {
+    if (name) document.title = `${name} — Проект`
+  },
+)
 </script>
 
 <template>
@@ -60,28 +57,33 @@ watch(projectId, (id) => id && load(), { immediate: true })
       <RouterLink :to="{ name: 'projects' }">Перейти к списку проектов</RouterLink>
     </EmptyState>
 
-    <template v-else-if="error">
+    <template v-else-if="wizard.projectError">
       <h1 class="page__title">Проект</h1>
-      <ErrorAlert :error="error" retry @retry="load" />
+      <ErrorAlert :error="wizard.projectError" retry @retry="load" />
     </template>
 
-    <el-skeleton v-else-if="!project" :rows="3" animated aria-busy="true" aria-label="Загрузка проекта" />
+    <el-skeleton v-else-if="!loaded" :rows="4" animated aria-busy="true" aria-label="Загрузка проекта" />
 
     <template v-else>
       <header class="project__header">
-        <h1 class="page__title project__title">{{ project.name }}</h1>
-        <p class="project__meta">
-          {{ typeName }} · изменён {{ formatDate(project.updatedAt, true) }}
-        </p>
+        <h1 class="page__title project__title">{{ wizard.projectName }}</h1>
+        <p class="project__meta">{{ wizard.currentType?.name ?? wizard.objectType }}</p>
       </header>
-
-      <EmptyState
-        title="Мастер проекта в разработке"
-        description="Здесь будет мастер оценки с сохранением параметров и история расчётов проекта."
-        :icon="Folder"
-      >
-        <el-button @click="$router.push({ name: 'projects' })">Назад к проектам</el-button>
-      </EmptyState>
+      <div class="project__body">
+        <div class="project__main">
+          <!-- v-show: мастер не размонтируется, его состояние и защита от ухода без сохранения остаются. -->
+          <WizardShell v-show="!viewingId" />
+          <CalcRecordView v-if="viewingId" :calculation-id="viewingId" @close="viewingId = null" />
+        </div>
+        <CalcHistoryPanel
+          class="project__history"
+          :project-id="projectId"
+          :active-id="viewingId"
+          :refresh-key="wizard.calculationId"
+          @open="(id) => (viewingId = id)"
+          @go-export="goExport"
+        />
+      </div>
     </template>
   </section>
 </template>
@@ -101,5 +103,32 @@ watch(projectId, (id) => id && load(), { immediate: true })
 
 .project__meta {
   color: var(--color-text-secondary);
+}
+
+.project__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  align-items: start;
+  gap: var(--space-4);
+}
+
+.project__main {
+  min-width: 0;
+}
+
+.project__history {
+  position: sticky;
+  top: calc(56px + var(--space-4)); /* под шапкой приложения */
+}
+
+/* Узкий экран: история — под мастером. */
+@media (max-width: 1100px) {
+  .project__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .project__history {
+    position: static;
+  }
 }
 </style>

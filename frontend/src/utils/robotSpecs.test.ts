@@ -72,4 +72,8 @@ describe('buildComparison', () => {
     const rows = buildComparison([base, other], ctx).flatMap((g) => g.rows)
     expect(rows.some((r) => r.key === 'name')).toBe(false)
   })
+  it('groupKeys задаёт состав и порядок групп; неизвестные ключи пропускаются', () => {
+    const groups = buildComparison([base, other], ctx, ['quality', 'technical', 'nope'])
+    expect(groups.map((g) => g.key)).toEqual(['quality', 'technical'])
+  })
 })

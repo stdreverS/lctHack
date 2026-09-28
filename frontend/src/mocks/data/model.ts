@@ -10,8 +10,10 @@ export const MOCK_CONST = {
   softwarePerYearRub: 600_000,
   robotPowerKw: 0.6,
   energyTariffRub: 7,
-  raasSetupRub: 4_000_000,
+  raasSetupRub: 1_500_000,
   maxFleet: 40,
+  /** Пиковый час относительно среднего часа смены. */
+  peakFactor: 1.3,
 }
 
 export interface ModelInputs {
@@ -26,14 +28,21 @@ function num(params: Params, key: string): number | null {
   return typeof v === 'number' && Number.isFinite(v) ? v : null
 }
 
+/** Пиковая нагрузка, опер./ч: из суточных объёмов × пиковый коэффициент, но не ниже заданной производительности. */
+function peakPerHour(params: Params, workHours: number): number {
+  const daily = ['inboundPerDay', 'internalPerDay', 'outboundPerDay', 'deliveriesPerDay']
+    .map((key) => num(params, key))
+    .filter((v): v is number => v !== null)
+  const fromDaily = daily.length ? (daily.reduce((s, v) => s + v, 0) / workHours) * MOCK_CONST.peakFactor : null
+  const explicit = num(params, 'processPerfPerHour') ?? num(params, 'bagsPerHourPeak')
+  if (explicit !== null && fromDaily !== null) return Math.max(explicit, fromDaily)
+  return explicit ?? fromDaily ?? 100
+}
+
 export function readInputs(params: Params, a: Assumptions): ModelInputs {
-  const perShiftHours = a.shiftsPerDay * a.hoursPerShift || 16
-  const deliveries = num(params, 'deliveriesPerDay')
+  const workHours = a.shiftsPerDay * a.hoursPerShift || 16
   return {
-    targetPerHour:
-      num(params, 'processPerfPerHour') ??
-      num(params, 'bagsPerHourPeak') ??
-      (deliveries !== null ? deliveries / perShiftHours : 100),
+    targetPerHour: peakPerHour(params, workHours),
     staffCount: num(params, 'staffCount') ?? 20,
     staffCostMonthRub: num(params, 'staffCostMonthRub') ?? 80_000,
     assumptions: a,
@@ -52,9 +61,17 @@ export function hoursPerYear(a: Assumptions): number {
   return a.workDaysPerYear * a.shiftsPerDay * a.hoursPerShift
 }
 
-/** Роботов для целевой производительности, с резервом. null — нет данных о производительности. */
-export function fleetSize(targetPerHour: number, robot: Robot, a: Assumptions): number | null {
-  const perf = robot.specs.perfOpsPerHour
+/**
+ * Роботов для целевой производительности, с резервом. perfOverride — ручная
+ * производительность (overrides.perfOpsPerHour). null — данных о производительности нет.
+ */
+export function fleetSize(
+  targetPerHour: number,
+  robot: Robot,
+  a: Assumptions,
+  perfOverride: number | null = null,
+): number | null {
+  const perf = perfOverride ?? robot.specs.perfOpsPerHour
   if (!perf) return null
   const base = Math.ceil(targetPerHour / (perf * a.utilization * a.availability))
   return Math.max(1, Math.ceil(base * (1 + a.reserveShare)))
@@ -80,10 +97,13 @@ export function economics(
   robotCount: number,
   capexRub: number,
   robotOpexRub: number,
+  /** Доля пиковой нагрузки, которую закрывает парк (1 — полностью); меньше роботов — меньше замещённого персонала. */
+  coverage = 1,
 ): Economics {
   const { assumptions: a } = inputs
   const laborBaseRub = Math.round(inputs.staffCount * inputs.staffCostMonthRub * 12)
-  const replacedStaff = robotCount > 0 ? Math.floor(inputs.staffCount * a.staffReplacedShare) : 0
+  const replacedStaff =
+    robotCount > 0 ? Math.floor(inputs.staffCount * a.staffReplacedShare * Math.min(1, Math.max(0, coverage))) : 0
   const laborSavingRub = Math.round(replacedStaff * inputs.staffCostMonthRub * 12)
   const opexAnnualRub = laborBaseRub - laborSavingRub + robotOpexRub
   const opexDeltaRub = opexAnnualRub - laborBaseRub
@@ -127,8 +147,15 @@ export function purchaseCapex(robotCount: number, unitPriceRub: number): number 
   )
 }
 
-export function purchaseRobotOpex(robotCount: number, robot: Robot, a: Assumptions): number {
-  return robotCount * robot.maintenancePerYear + energyRub(robotCount, a) + MOCK_CONST.softwarePerYearRub
+export function purchaseRobotOpex(
+  robotCount: number,
+  robot: Robot,
+  a: Assumptions,
+  /** Обслуживание одного робота в год (overrides.maintenancePerYearRub). */
+  maintenanceOverride: number | null = null,
+): number {
+  const maintenance = maintenanceOverride ?? robot.maintenancePerYear
+  return robotCount * maintenance + energyRub(robotCount, a) + MOCK_CONST.softwarePerYearRub
 }
 
 export function raasRobotOpex(robotCount: number, monthlyFeeRub: number, a: Assumptions): number {

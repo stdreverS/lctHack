@@ -1285,6 +1285,19 @@ Query-параметры (все необязательные; пустые фр
 цена робота (`overrides.unitPriceRub`) — поэтому в ответе у `capexRub` стоит
 `"overridden": true`. `overrides.robotCount: null` — число роботов считает сервер.
 
+Поля `overrides` (все необязательные, `number | null`; `null` или отсутствие ключа —
+значение берётся из каталога и считается сервером):
+
+| Поле | Что заменяет | На что влияет |
+|---|---|---|
+| `robotCount` | расчётное число роботов | CAPEX, OPEX, `robotCount.overridden` |
+| `unitPriceRub` | цену робота из каталога | CAPEX сценария «покупка», `capexRub.overridden` |
+| `perfOpsPerHour` | производительность робота, опер./ч | число роботов в обоих сценариях с роботами |
+| `maintenancePerYearRub` | обслуживание одного робота, ₽/год | OPEX сценария «покупка» |
+
+Последние два используются на шаге «What-if»: экран подставляет их во все сценарии
+с роботами, чтобы показать, как меняется экономика.
+
 Запрос:
 
 ```jsonc
@@ -1327,7 +1340,12 @@ Query-параметры (все необязательные; пустые фр
       "kind": "purchase",
       "title": "Покупка Логимов AMR-600",
       "robotId": "b1f0a3c2-1111-4a01-9c01-000000000001",
-      "overrides": { "robotCount": null, "unitPriceRub": 3900000 }
+      "overrides": {
+        "robotCount": null,
+        "unitPriceRub": 3900000,
+        "perfOpsPerHour": null,
+        "maintenancePerYearRub": null
+      }
     },
     {
       "id": "raas",
@@ -1694,7 +1712,8 @@ Query-параметры (все необязательные; пустые фр
 ```
 
 **422 CALCULATION_ERROR** — расчёт невозможен по данным. У робота не указана
-производительность, и число роботов не задано вручную (`overrides.robotCount`):
+производительность, и она не задана вручную (`overrides.perfOpsPerHour`), а число
+роботов не задано вручную (`overrides.robotCount`):
 
 ```jsonc
 {

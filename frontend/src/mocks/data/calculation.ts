@@ -57,6 +57,7 @@ interface Computed {
   equipment: EquipmentLine[]
   countOverridden: boolean
   priceOverridden: boolean
+  opexOverridden: boolean
 }
 
 function line(item: string, qty: number, unitPriceRub: number): EquipmentLine {
@@ -67,13 +68,17 @@ function computeScenario(s: ScenarioInput, robot: Robot | null, base: ModelInput
   const inputs = scaled(base, f)
   const a = inputs.assumptions
   if (s.kind === 'baseline' || !robot) {
-    return { econ: economics(inputs, 0, 0, 0), equipment: [], countOverridden: false, priceOverridden: false }
+    return { econ: economics(inputs, 0, 0, 0), equipment: [], countOverridden: false, priceOverridden: false, opexOverridden: false }
   }
   const manualCount = s.overrides?.robotCount ?? null
-  const count = manualCount ?? fleetSize(inputs.targetPerHour, robot, a)
+  const manualPerf = s.overrides?.perfOpsPerHour ?? null
+  const manualMaintenance = s.overrides?.maintenancePerYearRub ?? null
+  const needed = fleetSize(inputs.targetPerHour, robot, a, manualPerf)
+  const count = manualCount ?? needed
+  const coverage = needed ? (count ?? 0) / needed : 1
   if (count === null) {
     throw new MockFail(422, 'CALCULATION_ERROR',
-      `Для «${robot.name}» не указана производительность — задайте число роботов вручную`)
+      `Для «${robot.name}» не указана производительность — задайте её или число роботов вручную`)
   }
   if (s.kind === 'purchase') {
     const manualPrice = s.overrides?.unitPriceRub ?? null
@@ -86,8 +91,11 @@ function computeScenario(s: ScenarioInput, robot: Robot | null, base: ModelInput
     ]
     const capex = equipment.reduce((sum, l) => sum + l.totalRub, 0)
     return {
-      econ: economics(inputs, count, capex, purchaseRobotOpex(count, robot, a)),
-      equipment, countOverridden: manualCount !== null, priceOverridden: manualPrice !== null,
+      econ: economics(inputs, count, capex, purchaseRobotOpex(count, robot, a, manualMaintenance), coverage),
+      equipment,
+      countOverridden: manualCount !== null || manualPerf !== null,
+      priceOverridden: manualPrice !== null,
+      opexOverridden: manualMaintenance !== null,
     }
   }
   const fee = s.raas?.monthlyFeePerRobotRub ?? robot.raasMonthlyPrice
@@ -98,8 +106,11 @@ function computeScenario(s: ScenarioInput, robot: Robot | null, base: ModelInput
   const setup = s.raas?.setupRub ?? MOCK_CONST.raasSetupRub
   const equipment = [line('Внедрение, интеграция и подготовка площадки (RaaS)', 1, setup)]
   return {
-    econ: economics(inputs, count, setup, raasRobotOpex(count, Math.round(fee * f.price), a)),
-    equipment, countOverridden: manualCount !== null, priceOverridden: false,
+    econ: economics(inputs, count, setup, raasRobotOpex(count, Math.round(fee * f.price), a), coverage),
+    equipment,
+    countOverridden: manualCount !== null || manualPerf !== null,
+    priceOverridden: false,
+    opexOverridden: false,
   }
 }
 
@@ -143,7 +154,7 @@ function metrics(c: Computed, inputs: ModelInputs): Record<MetricKey, Metric> {
     capexRub: metric('Капитальные затраты', e.capexRub, '₽', 'Сумма строк спецификации оборудования и работ',
       { overridden: c.priceOverridden, breakdown: c.equipment.map((l, i) => ({ key: `line${i + 1}`, label: l.item, value: l.totalRub })) }),
     opexAnnualRub: metric('Операционные затраты в год', e.opexAnnualRub, '₽/год', 'ФОТ оставшегося персонала + обслуживание, энергия и ПО роботов',
-      { breakdown: [
+      { overridden: c.opexOverridden, breakdown: [
         { key: 'labor', label: 'ФОТ оставшегося персонала', value: e.laborBaseRub - e.laborSavingRub, source: 'Параметры объекта' },
         { key: 'robots', label: 'Обслуживание, аренда, энергия, ПО', value: e.robotOpexRub, source: 'Каталог роботов' },
       ] }),

@@ -61,6 +61,29 @@ export function formatYears(value: Maybe<number>, maxFractionDigits = 1): string
   return `${toRu(rounded, 0, maxFractionDigits)}${NBSP}${pluralYears(rounded)}`
 }
 
+/**
+ * Слово «робот» в нужной форме: 1 робот, 2 робота, 5 роботов;
+ * form = 'instrumental' — «с 1 роботом», «с 11 роботами».
+ */
+export function pluralRobots(value: number, form: 'nominative' | 'instrumental' = 'nominative'): string {
+  const n = Math.abs(Math.trunc(value))
+  const one = n % 10 === 1 && n % 100 !== 11
+  if (form === 'instrumental') return one ? 'роботом' : 'роботами'
+  if (one) return 'робот'
+  const few = n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)
+  return few ? 'робота' : 'роботов'
+}
+
+/** Модельное время симуляции: 754 → «12:34», больше часа → «1:05:30». */
+export function formatClock(seconds: Maybe<number>): string {
+  const total = isValidNumber(seconds) && seconds > 0 ? Math.floor(seconds) : 0
+  const two = (v: number) => String(v).padStart(2, '0')
+  const hours = Math.floor(total / 3600)
+  const minutes = Math.floor((total % 3600) / 60)
+  const rest = total % 60
+  return hours > 0 ? `${hours}:${two(minutes)}:${two(rest)}` : `${two(minutes)}:${two(rest)}`
+}
+
 /** ISO 8601 → «22.09.2026» или «22.09.2026, 14:05» (в часовом поясе пользователя). */
 export function formatDate(value: Maybe<string | Date>, withTime = false): string {
   if (value === null || value === undefined || value === '') return EMPTY

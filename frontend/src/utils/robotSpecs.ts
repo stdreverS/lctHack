@@ -144,9 +144,19 @@ export interface ComparisonGroup {
   rows: ComparisonRow[]
 }
 
-/** Строки для таблицы сравнения; название робота — в заголовке столбца, поэтому исключено. */
-export function buildComparison(robots: readonly Robot[], ctx: SpecContext): ComparisonGroup[] {
-  return ROBOT_SPEC_GROUPS.map((group) => ({
+/**
+ * Строки для таблицы сравнения; название робота — в заголовке столбца, поэтому исключено.
+ * groupKeys — какие группы показать и в каком порядке (по умолчанию все).
+ */
+export function buildComparison(
+  robots: readonly Robot[],
+  ctx: SpecContext,
+  groupKeys?: readonly string[],
+): ComparisonGroup[] {
+  const groups = groupKeys
+    ? groupKeys.flatMap((key) => ROBOT_SPEC_GROUPS.filter((g) => g.key === key))
+    : ROBOT_SPEC_GROUPS
+  return groups.map((group) => ({
     key: group.key,
     label: group.label,
     rows: group.rows

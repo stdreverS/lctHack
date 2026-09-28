@@ -180,7 +180,15 @@ export interface ScenarioInput {
   kind: ScenarioKind
   title: string
   robotId: string | null // null только для baseline
-  overrides?: { robotCount?: number | null; unitPriceRub?: number | null } // ручные правки
+  /** Ручные правки: null или отсутствие ключа — значение считает сервер. */
+  overrides?: {
+    robotCount?: number | null
+    unitPriceRub?: number | null
+    /** Производительность робота, опер./ч — вместо значения из каталога. */
+    perfOpsPerHour?: number | null
+    /** Стоимость обслуживания одного робота в год, ₽ — вместо значения из каталога. */
+    maintenancePerYearRub?: number | null
+  }
   raas?: { monthlyFeePerRobotRub: number; contractYears: number; setupRub: number }
 }
 export type SensParam = 'equipmentPrice' | 'operationsVolume' | 'laborCost'

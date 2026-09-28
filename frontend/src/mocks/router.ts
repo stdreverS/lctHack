@@ -120,6 +120,12 @@ function validateRobot(body: unknown): RobotInput {
   if (typeof b.name !== 'string' || !b.name.trim()) errors.push({ field: 'name', message: 'Укажите название робота' })
   if (typeof b.manufacturer !== 'string' || !b.manufacturer.trim()) errors.push({ field: 'manufacturer', message: 'Укажите производителя' })
   if (typeof b.price !== 'number' || b.price <= 0) errors.push({ field: 'price', message: 'Цена должна быть больше нуля', hint: 'Цена в рублях с НДС, например 4200000' })
+  if (typeof b.solutionType !== 'string' || !b.solutionType.trim()) errors.push({ field: 'solutionType', message: 'Укажите тип решения', hint: 'Код латиницей, например amr' })
+  if (typeof b.maintenancePerYear !== 'number' || b.maintenancePerYear < 0) errors.push({ field: 'maintenancePerYear', message: 'Стоимость обслуживания не может быть отрицательной' })
+  const types = Array.isArray(b.objectTypes) ? b.objectTypes : []
+  if (!types.length || types.some((code) => !objectTypes.some((t) => t.code === code))) {
+    errors.push({ field: 'objectTypes', message: 'Выберите типы объектов из списка', hint: 'Хотя бы один тип, например «Склад»' })
+  }
   if (errors.length) invalid(errors)
   return b as unknown as RobotInput
 }

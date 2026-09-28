@@ -1,17 +1,21 @@
 import { describe, expect, it } from 'vitest'
 import type { ParamField } from '@/types/api'
-import { DEFAULT_ASSUMPTIONS, defaultParams, newProjectInput, paybackLevel } from './projects'
+import { DEFAULT_ASSUMPTIONS, defaultParams, manualParams, newProjectInput, paybackLevel } from './projects'
 
 const fields: ParamField[] = [
   { key: 'areaM2', label: 'Площадь', group: 'object', type: 'number', required: true, default: 12000 },
   { key: 'workMode', label: 'Режим', group: 'object', type: 'enum', required: true, default: '2x8' },
   { key: 'hasBhs', label: 'BHS', group: 'object', type: 'boolean', required: true, default: false },
   { key: 'note', label: 'Комментарий', group: 'object', type: 'string', required: false },
+  {
+    key: 'unitLengthM', label: 'Длина', group: 'goods', type: 'number', required: true, default: 1.2,
+    defaultSource: { source: 'ГОСТ 33757-2016', confirmed: true },
+  },
 ]
 
 describe('defaultParams', () => {
   it('берёт default каждого поля, без default — null', () => {
-    expect(defaultParams({ fields })).toEqual({ areaM2: 12000, workMode: '2x8', hasBhs: false, note: null })
+    expect(defaultParams({ fields })).toEqual({ areaM2: 12000, workMode: '2x8', hasBhs: false, note: null, unitLengthM: 1.2 })
   })
 
   it('пустой список полей — пустые параметры', () => {
@@ -43,5 +47,16 @@ describe('paybackLevel', () => {
     [-1, 'none'],
   ] as const)('%s → %s', (years, level) => {
     expect(paybackLevel(years)).toBe(level)
+  })
+})
+
+describe('manualParams', () => {
+  it('пустая форма: подставляются только нормативные значения', () => {
+    expect(manualParams({ fields }, {})).toEqual({ areaM2: null, workMode: null, hasBhs: null, note: null, unitLengthM: 1.2 })
+  })
+
+  it('введённые значения сохраняются, лишние ключи отбрасываются', () => {
+    const current = { areaM2: 500, hasBhs: false, unitLengthM: 1, note: '', stale: 1 }
+    expect(manualParams({ fields }, current)).toEqual({ areaM2: 500, workMode: null, hasBhs: false, note: null, unitLengthM: 1 })
   })
 })

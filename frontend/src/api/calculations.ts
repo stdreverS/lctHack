@@ -1,4 +1,4 @@
-import { get, getBlob, post } from './http'
+import { USE_MOCKS, get, getBlob, post } from './http'
 import type { CalcRequest, CalcResult, CalculationRecord, CalculationSummary } from '@/types/api'
 
 const base = (id: string) => `/calculations/${encodeURIComponent(id)}`
@@ -14,6 +14,9 @@ export function getProjectCalculations(projectId: string): Promise<CalculationSu
 export function getCalculation(id: string): Promise<CalculationRecord> {
   return get<CalculationRecord>(base(id))
 }
+
+/** PDF и Excel формирует сервер; в режиме моков файлов нет. */
+export const REPORTS_AVAILABLE = !USE_MOCKS
 
 // Файлы доступны только владельцу, а обычная ссылка не передаёт заголовок Authorization.
 // Поэтому файл скачивается с токеном и отдаётся как object URL (в режиме моков — заглушка).
