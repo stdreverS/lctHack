@@ -1,114 +1,123 @@
 # Развёртывание
 
-## Что разворачивается сейчас
+## Схема
 
-Демо-версия — один контейнер `web`: собранный фронтенд за nginx. Запросы API обслуживают
-моки внутри браузера (`VITE_USE_MOCKS=true`), поэтому сервер приложений и база данных не
-нужны. Данные (проекты, расчёты, изменения каталога) хранятся в `localStorage` браузера
-пользователя и между браузерами не общие.
+```
+браузер ──► web :8080 (nginx: статика фронтенда, /api/ → api:8080) ──► api (Robo.Api + Robo.Core) ──► db (PostgreSQL 17)
+                                                                          │
+                                                                          ├── /app/config — типы объектов, нормативы (backend/config)
+                                                                          └── /app/seed — демо-каталог и демо-учётки (backend/seed)
+```
 
-Это демонстрационный режим, а не продуктивный: нет серверной авторизации, изоляции проектов
-на сервере, PDF и Excel от сервера. Что нужно для полноценного развёртывания — в конце документа.
+| Сервис | Образ | Что делает |
+|---|---|---|
+| `web` | `frontend/Dockerfile`: `node:24-alpine` (сборка) → `nginx:stable-alpine` | Отдаёт фронтенд, проксирует `/api/` в `api`. Собирается с `VITE_USE_MOCKS=false` |
+| `api` | `backend/Dockerfile`: `dotnet/sdk:10.0` (сборка) → `dotnet/aspnet:10.0` | API на порту 8080 внутри сети compose. При старте применяет миграции и заливает seed в пустые таблицы |
+| `db` | `postgres:17-alpine` | База данных, том `pgdata`. `api` стартует только после `pg_isready` |
+
+Наружу открыт только порт 8080 (`web`). API и база доступны лишь внутри сети compose.
 
 ## Требования
 
 | Для чего | Что нужно |
 |---|---|
-| Запуск в Docker | Docker 24+ с Compose v2, свободный порт 8080; при первой сборке — доступ к Docker Hub (образы `node:24-alpine`, `nginx:stable-alpine`) и к `registry.npmjs.org` (`npm ci`) |
+| Запуск в Docker | Docker 24+ с Compose v2, свободный порт 8080; при первой сборке — доступ к Docker Hub, `mcr.microsoft.com`, `registry.npmjs.org` и `api.nuget.org` |
 | Локальная разработка фронтенда | Node.js 22.18+ или 24.12+ |
-| Сборка и тесты бэкенда | .NET SDK 10 |
+| Локальный запуск и тесты бэкенда | .NET SDK 10 **и рантайм ASP.NET Core 10** (`dotnet --list-runtimes` → `Microsoft.AspNetCore.App 10.x`), PostgreSQL |
 | Клиент | Современный браузер, экран от 1366×768 |
 
-После сборки образа интернет не нужен: шрифты и библиотеки входят в сборку.
+После сборки образов интернет не нужен: шрифты и библиотеки входят в сборку.
 
 ## Переменные окружения
 
-Сборка фронтенда (аргумент сборки Docker или переменная окружения):
+`.env` в корне (образец — `.env.example`; `.env` в `.gitignore`, не коммитьте его):
 
-| Переменная | Значение в демо | Смысл |
+| Переменная | Обязательна | Смысл |
 |---|---|---|
-| `VITE_USE_MOCKS` | `true` | `true` — API обслуживают моки в браузере; `false` — запросы идут на `/api/v1` |
+| `POSTGRES_PASSWORD` | да | Пароль PostgreSQL (для `db` и строки подключения `api`) |
+| `JWT_SECRET` | да | Ключ подписи токенов, не короче 32 символов |
+| `POSTGRES_DB`, `POSTGRES_USER` | нет (`robo`) | Имя базы и пользователя |
 
-Файлы `frontend/.env.development` (`true`) и `frontend/.env.production` (`false`) задают значения
-по умолчанию; переменная окружения при сборке важнее файлов.
+Без обязательных переменных `docker compose` не запустится и назовёт недостающую.
 
-Целевая конфигурация (`.env` в корне, образец — `.env.example`); в демо не используется:
+Переменные `api` (задаются в `docker-compose.yml`; при запуске без Docker — в
+`appsettings.Development.json` или окружении):
 
-| Переменная | Для кого | Смысл |
+| Переменная | Значение в compose | Смысл |
 |---|---|---|
-| `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | db, api | База данных и учётка PostgreSQL |
-| `JWT_SECRET` | api | Ключ подписи токенов, не короче 32 символов |
-| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | api | Учётка администратора, создаётся при первом запуске |
+| `ConnectionStrings__Default` | `Host=db;…` из `.env` | Строка подключения PostgreSQL |
+| `Jwt__Secret` | `JWT_SECRET` | Ключ подписи токенов |
+| `Robo__ConfigDir` | `/app/config` (смонтирована `backend/config`) | Папка `object-types.json` и `norms.json`; правка нормативов без пересборки — `docker compose restart api` |
+| `Robo__SeedDir` | `/app/seed` (из образа) | Папка `robots.json` и `users.json` |
 
-Не коммитьте `.env` с настоящими паролями — он в `.gitignore`.
+Сборка фронтенда: `VITE_USE_MOCKS` — `false` (запросы идут на `/api/v1`) или `true` (моки в
+браузере, сервер не нужен). Переменная окружения важнее файлов `frontend/.env.*`.
 
-## Запуск демо-версии
+## Запуск
 
 ```bash
-docker compose up -d --build   # сборка образа и запуск
-docker compose ps              # web — running (healthy)
-docker compose logs -f web     # логи nginx
-docker compose down            # остановка
+cp .env.example .env            # задайте свои пароль БД и JWT_SECRET
+docker compose up -d --build    # сборка и запуск трёх контейнеров
+docker compose ps               # web — healthy, api и db — running (db — healthy)
+docker compose logs -f api      # миграции, «Seed: добавлено роботов — 10»
+docker compose down             # остановка; данные остаются в томе pgdata
+docker compose down -v          # остановка с удалением базы
 ```
 
-Приложение: <http://localhost:8080>. Порт меняется в `docker-compose.yml` (`ports: "8080:80"`).
+Приложение: <http://localhost:8080>. Проверка после запуска — `docs/manual-test.md`, раздел 8.
 
-Без Docker — та же сборка вручную:
+Демо-учётки: `user@demo.ru` / `Demo12345`, `admin@demo.ru` / `Admin12345` (создаются при первом
+запуске из `backend/seed/users.json`, пароли хранятся хэшами BCrypt). Проектов на сервере
+сначала нет: демо-проекты есть только в автономном демо на моках.
+
+### Автономное демо на моках
+
+Без сервера и базы — один контейнер, данные в браузере пользователя:
 
 ```bash
-cd frontend
-npm ci
-VITE_USE_MOCKS=true npm run build   # результат в frontend/dist
+docker build --build-arg VITE_USE_MOCKS=true -t robo-platform-web:demo frontend
+docker run -d -p 8080:80 robo-platform-web:demo
 ```
 
-`frontend/dist` можно отдать любым веб-сервером, если он для неизвестных путей возвращает
-`index.html` (история браузера Vue Router: `/demo`, `/app/projects/…`). Пример — `frontend/nginx.conf`.
+### Если сервер недоступен
 
-Демо-учётки: `user@demo.ru` / `Demo12345`, `admin@demo.ru` / `Admin12345`.
-Исходные демо-данные возвращает кнопка «Сбросить демо-данные» в `/admin/robots`.
+Если `api` ещё запускается, упал или его нет, nginx отвечает на `/api/` кодом 502. Фронтенд
+показывает «Нет связи с сервером» с советом повторить — страницы не пустеют. Ошибки
+отрисовки и не загрузившиеся модули страниц показываются экраном «На странице произошла
+ошибка» / «Не удалось загрузить страницу» с кнопками «Обновить страницу» и «На главную».
 
-### Если сборка падает на `npm ci`
+### Если сборка падает на `npm ci` или `dotnet restore`
 
-Симптом: `npm ci` в контейнере висит или падает с `ECONNRESET` при скачивании пакетов, хотя на
-хосте `npm` работает. Причина — сеть Docker (мост) до `registry.npmjs.org` недоступна или
-нестабильна (VPN, прокси, MTU). Соберите образ в сети хоста и запустите без пересборки:
+Симптом: сборка в контейнере висит или падает с `ECONNRESET` при скачивании пакетов, хотя на
+хосте всё работает. Причина — сеть Docker (мост) до реестра пакетов недоступна или
+нестабильна (VPN, прокси, MTU). Соберите образы в сети хоста и запустите без пересборки:
 
 ```bash
-docker build --network host -t robo-platform-web:demo frontend
+docker build --network host -t robo-platform-web frontend
+docker build --network host -t robo-platform-api backend
 docker compose up -d --no-build
 ```
 
-## Целевая схема
+## Локальная разработка
 
+```bash
+# Бэкенд: PostgreSQL на localhost:5432 (postgres/postgres — appsettings.Development.json)
+cd backend && dotnet run --project src/Robo.Api --launch-profile http   # http://localhost:5203, Swagger — /swagger
+
+# Фронтенд против бэкенда: Vite проксирует /api на :5203
+cd frontend && VITE_USE_MOCKS=false npm run dev
+
+# Фронтенд на моках (по умолчанию для npm run dev)
+cd frontend && npm run dev
 ```
-браузер ──► web (nginx: статика фронтенда, /api/ → api) ──► api (ASP.NET Core, Robo.Api + Robo.Core) ──► db (PostgreSQL)
-                                                                   │
-                                                                   └── backend/config/*.json (типы объектов, нормативы)
-```
-
-Сервисы `api` и `db` уже описаны в `docker-compose.yml` закомментированными блоками. Для
-перехода на полную схему:
-
-1. Раскомментировать `api`, `db`, `volumes` и `depends_on` у `web`.
-2. Собрать `web` с `VITE_USE_MOCKS: "false"`.
-3. Раскомментировать блок `location /api/` в `frontend/nginx.conf`.
-4. Создать `.env` из `.env.example` со своими паролями.
-
-## Что нужно доделать для полноценного развёртывания
-
-| Что | Где | Зачем |
-|---|---|---|
-| `backend/Dockerfile` (многоэтапная сборка .NET 10, копирование `backend/config`) | Бэкенд | Сервис `api` в compose ссылается на него |
-| Эндпоинты `/auth/*`, `/object-types`, `/projects*`, `/calculations*`, `PUT/DELETE /robots/{id}` по `docs/api-examples.md` | `Robo.Api` | Сейчас есть только `/robots`: чтение и `POST` без хранения |
-| `DbContext`, миграции, строка подключения, seed каталога и демо-учёток с хешированными паролями | `Robo.Api` | Хранение данных (п. 4.2.4 ТЗ), демо-учётки (п. 8.2.5) |
-| JWT-авторизация, роли, изоляция проектов по владельцу | `Robo.Api` | П. 4.4.1–4.4.3 ТЗ |
-| Формулы подбора и экономики вместо заглушки | `Robo.Core` | Сейчас `CalculationEngine` возвращает фиксированный результат |
-| Отчёт Excel на сервере | `Robo.Api` | Кнопка «Скачать Excel» в демо неактивна |
-| HTTPS (TLS на nginx или внешнем прокси) | Инфраструктура | П. 4.4.4 ТЗ при размещении в сети |
-| Совпадение имён переменных `api` в compose с `Program.cs` | Бэкенд | В compose имена предложены, код их пока не читает |
 
 ## Ограничения
 
-- Развёртывается только демо-версия фронтенда на моках; `api` и `db` в compose закомментированы.
-- Данные демо живут в браузере пользователя; резервного копирования и общего хранилища нет.
-- HTTPS не настроен: контейнер отдаёт HTTP на порту 8080.
+- HTTPS не настроен: `web` отдаёт HTTP на порту 8080; для размещения в сети нужен TLS на nginx
+  или внешнем прокси (п. 4.4.4 ТЗ).
+- У `api` нет healthcheck: в образе `aspnet` нет `curl`/`wget`. `web` ждёт только запуска
+  контейнера `api`; пока API применяет миграции, фронтенд показывает «Нет связи с сервером».
+- Демо-учётки с известными паролями создаются и в этом развёртывании; для продуктивной работы
+  замените `backend/seed/users.json`.
+- Резервное копирование тома `pgdata` не настроено.
+- PDF на сервере не формируется (501); отчёт для печати и PDF делает фронтенд.

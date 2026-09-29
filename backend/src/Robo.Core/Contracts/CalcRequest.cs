@@ -31,8 +31,9 @@ public sealed record ScenarioInput(
     string Kind,                 // baseline | purchase | raas
     string Title,
     string? RobotId,             // null только для baseline
-    ScenarioOverrides? Overrides = null,
-    RaasTerms? Raas = null);
+    // Необязательные поля контракта (overrides?, raas?): без null в JSON, как их прислал клиент
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ScenarioOverrides? Overrides = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RaasTerms? Raas = null);
 
 public sealed record SensitivityRequest(
     IReadOnlyList<string> Params,   // equipmentPrice | operationsVolume | laborCost

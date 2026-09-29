@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Robo.Core;
+using Robo.Core.Contracts;
 
 namespace Robo.Tests;
 
@@ -13,7 +14,7 @@ public class CalculationEngineTests
     {
         var result = Run();
 
-        Assert.Equal("econ-0.1-stub", result.ModelVersion);
+        Assert.Equal("econ-1.0+rec-1.0", result.ModelVersion);
         Assert.False(string.IsNullOrWhiteSpace(result.DataVersion));
         Assert.False(string.IsNullOrWhiteSpace(result.Disclaimer));
         Assert.Null(result.CalculationId);
@@ -29,7 +30,11 @@ public class CalculationEngineTests
         Assert.Equal(["baseline", "purchase", "raas"], scenarios.Select(s => s.Kind));
         Assert.All(scenarios, s => Assert.Equal(6, s.Cashflow.Count)); // год 0 + горизонт 5 лет
         Assert.Null(scenarios[0].Metrics.PaybackYears.Value);
-        Assert.Equal(70_050_000m, scenarios[1].Metrics.CapexRub.Value);
+        // Параметров объёма нет → потребность 100 опер./ч → 4 робота (norms: defaultTargetPerHour).
+        // Ручная цена 3 900 000 ₽: 4 × 3 900 000 + 2 станции × 350 000 + 3 500 000 + 1 800 000
+        Assert.Equal(4m, scenarios[1].Metrics.RobotCount.Value);
+        Assert.Equal(21_600_000m, scenarios[1].Metrics.CapexRub.Value);
+        Assert.True(scenarios[1].Metrics.CapexRub.Overridden);
     }
 
     [Fact]
@@ -38,8 +43,7 @@ public class CalculationEngineTests
         // П. 3.5.2 ТЗ: ROI = накопленный эффект за горизонт / CAPEX × 100 %
         var scenarios = Run().Scenarios;
 
-        Assert.Equal(114.3m, scenarios[1].Metrics.RoiPercent.Value);
-        Assert.Equal(236m, scenarios[2].Metrics.RoiPercent.Value);
+        Assert.Null(scenarios[0].Metrics.RoiPercent.Value);
         foreach (var s in scenarios.Skip(1))
         {
             var expected = Math.Round(s.Metrics.AnnualEffectRub.Value!.Value * 5 / s.Metrics.CapexRub.Value!.Value * 100, 1);
@@ -115,5 +119,58 @@ public class CalculationEngineTests
         Assert.Equal(3_900_000m, request.Scenarios[1].Overrides!.UnitPriceRub);
         Assert.Null(request.Scenarios[1].Overrides!.RobotCount);
         Assert.Equal(115_000m, request.Scenarios[2].Raas!.MonthlyFeePerRobotRub);
+    }
+
+    [Fact]
+    public void Calculate_RobotWithoutPerformance_ThrowsUnlessOverridden()
+    {
+        var fmr12 = TestData.Robots.Single(r => r.Name == "ФМР-12 Узкопроходный");
+        var request = TestData.Request with { Scenarios = [new ScenarioInput("buy", "purchase", "Покупка", fmr12.Id)] };
+
+        var e = Assert.Throws<CalculationException>(() => CalculationEngine.Calculate(request, TestData.Robots, TestData.Config));
+        Assert.Contains("ФМР-12 Узкопроходный", e.Message);
+
+        var manual = request with { Scenarios = [new ScenarioInput("buy", "purchase", "Покупка", fmr12.Id, new ScenarioOverrides(RobotCount: 4))] };
+        Assert.Equal(4m, CalculationEngine.Calculate(manual, TestData.Robots, TestData.Config).Scenarios[0].Metrics.RobotCount.Value);
+    }
+
+    [Fact]
+    public void Calculate_RaasWithoutPrice_Throws()
+    {
+        var fmr12 = TestData.Robots.Single(r => r.Name == "ФМР-12 Узкопроходный");
+        var request = TestData.Request with
+        {
+            Scenarios = [new ScenarioInput("rent", "raas", "Аренда", fmr12.Id, new ScenarioOverrides(RobotCount: 4))],
+        };
+
+        var e = Assert.Throws<CalculationException>(() => CalculationEngine.Calculate(request, TestData.Robots, TestData.Config));
+        Assert.Contains("нет цены аренды", e.Message);
+    }
+
+    [Fact]
+    public void Calculate_TakesCoefficientsFromNorms()
+    {
+        // Тариф на электроэнергию ×2 — растут только расходы на роботов (формула 6)
+        var config = TestData.Config;
+        var norms = config.Norms with
+        {
+            Items = config.Norms.Items.Select(n => n.Key == "energyTariffRub" ? n with { Value = n.Value * 2 } : n).ToList(),
+        };
+        var baseOpex = Run().Scenarios[1].Metrics.OpexAnnualRub.Value;
+
+        var doubled = CalculationEngine.Calculate(TestData.Request, TestData.Robots, config with { Norms = norms });
+
+        // 4 робота × 0,6 кВт × 4000 ч × 7 ₽ = 67 200 ₽ дополнительно
+        Assert.Equal(baseOpex + 67_200m, doubled.Scenarios[1].Metrics.OpexAnnualRub.Value);
+        Assert.Contains(doubled.AssumptionsUsed, a => a.Key == "energyTariffRub" && Convert.ToDouble(a.Value) == 14);
+    }
+
+    [Fact]
+    public void Calculate_MissingNorm_Throws()
+    {
+        var config = TestData.Config;
+        var norms = config.Norms with { Items = config.Norms.Items.Where(n => n.Key != "peakFactor").ToList() };
+
+        Assert.Throws<KeyNotFoundException>(() => CalculationEngine.Calculate(TestData.Request, TestData.Robots, config with { Norms = norms }));
     }
 }

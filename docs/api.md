@@ -1,60 +1,56 @@
 # API v1: статус эндпоинтов
 
 Контракт — раздел 5 CLAUDE.md и `frontend/src/types/api.ts`. **Запросы и ответы с примерами —
-[api-examples.md](api-examples.md)**: все примеры сняты с мок-сервера, и фронтенд работает с
-любым сервером, который отвечает так же. Как контроллер расчёта вызывает ядро —
-[core-api.md](core-api.md).
+[api-examples.md](api-examples.md)**. Как контроллер расчёта вызывает ядро —
+[core-api.md](core-api.md). Спецификация OpenAPI отдаётся сервером: `/openapi/v1.json`,
+Swagger UI — `/swagger` (при локальном запуске — `http://localhost:5203/swagger`).
 
 Общее: префикс `/api/v1`, JSON, ключи camelCase, id — строки (UUID), даты — ISO 8601 UTC,
-деньги — рубли с НДС числом, токен — `Authorization: Bearer <token>`. Ошибки — ProblemDetails с
-полем `code` (`VALIDATION_ERROR`, `AUTH_REQUIRED`, `INVALID_CREDENTIALS`, `FORBIDDEN`,
-`NOT_FOUND`, `CONFLICT`, `CALCULATION_ERROR`, `SERVER_ERROR`; `NETWORK_ERROR` формирует сам
-фронтенд, если сервер недоступен).
+деньги — рубли с НДС числом, токен — `Authorization: Bearer <token>` (JWT, 7 дней). Ошибки —
+формат `ApiError` с полем `code` (`VALIDATION_ERROR`, `AUTH_REQUIRED`, `INVALID_CREDENTIALS`,
+`FORBIDDEN`, `NOT_FOUND`, `CONFLICT`, `CALCULATION_ERROR`, `SERVER_ERROR`; `NETWORK_ERROR`
+формирует сам фронтенд, если сервер недоступен). Нет токена — 401 `AUTH_REQUIRED`, нет прав —
+403 `FORBIDDEN`, неизвестный адрес — 404 `NOT_FOUND`, необработанное исключение — 500
+`SERVER_ERROR`; всё в том же формате.
 
 ## Статус
 
-**Мок** — `frontend/src/mocks/router.ts`, работает в демо. **Robo.Api** — `backend/src/Robo.Api`.
+**Robo.Api** — `backend/src/Robo.Api` (реализация на сервере, хранение в PostgreSQL).
+**Мок** — `frontend/src/mocks/router.ts` (автономное демо без сервера, `VITE_USE_MOCKS=true`).
 
-| Метод | Путь | Доступ | Мок | Robo.Api |
+| Метод | Путь | Доступ | Robo.Api | Мок |
 |---|---|---|---|---|
-| POST | /auth/login | все | есть | нет |
-| POST | /auth/register | все | есть | нет |
-| GET | /object-types | все | есть | нет (данные готовы: `ConfigLoader.Load`) |
-| GET | /robots | все | есть, с фильтрами `objectType`, `solutionType`, `q`, `sort` | частично: пустой список в памяти, фильтры игнорируются |
-| GET | /robots/{id} | все | есть | частично: ищет в пустом списке; 404 не в формате ApiError |
-| POST | /robots | admin | есть | частично: без проверки роли, ничего не сохраняет, `id` пустой |
-| PUT | /robots/{id} | admin | есть | нет |
-| DELETE | /robots/{id} | admin | есть | нет |
-| GET | /projects | user, admin | есть | нет |
-| POST | /projects | user, admin | есть | нет |
-| GET | /projects/{id} | владелец | есть | нет |
-| PUT | /projects/{id} | владелец | есть | нет |
-| DELETE | /projects/{id} | владелец | есть | нет |
-| POST | /projects/{id}/copy | владелец | есть | нет |
-| POST | /calculations | все | есть (модель `mock-1.0`) | нет (ядро `Robo.Core` — заглушка) |
-| GET | /projects/{id}/calculations | владелец | есть | нет |
-| GET | /calculations/{id} | владелец | есть | нет |
-| GET | /calculations/{id}/report.pdf | владелец | заглушка файла | нет; PDF делается из печатной версии в браузере |
-| GET | /calculations/{id}/export.xlsx | владелец | заглушка файла | нет; кнопка Excel в демо неактивна |
+| POST | /auth/login | все | есть | есть |
+| POST | /auth/register | все | есть | есть |
+| GET | /object-types | все | есть (из `backend/config/object-types.json`) | есть |
+| GET | /robots | все | есть, с фильтрами `objectType`, `solutionType`, `q`, `sort` | есть |
+| GET | /robots/{id} | все | есть | есть |
+| POST | /robots | admin | есть | есть |
+| PUT | /robots/{id} | admin | есть | есть |
+| DELETE | /robots/{id} | admin | есть | есть |
+| GET | /projects | user, admin | есть | есть |
+| POST | /projects | user, admin | есть | есть |
+| GET | /projects/{id} | владелец | есть | есть |
+| PUT | /projects/{id} | владелец | есть | есть |
+| DELETE | /projects/{id} | владелец | есть (расчёты проекта удаляются каскадом) | есть |
+| POST | /projects/{id}/copy | владелец | есть | есть |
+| POST | /calculations | все | есть, ядро `econ-1.0+rec-1.0`; без токена или без `projectId` не сохраняется | есть (модель `mock-1.0`) |
+| GET | /projects/{id}/calculations | владелец | есть | есть |
+| GET | /calculations/{id} | владелец | есть | есть |
+| GET | /calculations/{id}/export.xlsx | владелец | есть: 7 листов (сводка, оборудование, денежный поток, подбор, чувствительность, допущения, параметры) | заглушка файла; кнопка Excel в режиме моков неактивна |
+| GET | /calculations/{id}/report.pdf | владелец | **501** `SERVER_ERROR` с пояснением: PDF делается из печатной версии отчёта в браузере | заглушка файла |
 
-## Расхождения Robo.Api с контрактом
+Чужой проект или расчёт неотличим от несуществующего: 404, в том числе для администратора.
 
-В `backend/src/Robo.Api/Contracts/RobotContracts.cs`:
+## Проверка
 
-| Контракт | В Robo.Api | Последствие |
-|---|---|---|
-| `manufacturer` | `manufactures` | фронтенд не увидит производителя |
-| `specs.perfOpsPerHour` | `perfOpsPerHouse` | не будет производительности |
-| `specs.minAisleM` | `minAislemM` | не будет ширины прохода |
-| `specs.heightM` | `heigthM` | не будет высоты |
-| `confirmed` | публичное поле без `[JsonInclude]` | не попадает в JSON |
-| характеристики `number \| null` | `int`/`float` без `?` | `null` и дробные значения при POST — ошибка 400 |
-| `raasMonthlyPrice: number \| null` | `decimal` | робот без аренды — ошибка 400 |
+- `backend/tests/Robo.Tests/Api/` — тесты каждого эндпоинта на `WebApplicationFactory` с
+  базой InMemory: коды ответов, формат ошибок, изоляция по владельцу, гостевой расчёт.
+- Совпадение ответов расчёта сервера и мока — эталонные тесты (`docs/economics.md`,
+  «Где считается»).
 
 ## Ограничения
 
-- Рабочая реализация всех эндпоинтов — только мок-сервер в браузере; для продуктивной работы
-  нужен бэкенд.
-- OpenAPI-спецификации нет: пакет `Microsoft.AspNetCore.OpenApi` подключён, но в `Program.cs`
-  не включён.
-- В `Robo.Api.http` проверяется `/weatherforecast/` — такого эндпоинта нет.
+- Серверного PDF нет (501).
+- Эндпоинтов импорта каталога, объектов и нормативов (п. 3.8.2 ТЗ) нет.
+- Диапазоны параметров объекта сервер не проверяет — это делает форма фронтенда.

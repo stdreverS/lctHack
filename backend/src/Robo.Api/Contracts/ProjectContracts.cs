@@ -1,85 +1,34 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
+using Robo.Core.Contracts;
+
 namespace Robo.Api.Contracts;
 
+// ProjectInput из контракта (CLAUDE.md, раздел 5): тело POST и PUT /projects.
+// Поля nullable: пропуски и null проверяет ProjectsController с русскими сообщениями.
 public class ProjectRequest
 {
     [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
+    public string? Name { get; set; }
     [JsonPropertyName("objectType")]
-    public List<string> ObjectType { get; set; } = new();
+    public string? ObjectType { get; set; }
+    // Набор ключей задаёт тип объекта (ObjectType.fields), поэтому словарь, а не класс.
+    // Значения — ParamValue: число, строка, boolean или null.
     [JsonPropertyName("params")]
-    public ProjectParams Params { get; set; } = new();
+    public Dictionary<string, JsonElement>? Params { get; set; }
     [JsonPropertyName("assumptions")]
-    public ProjectAssumptions Assumptions { get; set; } = new();
+    public Assumptions? Assumptions { get; set; }
 }
 
-public class ProjectParams
-{
-    [JsonPropertyName("areaM2")]
-    public int AreaM2 { get; set; }
-    [JsonPropertyName("workMode")]
-    public string WorkMode { get; set; } = string.Empty;
-    [JsonPropertyName("inboundPerDay")]
-    public int InboundPerDay { get; set; }
-    [JsonPropertyName("internalPerDay")]
-    public int InternalPerDay { get; set; }
-    [JsonPropertyName("outboundPerDay")]
-    public int OutboundPerDay { get; set; }
-    [JsonPropertyName("processPerfPerHour")]
-    public int ProcessPerfPerHour { get; set; }
-    [JsonPropertyName("storageType")]
-    public string StorageType { get; set; } = string.Empty;
-    [JsonPropertyName("skuCount")]
-    public int SkuCount { get; set; }
-    [JsonPropertyName("unitWeightKg")]
-    public int UnitWeightKg { get; set; }
-    [JsonPropertyName("unitLengthM")]
-    public float UnitLengthM { get; set; }
-    [JsonPropertyName("unitWidthM")]
-    public float UnitWidthM { get; set; }
-    [JsonPropertyName("unitHeightM")]
-    public float UnitHeightM { get; set; }
-    [JsonPropertyName("staffCount")]
-    public int StaffCount { get; set; }
-    [JsonPropertyName("staffCostMonthRub")]
-    public int StaffCostMonthRub { get; set; }
-    [JsonPropertyName("avgRouteM")]
-    public int AvgRouteM { get; set; }
-    [JsonPropertyName("aisleWidthM")]
-    public int AisleWidthM { get; set; }
-}
+// Project
+public record ProjectResponse(
+    string Id,
+    string Name,
+    string ObjectType,
+    IReadOnlyDictionary<string, JsonElement> Params,
+    Assumptions Assumptions,
+    DateTime CreatedAt,
+    DateTime UpdatedAt);
 
-
-public class ProjectAssumptions
-{
-    [JsonPropertyName("horizonYears")]
-    public int HorizonYears { get; set; }
-    [JsonPropertyName("workDayPerYear")]
-    public int WorkDayPerYear { get; set; }
-    [JsonPropertyName("shiftsPerDay")]
-    public int ShiftsPerDay { get; set; }
-    [JsonPropertyName("hoursPerShift")]
-    public int HoursPerShift { get; set; }
-    [JsonPropertyName("utilization")]
-    public float Utilization { get; set; }
-    [JsonPropertyName("availability")]
-    public float Availability { get; set; }
-    [JsonPropertyName("reserveShare")]
-    public float ReserveShare { get; set; }
-    [JsonPropertyName("staffReplacedShare")]
-    public float StaffReplacedShare { get; set; }
-}
-
-public class ProjectResponse
-{
-    public string Id { get; set; } = string.Empty;
-    public string UserId { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-    public List<string> ObjectType { get; set; } = new();
-    public ProjectParams Params { get; set; } = new();
-    public ProjectAssumptions Assumptions { get; set; } = new();
-    public string CreatedAt { get; set; } = string.Empty;
-    public string UpdatedAt { get; set; } = string.Empty;
-}
+// ProjectSummary: строка списка проектов
+public record ProjectSummary(string Id, string Name, string ObjectType, DateTime UpdatedAt, decimal? LastPaybackYears);

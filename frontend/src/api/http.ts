@@ -56,9 +56,16 @@ const DEFAULT_TITLES: Record<ErrorCode, string> = {
   NETWORK_ERROR: 'Сервер недоступен. Проверьте подключение к сети и повторите попытку',
 }
 
+/**
+ * Код по статусу, если сервер не прислал свой. 502/503/504 без кода контракта отвечает не API,
+ * а прокси перед ним (nginx в контейнере, прокси Vite): сервер API недоступен.
+ */
 function codeByStatus(status: number): ErrorCode {
   switch (status) {
     case 0:
+    case 502:
+    case 503:
+    case 504:
       return 'NETWORK_ERROR'
     case 400:
     case 422:

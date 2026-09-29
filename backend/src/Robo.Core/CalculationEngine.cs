@@ -1,6 +1,6 @@
-// ЗАГЛУШКА расчётного ядра. Возвращает фиксированный правдоподобный результат для демо-склада
-// (числа совпадают с моком фронтенда frontend/src/mocks/data/calculation.ts).
-// Формулы подбора и экономики появятся позже; сигнатура Calculate не изменится.
+// Расчётное ядро: подбор (rec-1.0) и экономика (econ-1.0). Формулы — docs/economics.md и
+// docs/recommendation.md; коэффициенты — backend/config/norms.json. Модель совпадает с моделью
+// мока фронтенда: общий эталон — backend/tests/Robo.Tests/Golden/mock-calculations.json.
 using Robo.Core.Contracts;
 using Robo.Core.Economics;
 using Robo.Core.Recommendation;
@@ -9,32 +9,42 @@ namespace Robo.Core;
 
 public static class CalculationEngine
 {
-    public const string ModelVersion = "econ-0.1-stub";
+    public const string ModelVersion = EconomicsModel.Version + "+" + RecommendationEngine.Version;
 
     public const string Disclaimer =
         "Предварительная оценка, требует верификации при обследовании объекта. " +
         "Расчёт основан на введённых параметрах и каталожных данных и не является инвестиционным решением: " +
         "перед закупкой нужны коммерческие предложения поставщиков.";
 
+    private static readonly ScenarioInput DefaultBaseline = new("baseline", "baseline", "Текущее состояние", null);
+
     /// <summary>
     /// Подбор роботов, экономика по сценариям и чувствительность.
     /// Чистая функция: ничего не сохраняет, calculationId в ответе всегда null — его подставляет API.
     /// </summary>
     /// <param name="request">Запрос клиента (POST /calculations).</param>
-    /// <param name="robots">Каталог роботов из БД.</param>
+    /// <param name="robots">Каталог роботов из БД; порядок влияет на порядок роботов с равным баллом.</param>
     /// <param name="config">Типы объектов и нормативы из backend/config.</param>
+    /// <exception cref="CalculationException">Расчёт невозможен по данным (422).</exception>
     public static CalcResult Calculate(CalcRequest request, IReadOnlyList<RobotSpec> robots, EngineConfig config)
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(robots);
         ArgumentNullException.ThrowIfNull(config);
 
-        // Заглушка берёт из запроса только id, названия и роботов сценариев,
-        // чтобы фронтенд мог сопоставить ответ со своими сценариями.
-        var ids = new StubScenarioIds(
-            Pick(request, "baseline", new ScenarioInput("baseline", "baseline", "Текущее состояние", null)),
-            Pick(request, "purchase", new ScenarioInput("purchase", "purchase", "Покупка Логимов AMR-600", StubRecommendation.Amr600Id)),
-            Pick(request, "raas", new ScenarioInput("raas", "raas", "Аренда Логимов AMR-600 (RaaS)", StubRecommendation.Amr600Id)));
+        var model = new EconomicsModel(ModelNorms.From(config.Norms));
+        var calculator = new ScenarioCalculator(model);
+        var inputs = model.ReadInputs(request.Params, request.Assumptions);
+        RobotSpec? RobotOf(ScenarioInput s) => robots.FirstOrDefault(r => r.Id == s.RobotId);
+
+        // Без сценариев считаются подбор и текущее состояние
+        IReadOnlyList<ScenarioInput> scenarios = request.Scenarios.Count > 0 ? request.Scenarios : [DefaultBaseline];
+
+        var results = scenarios.Select(s => calculator.Scenario(s, RobotOf(s), inputs)).ToList();
+        var sensitivity = scenarios
+            .Where(s => s.Kind != "baseline")
+            .SelectMany(s => calculator.Sensitivity(s, RobotOf(s), inputs, request.Sensitivity))
+            .ToList();
 
         return new CalcResult(
             CalculationId: null,
@@ -42,12 +52,9 @@ public static class CalculationEngine
             DataVersion: config.DataVersion,
             CalculatedAt: DateTime.UtcNow,
             Disclaimer: Disclaimer,
-            Recommendation: StubRecommendation.Items,
-            Scenarios: StubScenarios.Scenarios(ids),
-            Sensitivity: StubScenarios.Sensitivity(ids),
-            AssumptionsUsed: StubScenarios.AssumptionsUsed);
+            Recommendation: new RecommendationEngine(model).Build(robots, request.ObjectType, request.Processes, request.Params, inputs),
+            Scenarios: results,
+            Sensitivity: sensitivity,
+            AssumptionsUsed: AssumptionsReport.Build(inputs, config.Norms));
     }
-
-    private static ScenarioInput Pick(CalcRequest request, string kind, ScenarioInput fallback) =>
-        request.Scenarios.FirstOrDefault(s => s.Kind == kind) ?? fallback;
 }

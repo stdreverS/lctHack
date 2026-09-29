@@ -1,163 +1,97 @@
-using System.Security.Authentication;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens.Experimental;
-using Npgsql.Internal.Postgres;
 using Robo.Api.Auth;
 using Robo.Api.Contracts;
 using Robo.Api.Data;
+using Robo.Api.Data.Entities;
+using Robo.Api.Errors;
 
 namespace Robo.Api.Controllers;
 
-
 [ApiController]
 [Route("/api/v1/auth")]
-public class UserController : ControllerBase
+public partial class UserController : ControllerBase
 {
-    private readonly AppDbContext _db;
+    private const int MinPasswordLength = 8;
 
-    UserController(AppDbContext db)
+    private readonly AppDbContext _db;
+    private readonly JwtProvider _jwtProvider;
+
+    public UserController(AppDbContext db, JwtProvider jwtProvider)
     {
         _db = db;
+        _jwtProvider = jwtProvider;
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> LoginUser([FromBody] UserRequestLogin request)
     {
-        var user = await _db.Users.FirstOrDefaultAsync(r => r.Email == request.Email);
-        if (user == null)
-            return StatusCode(401, new ErrorResponse
-            {
-                Status = 401,
-                Code = "INVALID_CREDENTIALS",
-                Title = "Проверьте данные",
-                Errors = new List<ErrorDetail>
-                {
-                    new ErrorDetail
-                    {
-                        Field = "email",
-                        Message ="Неверная почта.",
-                        Hint =  "Проверьте раскладку и Caps Lock"
-                    }
-                }
-            });
+        var email = NormalizeEmail(request.Email);
+        var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == email);
 
-        bool isValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
-        if (!isValid)
-            return StatusCode(401, new ErrorResponse
-            {
-                Status = 401,
-                Code = "INVALID_CREDENTIALS",
-                Title = "Проверьте данные",
-                Errors = new List<ErrorDetail>
-                {
-                    new ErrorDetail
-                    {
-                        Field = "password",
-                        Message ="Неверный пароль.",
-                        Hint =  "Проверьте раскладку и Caps Lock"
-                    }
-                }
-            });
+        // Один ответ и для неизвестной почты, и для неверного пароля: не раскрываем, какие почты есть.
+        if (user == null || string.IsNullOrEmpty(request.Password) || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            return ApiResults.Error(401, "INVALID_CREDENTIALS", "Неверная почта или пароль. Проверьте раскладку и Caps Lock");
 
-
-        var jwtProvider = new JwtProvider();
-        var tokenStr = jwtProvider.GenerateToken(user);
-        var response = new UserResponse
-        {
-            Token = tokenStr,
-            User = new UserStruct
-            {
-                Id = user.Id,
-                Email = user.Email,
-                Name = user.Name,
-                Role = user.Role
-            }
-        };
-        return Ok(response);
+        return Ok(AuthResponse(user));
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> RegisterUser([FromBody] UserRequestRegister request)
     {
-        if (request.Email.Length == 0)
-            return StatusCode(400, new ErrorResponse
-            {
-                Status = 400,
-                Code = "VALIDATION_ERROR",
-                Title = "Проверьте введенные данные",
-                Errors = new List<ErrorDetail>
-                {
-                    new ErrorDetail
-                    {
-                        Field = "email",
-                        Message = "Введите корректные адрес почты.",
-                        Hint = "Например: ivanov@compony.ru"
-                    }
-                }
-            });
-        if (request.Password.Length < 8)
-            return StatusCode(400, new ErrorResponse
-            {
-                Status = 400,
-                Code = "VALIDATION_ERROR",
-                Title = "Проверьте введенные данные",
-                Errors = new List<ErrorDetail>
-                {
-                    new ErrorDetail
-                    {
-                        Field = "password",
-                        Message = "Введите корректные пароль.",
-                        Hint = "Например пароль из не менее 8 символов"
-                    }
+        var email = NormalizeEmail(request.Email);
+        var name = request.Name?.Trim() ?? "";
 
-                }
-            });
+        // Все ошибки полей сразу
+        var errors = new List<ErrorDetail>();
+        if (!EmailRegex().IsMatch(email))
+            errors.Add(new ErrorDetail { Field = "email", Message = "Введите корректный адрес почты", Hint = "Например: ivanov@company.ru" });
+        if (request.Password == null || request.Password.Length < MinPasswordLength)
+            errors.Add(new ErrorDetail { Field = "password", Message = $"Пароль должен быть не короче {MinPasswordLength} символов", Hint = "Используйте буквы и цифры" });
+        if (name.Length == 0)
+            errors.Add(new ErrorDetail { Field = "name", Message = "Укажите имя", Hint = "Как к вам обращаться" });
+        if (errors.Count > 0)
+            return ApiResults.Invalid(errors);
 
-        var checkUser = await _db.Users.FirstOrDefaultAsync(r => r.Email == request.Email);
-        if (checkUser != null)
-            return Conflict(new ErrorResponse
-            {
-                Status = 409,
-                Code = "CONFLICT",
-                Title = "Введите корректные адрес почты.",
-                Errors = new List<ErrorDetail>
-                {
-                    new ErrorDetail
-                    {
-                        Field = "email",
-                        Message = "Пользователь с такой почтой уже зарегестрирован.",
-                        Hint = "Bойдите или укажите другую почту."
-                    }
-                }
-            });
+        if (await _db.Users.AnyAsync(u => u.Email == email))
+            return EmailTaken();
 
-
-        var newUserId = Guid.NewGuid().ToString();
-        _db.Users.Add(new Data.Entities.User
+        var user = new User
         {
-            Id = newUserId,
-            Email = request.Email,
-            Name = request.Name,
+            Id = Guid.NewGuid().ToString(),
+            Email = email,
+            Name = name,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             Role = "user",
-            CratedAt = DateTime.UtcNow.ToString()
-        });
-        await _db.SaveChangesAsync();
-
-        var response = new UserResponse
-        {
-            Token = "",
-            User = new UserStruct
-            {
-                Id = newUserId,
-                Email = request.Email,
-                Name = request.Name,
-                Role = "user"
-            }
+            CreatedAt = DateTime.UtcNow
         };
-        return StatusCode(201, response);
+        _db.Users.Add(user);
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            // Одновременная регистрация той же почты: сработал уникальный индекс users.email
+            return EmailTaken();
+        }
+
+        return StatusCode(201, AuthResponse(user));
     }
 
+    private UserResponse AuthResponse(User user) => new()
+    {
+        Token = _jwtProvider.GenerateToken(user),
+        User = new UserStruct { Id = user.Id, Email = user.Email, Name = user.Name, Role = user.Role }
+    };
+
+    private static ObjectResult EmailTaken() =>
+        ApiResults.Error(409, "CONFLICT", "Пользователь с такой почтой уже зарегистрирован — войдите или укажите другую почту");
+
+    // Почта хранится и сравнивается в нижнем регистре без пробелов по краям
+    private static string NormalizeEmail(string? email) => email?.Trim().ToLowerInvariant() ?? "";
+
+    [GeneratedRegex(@"^[^\s@]+@[^\s@]+\.[^\s@]+$")]
+    private static partial Regex EmailRegex();
 }

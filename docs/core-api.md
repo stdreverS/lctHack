@@ -1,8 +1,8 @@
 # Расчётное ядро Robo.Core — как вызывать из API
 
-Сейчас ядро — заглушка (`modelVersion: "econ-0.1-stub"`): возвращает фиксированный
-результат для демо-склада, те же числа, что мок фронтенда. Сигнатура не изменится, когда
-появятся формулы.
+Ядро — модель `econ-1.0+rec-1.0` (`docs/economics.md`, `docs/recommendation.md`), результат
+совпадает с моделью мока фронтенда. Если расчёт невозможен по данным, `Calculate` бросает
+`CalculationException` — контроллер отвечает 422 `CALCULATION_ERROR` с `Message` в `title`.
 
 ## POST /calculations — инструкция для контроллера
 
@@ -24,4 +24,4 @@
 7. `GET /object-types` может отдавать `config.ObjectTypes` без преобразований — структура
    совпадает с контрактом `ObjectType`.
 8. Для демо id роботов в seed должны совпадать с демо-каталогом
-   (`frontend/src/mocks/data/robots.ts`), иначе подбор заглушки сошлётся на несуществующих роботов.
+   (`frontend/src/mocks/data/robots.ts`, `backend/seed/robots.json`): демо-проекты и сценарии ссылаются на эти id.

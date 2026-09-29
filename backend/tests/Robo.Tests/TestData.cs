@@ -38,10 +38,11 @@ internal static class TestData
 
     public static CalcRequest Request => JsonSerializer.Deserialize<CalcRequest>(RequestJson, Json)!;
 
+    /// <summary>Демо-каталог: backend/seed/robots.json (тот же, что в моке фронтенда), в порядке id.</summary>
     public static readonly IReadOnlyList<RobotSpec> Robots =
-    [
-        new() { Id = "b1f0a3c2-1111-4a01-9c01-000000000001", Name = "Логимов AMR-600", SolutionType = "amr",
-                ObjectTypes = ["warehouse"], Price = 4_200_000, RaasMonthlyPrice = 115_000,
-                MaintenancePerYear = 320_000, PayloadKg = 600, PerfOpsPerHour = 45, Confirmed = true },
-    ];
+        JsonSerializer.Deserialize<List<Robo.Api.Data.Entities.Robot>>(
+                File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "seed", "robots.json")), Json)!
+            .OrderBy(r => r.Id, StringComparer.Ordinal)
+            .Select(Robo.Api.Mapping.RobotMapping.ToSpec)
+            .ToList();
 }

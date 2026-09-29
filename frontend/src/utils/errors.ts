@@ -27,13 +27,19 @@ export function isApiError(value: unknown): value is ApiError {
 
 const CYRILLIC = /[а-яё]/i
 
+/** 501: сервер отвечает, но это действие на нём ещё не реализовано (код контракта — SERVER_ERROR). */
+const NOT_IMPLEMENTED = {
+  title: 'Функция пока недоступна',
+  description: 'Сервер ещё не поддерживает это действие. Воспользуйтесь другим способом или повторите позже.',
+}
+
 /**
  * Заголовок — всегда по коду (гарантированно на русском).
  * Описание — конкретная фраза сервера, если она на русском и не повторяет заголовок; иначе общий совет.
  */
 export function describeError(error: unknown): ErrorText {
   const code: ErrorCode = isApiError(error) ? error.code : 'SERVER_ERROR'
-  const text = TEXTS[code]
+  const text = isApiError(error) && error.status === 501 ? NOT_IMPLEMENTED : TEXTS[code]
   const serverTitle = isApiError(error) ? error.title.trim() : ''
   const useServer = serverTitle !== '' && CYRILLIC.test(serverTitle) && serverTitle !== text.title
   return { code, title: text.title, description: useServer ? serverTitle : text.description }
@@ -60,4 +66,21 @@ export function splitServerErrors(error: unknown, fields: readonly string[]): Sp
   }
   const showAlert = list.length === 0 || unmatched > 0
   return { fieldErrors, showAlert }
+}
+
+// Сообщение на экране «Ошибка приложения» (App.vue): вместо белого экрана при сбое страницы.
+const CHUNK_LOAD_ERROR = /dynamically imported module|Importing a module script failed|Failed to fetch/i
+
+export function describeAppError(error: unknown): { title: string; description: string } {
+  if (isApiError(error)) return describeError(error)
+  if (error instanceof Error && CHUNK_LOAD_ERROR.test(error.message)) {
+    return {
+      title: 'Не удалось загрузить страницу',
+      description: 'Возможно, пропала связь с сервером или приложение обновилось. Обновите страницу.',
+    }
+  }
+  return {
+    title: 'На странице произошла ошибка',
+    description: 'Обновите страницу или вернитесь на главную. Если ошибка повторяется — сообщите администратору.',
+  }
 }

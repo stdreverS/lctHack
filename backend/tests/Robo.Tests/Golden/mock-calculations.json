@@ -1,0 +1,5942 @@
+[
+  {
+    "name": "warehouse-demo",
+    "request": {
+      "projectId": null,
+      "objectType": "warehouse",
+      "processes": [
+        "receiving",
+        "internal_transport",
+        "picking",
+        "shipping",
+        "cleaning"
+      ],
+      "params": {
+        "areaM2": 12000,
+        "workMode": "2x8",
+        "inboundPerDay": 1200,
+        "internalPerDay": 2500,
+        "outboundPerDay": 1800,
+        "processPerfPerHour": 350,
+        "storageType": "pallet_rack",
+        "skuCount": 8500,
+        "unitWeightKg": 350,
+        "unitLengthM": 1.2,
+        "unitWidthM": 0.8,
+        "unitHeightM": 1.5,
+        "staffCount": 64,
+        "staffCostMonthRub": 95000,
+        "avgRouteM": 120,
+        "aisleWidthM": 3
+      },
+      "assumptions": {
+        "horizonYears": 5,
+        "workDaysPerYear": 250,
+        "shiftsPerDay": 2,
+        "hoursPerShift": 8,
+        "utilization": 0.85,
+        "availability": 0.95,
+        "reserveShare": 0.1,
+        "staffReplacedShare": 0.3
+      },
+      "scenarios": [
+        {
+          "id": "baseline",
+          "kind": "baseline",
+          "title": "Текущее состояние",
+          "robotId": null
+        },
+        {
+          "id": "purchase",
+          "kind": "purchase",
+          "title": "Покупка Логимов AMR-600",
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000001"
+        },
+        {
+          "id": "raas",
+          "kind": "raas",
+          "title": "Аренда Логимов AMR-600 (RaaS)",
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000001",
+          "raas": {
+            "monthlyFeePerRobotRub": 115000,
+            "contractYears": 3,
+            "setupRub": 1500000
+          }
+        }
+      ],
+      "sensitivity": {
+        "params": [
+          "equipmentPrice",
+          "operationsVolume",
+          "laborCost"
+        ],
+        "deltas": [
+          -0.2,
+          -0.1,
+          0.1,
+          0.2
+        ]
+      }
+    },
+    "result": {
+      "calculationId": null,
+      "modelVersion": "mock-1.0",
+      "dataVersion": "catalog-2026.09",
+      "calculatedAt": "2026-01-01T00:00:00.000Z",
+      "disclaimer": "Предварительная оценка, требует верификации при обследовании объекта. Расчёт основан на введённых параметрах и каталожных данных и не является инвестиционным решением: перед закупкой нужны коммерческие предложения поставщиков.",
+      "recommendation": [
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000001",
+          "name": "Логимов AMR-600",
+          "solutionType": "amr",
+          "status": "recommended",
+          "score": 74.4,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "pass",
+              "required": 350,
+              "actual": 600,
+              "unit": "кг",
+              "message": "Грузоподъёмность 600 кг достаточна для единицы 350 кг"
+            },
+            {
+              "rule": "aisle",
+              "label": "Ширина прохода",
+              "critical": true,
+              "result": "pass",
+              "required": 1.2,
+              "actual": 3,
+              "unit": "м",
+              "message": "Роботу нужно 1,2 м, на объекте 3 м"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "pass",
+              "required": 447,
+              "actual": 45,
+              "unit": "опер./ч",
+              "message": "Целевые 447 опер./ч обеспечат 15 роб."
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "pass",
+              "required": 8,
+              "actual": 10,
+              "unit": "ч",
+              "message": "Заряда хватает на смену (10 ч)"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 34,
+              "contribution": 11.9
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 100,
+              "contribution": 25
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 100,
+              "contribution": 20
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 75,
+              "contribution": 7.5
+            }
+          ],
+          "missingData": []
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000002",
+          "name": "Логимов AMR-1500",
+          "solutionType": "amr",
+          "status": "recommended",
+          "score": 57,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "pass",
+              "required": 350,
+              "actual": 1500,
+              "unit": "кг",
+              "message": "Грузоподъёмность 1 500 кг достаточна для единицы 350 кг"
+            },
+            {
+              "rule": "aisle",
+              "label": "Ширина прохода",
+              "critical": true,
+              "result": "pass",
+              "required": 1.8,
+              "actual": 3,
+              "unit": "м",
+              "message": "Роботу нужно 1,8 м, на объекте 3 м"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "pass",
+              "required": 447,
+              "actual": 35,
+              "unit": "опер./ч",
+              "message": "Целевые 447 опер./ч обеспечат 18 роб."
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "pass",
+              "required": 8,
+              "actual": 8,
+              "unit": "ч",
+              "message": "Заряда хватает на смену (8 ч)"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 0,
+              "contribution": 0
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 78,
+              "contribution": 19.5
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 100,
+              "contribution": 20
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 75,
+              "contribution": 7.5
+            }
+          ],
+          "missingData": []
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000006",
+          "name": "Тягач АТ-3000",
+          "solutionType": "tugger",
+          "status": "recommended",
+          "score": 54.3,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "pass",
+              "required": 350,
+              "actual": 3000,
+              "unit": "кг",
+              "message": "Грузоподъёмность 3 000 кг достаточна для единицы 350 кг"
+            },
+            {
+              "rule": "aisle",
+              "label": "Ширина прохода",
+              "critical": true,
+              "result": "pass",
+              "required": 2.5,
+              "actual": 3,
+              "unit": "м",
+              "message": "Роботу нужно 2,5 м, на объекте 3 м"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "pass",
+              "required": 447,
+              "actual": 30,
+              "unit": "опер./ч",
+              "message": "Целевые 447 опер./ч обеспечат 21 роб."
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "pass",
+              "required": 8,
+              "actual": 9,
+              "unit": "ч",
+              "message": "Заряда хватает на смену (9 ч)"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 0,
+              "contribution": 0
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 67,
+              "contribution": 16.8
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 100,
+              "contribution": 20
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 75,
+              "contribution": 7.5
+            }
+          ],
+          "missingData": []
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000005",
+          "name": "Штабелер АШ-12",
+          "solutionType": "stacker",
+          "status": "recommended",
+          "score": 48.5,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "pass",
+              "required": 350,
+              "actual": 1200,
+              "unit": "кг",
+              "message": "Грузоподъёмность 1 200 кг достаточна для единицы 350 кг"
+            },
+            {
+              "rule": "aisle",
+              "label": "Ширина прохода",
+              "critical": true,
+              "result": "pass",
+              "required": 2.6,
+              "actual": 3,
+              "unit": "м",
+              "message": "Роботу нужно 2,6 м, на объекте 3 м"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "pass",
+              "required": 447,
+              "actual": 20,
+              "unit": "опер./ч",
+              "message": "Целевые 447 опер./ч обеспечат 31 роб."
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "pass",
+              "required": 8,
+              "actual": 8,
+              "unit": "ч",
+              "message": "Заряда хватает на смену (8 ч)"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 0,
+              "contribution": 0
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 44,
+              "contribution": 11
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 100,
+              "contribution": 20
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 75,
+              "contribution": 7.5
+            }
+          ],
+          "missingData": []
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000008",
+          "name": "Уборщик ЧистоБот ПРО-50",
+          "solutionType": "cleaner",
+          "status": "recommended",
+          "score": 47.4,
+          "checks": [
+            {
+              "rule": "aisle",
+              "label": "Ширина прохода",
+              "critical": true,
+              "result": "pass",
+              "required": 1,
+              "actual": 3,
+              "unit": "м",
+              "message": "Роботу нужно 1 м, на объекте 3 м"
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "fail",
+              "required": 8,
+              "actual": 4,
+              "unit": "ч",
+              "message": "Заряда хватает на 4 ч — понадобится подзарядка в смену"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 40,
+              "contribution": 14
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 0,
+              "contribution": 0
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 67,
+              "contribution": 13.4
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            }
+          ],
+          "missingData": [
+            "Грузоподъёмность",
+            "Производительность"
+          ]
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000007",
+          "name": "Тягач АТ-1000 Лайт",
+          "solutionType": "tugger",
+          "status": "needs_check",
+          "score": 39.6,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "pass",
+              "required": 350,
+              "actual": 1000,
+              "unit": "кг",
+              "message": "Грузоподъёмность 1 000 кг достаточна для единицы 350 кг"
+            },
+            {
+              "rule": "aisle",
+              "label": "Ширина прохода",
+              "critical": true,
+              "result": "unknown",
+              "required": null,
+              "actual": 3,
+              "unit": "м",
+              "message": "Нет данных о минимальной ширине прохода — запросите у производителя"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "pass",
+              "required": 447,
+              "actual": 28,
+              "unit": "опер./ч",
+              "message": "Целевые 447 опер./ч обеспечат 22 роб."
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "unknown",
+              "required": 8,
+              "actual": null,
+              "unit": "ч",
+              "message": "Время автономной работы не указано"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "unknown",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики не подтверждены — используйте оценку с осторожностью"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 26,
+              "contribution": 9.1
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 62,
+              "contribution": 15.5
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 40,
+              "contribution": 8
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 40,
+              "contribution": 4
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 30,
+              "contribution": 3
+            }
+          ],
+          "missingData": [
+            "Минимальная ширина прохода",
+            "Время автономной работы",
+            "Время зарядки",
+            "Срок службы"
+          ]
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000004",
+          "name": "ФМР-12 Узкопроходный",
+          "solutionType": "fmr",
+          "status": "needs_check",
+          "score": 33.5,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "pass",
+              "required": 350,
+              "actual": 1200,
+              "unit": "кг",
+              "message": "Грузоподъёмность 1 200 кг достаточна для единицы 350 кг"
+            },
+            {
+              "rule": "aisle",
+              "label": "Ширина прохода",
+              "critical": true,
+              "result": "pass",
+              "required": 1.9,
+              "actual": 3,
+              "unit": "м",
+              "message": "Роботу нужно 1,9 м, на объекте 3 м"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "unknown",
+              "required": 447,
+              "actual": null,
+              "unit": "опер./ч",
+              "message": "Производительность не указана — число роботов нельзя оценить"
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "unknown",
+              "required": 8,
+              "actual": null,
+              "unit": "ч",
+              "message": "Время автономной работы не указано"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "unknown",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики не подтверждены — используйте оценку с осторожностью"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 40,
+              "contribution": 14
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 0,
+              "contribution": 0
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 40,
+              "contribution": 8
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 40,
+              "contribution": 4
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 75,
+              "contribution": 7.5
+            }
+          ],
+          "missingData": [
+            "Производительность",
+            "Время автономной работы",
+            "Время зарядки",
+            "Срок службы"
+          ]
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000003",
+          "name": "Автопогрузчик ФМР-16",
+          "solutionType": "fmr",
+          "status": "excluded",
+          "score": null,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "pass",
+              "required": 350,
+              "actual": 1600,
+              "unit": "кг",
+              "message": "Грузоподъёмность 1 600 кг достаточна для единицы 350 кг"
+            },
+            {
+              "rule": "aisle",
+              "label": "Ширина прохода",
+              "critical": true,
+              "result": "fail",
+              "required": 3.2,
+              "actual": 3,
+              "unit": "м",
+              "message": "Роботу нужен проход 3,2 м, а на объекте только 3 м"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "pass",
+              "required": 447,
+              "actual": 22,
+              "unit": "опер./ч",
+              "message": "Целевые 447 опер./ч обеспечат 29 роб."
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "pass",
+              "required": 8,
+              "actual": 8,
+              "unit": "ч",
+              "message": "Заряда хватает на смену (8 ч)"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [],
+          "missingData": []
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000009",
+          "name": "Шаттл-система АСХ-Шаттл",
+          "solutionType": "asrs",
+          "status": "excluded",
+          "score": null,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "fail",
+              "required": 350,
+              "actual": 50,
+              "unit": "кг",
+              "message": "Грузоподъёмность 50 кг меньше массы единицы 350 кг"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "pass",
+              "required": 447,
+              "actual": 600,
+              "unit": "опер./ч",
+              "message": "Целевые 447 опер./ч обеспечат 2 роб."
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "unknown",
+              "required": 8,
+              "actual": null,
+              "unit": "ч",
+              "message": "Время автономной работы не указано"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [],
+          "missingData": [
+            "Минимальная ширина прохода",
+            "Время автономной работы",
+            "Время зарядки"
+          ]
+        }
+      ],
+      "scenarios": [
+        {
+          "id": "baseline",
+          "kind": "baseline",
+          "title": "Текущее состояние",
+          "robotId": null,
+          "equipment": [],
+          "metrics": {
+            "robotCount": {
+              "label": "Количество роботов",
+              "value": 0,
+              "unit": "шт.",
+              "formula": "⌈Целевая производительность / (Производительность робота × Загрузка × Готовность)⌉ × (1 + Резерв)",
+              "overridden": false,
+              "inputs": {
+                "targetPerHour": 447,
+                "utilization": 0.85,
+                "availability": 0.95,
+                "reserveShare": 0.1
+              }
+            },
+            "capexRub": {
+              "label": "Капитальные затраты",
+              "value": 0,
+              "unit": "₽",
+              "formula": "Сумма строк спецификации оборудования и работ",
+              "overridden": false,
+              "breakdown": []
+            },
+            "opexAnnualRub": {
+              "label": "Операционные затраты в год",
+              "value": 72960000,
+              "unit": "₽/год",
+              "formula": "ФОТ оставшегося персонала + обслуживание, энергия и ПО роботов",
+              "overridden": false,
+              "breakdown": [
+                {
+                  "key": "labor",
+                  "label": "ФОТ оставшегося персонала",
+                  "value": 72960000,
+                  "source": "Параметры объекта"
+                },
+                {
+                  "key": "robots",
+                  "label": "Обслуживание, аренда, энергия, ПО",
+                  "value": 0,
+                  "source": "Каталог роботов"
+                }
+              ]
+            },
+            "opexDeltaRub": {
+              "label": "Изменение операционных затрат",
+              "value": 0,
+              "unit": "₽/год",
+              "formula": "OPEX сценария − OPEX текущего состояния",
+              "overridden": false
+            },
+            "annualEffectRub": {
+              "label": "Годовой эффект",
+              "value": 0,
+              "unit": "₽/год",
+              "formula": "Экономия ФОТ − расходы на роботов",
+              "overridden": false,
+              "inputs": {
+                "replacedStaff": 0,
+                "laborSavingRub": 0,
+                "robotOpexRub": 0
+              }
+            },
+            "paybackYears": {
+              "label": "Срок окупаемости",
+              "value": null,
+              "unit": "лет",
+              "formula": "Капитальные затраты / Годовой эффект",
+              "overridden": false
+            },
+            "roiPercent": {
+              "label": "ROI за горизонт расчёта",
+              "value": null,
+              "unit": "%",
+              "formula": "Накопленный эффект за горизонт (Годовой эффект × Горизонт) / Капзатраты × 100 %",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            },
+            "tcoRub": {
+              "label": "Совокупная стоимость владения",
+              "value": 364800000,
+              "unit": "₽",
+              "formula": "Капзатраты + OPEX × Горизонт расчёта",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            }
+          },
+          "cashflow": [
+            {
+              "year": 0,
+              "capexRub": 0,
+              "opexRub": 0,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 1,
+              "capexRub": 0,
+              "opexRub": 72960000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 2,
+              "capexRub": 0,
+              "opexRub": 72960000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 3,
+              "capexRub": 0,
+              "opexRub": 72960000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 4,
+              "capexRub": 0,
+              "opexRub": 72960000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 5,
+              "capexRub": 0,
+              "opexRub": 72960000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            }
+          ],
+          "verdict": {
+            "level": "moderate",
+            "label": "Текущее состояние",
+            "interpretation": "Процессы выполняет персонал, инвестиций нет. Сценарий — точка отсчёта для сравнения.",
+            "risks": [
+              "Рост фонда оплаты труда",
+              "Нехватка персонала в пиковые периоды"
+            ]
+          }
+        },
+        {
+          "id": "purchase",
+          "kind": "purchase",
+          "title": "Покупка Логимов AMR-600",
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000001",
+          "equipment": [
+            {
+              "item": "Логимов AMR-600",
+              "qty": 15,
+              "unitPriceRub": 4200000,
+              "totalRub": 63000000
+            },
+            {
+              "item": "Зарядная станция",
+              "qty": 5,
+              "unitPriceRub": 350000,
+              "totalRub": 1750000
+            },
+            {
+              "item": "ПО управления парком и интеграция с WMS",
+              "qty": 1,
+              "unitPriceRub": 3500000,
+              "totalRub": 3500000
+            },
+            {
+              "item": "Пусконаладка и обучение персонала",
+              "qty": 1,
+              "unitPriceRub": 1800000,
+              "totalRub": 1800000
+            }
+          ],
+          "metrics": {
+            "robotCount": {
+              "label": "Количество роботов",
+              "value": 15,
+              "unit": "шт.",
+              "formula": "⌈Целевая производительность / (Производительность робота × Загрузка × Готовность)⌉ × (1 + Резерв)",
+              "overridden": false,
+              "inputs": {
+                "targetPerHour": 447,
+                "utilization": 0.85,
+                "availability": 0.95,
+                "reserveShare": 0.1
+              }
+            },
+            "capexRub": {
+              "label": "Капитальные затраты",
+              "value": 70050000,
+              "unit": "₽",
+              "formula": "Сумма строк спецификации оборудования и работ",
+              "overridden": false,
+              "breakdown": [
+                {
+                  "key": "line1",
+                  "label": "Логимов AMR-600",
+                  "value": 63000000
+                },
+                {
+                  "key": "line2",
+                  "label": "Зарядная станция",
+                  "value": 1750000
+                },
+                {
+                  "key": "line3",
+                  "label": "ПО управления парком и интеграция с WMS",
+                  "value": 3500000
+                },
+                {
+                  "key": "line4",
+                  "label": "Пусконаладка и обучение персонала",
+                  "value": 1800000
+                }
+              ]
+            },
+            "opexAnnualRub": {
+              "label": "Операционные затраты в год",
+              "value": 56952000,
+              "unit": "₽/год",
+              "formula": "ФОТ оставшегося персонала + обслуживание, энергия и ПО роботов",
+              "overridden": false,
+              "breakdown": [
+                {
+                  "key": "labor",
+                  "label": "ФОТ оставшегося персонала",
+                  "value": 51300000,
+                  "source": "Параметры объекта"
+                },
+                {
+                  "key": "robots",
+                  "label": "Обслуживание, аренда, энергия, ПО",
+                  "value": 5652000,
+                  "source": "Каталог роботов"
+                }
+              ]
+            },
+            "opexDeltaRub": {
+              "label": "Изменение операционных затрат",
+              "value": -16008000,
+              "unit": "₽/год",
+              "formula": "OPEX сценария − OPEX текущего состояния",
+              "overridden": false
+            },
+            "annualEffectRub": {
+              "label": "Годовой эффект",
+              "value": 16008000,
+              "unit": "₽/год",
+              "formula": "Экономия ФОТ − расходы на роботов",
+              "overridden": false,
+              "inputs": {
+                "replacedStaff": 19,
+                "laborSavingRub": 21660000,
+                "robotOpexRub": 5652000
+              }
+            },
+            "paybackYears": {
+              "label": "Срок окупаемости",
+              "value": 4.38,
+              "unit": "лет",
+              "formula": "Капитальные затраты / Годовой эффект",
+              "overridden": false
+            },
+            "roiPercent": {
+              "label": "ROI за горизонт расчёта",
+              "value": 114.3,
+              "unit": "%",
+              "formula": "Накопленный эффект за горизонт (Годовой эффект × Горизонт) / Капзатраты × 100 %",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            },
+            "tcoRub": {
+              "label": "Совокупная стоимость владения",
+              "value": 354810000,
+              "unit": "₽",
+              "formula": "Капзатраты + OPEX × Горизонт расчёта",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            }
+          },
+          "cashflow": [
+            {
+              "year": 0,
+              "capexRub": 70050000,
+              "opexRub": 0,
+              "effectRub": 0,
+              "cumulativeRub": -70050000
+            },
+            {
+              "year": 1,
+              "capexRub": 0,
+              "opexRub": 56952000,
+              "effectRub": 16008000,
+              "cumulativeRub": -54042000
+            },
+            {
+              "year": 2,
+              "capexRub": 0,
+              "opexRub": 56952000,
+              "effectRub": 16008000,
+              "cumulativeRub": -38034000
+            },
+            {
+              "year": 3,
+              "capexRub": 0,
+              "opexRub": 56952000,
+              "effectRub": 16008000,
+              "cumulativeRub": -22026000
+            },
+            {
+              "year": 4,
+              "capexRub": 0,
+              "opexRub": 56952000,
+              "effectRub": 16008000,
+              "cumulativeRub": -6018000
+            },
+            {
+              "year": 5,
+              "capexRub": 0,
+              "opexRub": 56952000,
+              "effectRub": 16008000,
+              "cumulativeRub": 9990000
+            }
+          ],
+          "verdict": {
+            "level": "moderate",
+            "label": "Умеренная окупаемость",
+            "interpretation": "Срок окупаемости 3–5 лет — решение стоит принимать с учётом стратегии развития объекта.",
+            "risks": [
+              "Стоимость интеграции с WMS может отличаться после обследования"
+            ]
+          }
+        },
+        {
+          "id": "raas",
+          "kind": "raas",
+          "title": "Аренда Логимов AMR-600 (RaaS)",
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000001",
+          "equipment": [
+            {
+              "item": "Внедрение, интеграция и подготовка площадки (RaaS)",
+              "qty": 1,
+              "unitPriceRub": 1500000,
+              "totalRub": 1500000
+            }
+          ],
+          "metrics": {
+            "robotCount": {
+              "label": "Количество роботов",
+              "value": 15,
+              "unit": "шт.",
+              "formula": "⌈Целевая производительность / (Производительность робота × Загрузка × Готовность)⌉ × (1 + Резерв)",
+              "overridden": false,
+              "inputs": {
+                "targetPerHour": 447,
+                "utilization": 0.85,
+                "availability": 0.95,
+                "reserveShare": 0.1
+              }
+            },
+            "capexRub": {
+              "label": "Капитальные затраты",
+              "value": 1500000,
+              "unit": "₽",
+              "formula": "Сумма строк спецификации оборудования и работ",
+              "overridden": false,
+              "breakdown": [
+                {
+                  "key": "line1",
+                  "label": "Внедрение, интеграция и подготовка площадки (RaaS)",
+                  "value": 1500000
+                }
+              ]
+            },
+            "opexAnnualRub": {
+              "label": "Операционные затраты в год",
+              "value": 72252000,
+              "unit": "₽/год",
+              "formula": "ФОТ оставшегося персонала + обслуживание, энергия и ПО роботов",
+              "overridden": false,
+              "breakdown": [
+                {
+                  "key": "labor",
+                  "label": "ФОТ оставшегося персонала",
+                  "value": 51300000,
+                  "source": "Параметры объекта"
+                },
+                {
+                  "key": "robots",
+                  "label": "Обслуживание, аренда, энергия, ПО",
+                  "value": 20952000,
+                  "source": "Каталог роботов"
+                }
+              ]
+            },
+            "opexDeltaRub": {
+              "label": "Изменение операционных затрат",
+              "value": -708000,
+              "unit": "₽/год",
+              "formula": "OPEX сценария − OPEX текущего состояния",
+              "overridden": false
+            },
+            "annualEffectRub": {
+              "label": "Годовой эффект",
+              "value": 708000,
+              "unit": "₽/год",
+              "formula": "Экономия ФОТ − расходы на роботов",
+              "overridden": false,
+              "inputs": {
+                "replacedStaff": 19,
+                "laborSavingRub": 21660000,
+                "robotOpexRub": 20952000
+              }
+            },
+            "paybackYears": {
+              "label": "Срок окупаемости",
+              "value": 2.12,
+              "unit": "лет",
+              "formula": "Капитальные затраты / Годовой эффект",
+              "overridden": false
+            },
+            "roiPercent": {
+              "label": "ROI за горизонт расчёта",
+              "value": 236,
+              "unit": "%",
+              "formula": "Накопленный эффект за горизонт (Годовой эффект × Горизонт) / Капзатраты × 100 %",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            },
+            "tcoRub": {
+              "label": "Совокупная стоимость владения",
+              "value": 362760000,
+              "unit": "₽",
+              "formula": "Капзатраты + OPEX × Горизонт расчёта",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            }
+          },
+          "cashflow": [
+            {
+              "year": 0,
+              "capexRub": 1500000,
+              "opexRub": 0,
+              "effectRub": 0,
+              "cumulativeRub": -1500000
+            },
+            {
+              "year": 1,
+              "capexRub": 0,
+              "opexRub": 72252000,
+              "effectRub": 708000,
+              "cumulativeRub": -792000
+            },
+            {
+              "year": 2,
+              "capexRub": 0,
+              "opexRub": 72252000,
+              "effectRub": 708000,
+              "cumulativeRub": -84000
+            },
+            {
+              "year": 3,
+              "capexRub": 0,
+              "opexRub": 72252000,
+              "effectRub": 708000,
+              "cumulativeRub": 624000
+            },
+            {
+              "year": 4,
+              "capexRub": 0,
+              "opexRub": 72252000,
+              "effectRub": 708000,
+              "cumulativeRub": 1332000
+            },
+            {
+              "year": 5,
+              "capexRub": 0,
+              "opexRub": 72252000,
+              "effectRub": 708000,
+              "cumulativeRub": 2040000
+            }
+          ],
+          "verdict": {
+            "level": "good",
+            "label": "Окупается быстро",
+            "interpretation": "Срок окупаемости до 3 лет — проект привлекателен для пилотного внедрения.",
+            "risks": [
+              "Срок договора аренды короче горизонта расчёта — условия продления могут измениться"
+            ]
+          }
+        }
+      ],
+      "sensitivity": [
+        {
+          "scenarioId": "purchase",
+          "param": "equipmentPrice",
+          "label": "Стоимость оборудования",
+          "points": [
+            {
+              "delta": -0.2,
+              "paybackYears": 3.59,
+              "roiPercent": 139.3,
+              "annualEffectRub": 16008000
+            },
+            {
+              "delta": -0.1,
+              "paybackYears": 3.98,
+              "roiPercent": 125.6,
+              "annualEffectRub": 16008000
+            },
+            {
+              "delta": 0.1,
+              "paybackYears": 4.77,
+              "roiPercent": 104.8,
+              "annualEffectRub": 16008000
+            },
+            {
+              "delta": 0.2,
+              "paybackYears": 5.16,
+              "roiPercent": 96.8,
+              "annualEffectRub": 16008000
+            }
+          ]
+        },
+        {
+          "scenarioId": "purchase",
+          "param": "operationsVolume",
+          "label": "Объём операций",
+          "points": [
+            {
+              "delta": -0.2,
+              "paybackYears": 4.13,
+              "roiPercent": 120.9,
+              "annualEffectRub": 12795200
+            },
+            {
+              "delta": -0.1,
+              "paybackYears": 4.68,
+              "roiPercent": 106.8,
+              "annualEffectRub": 14064800
+            },
+            {
+              "delta": 0.1,
+              "paybackYears": 4.16,
+              "roiPercent": 120.3,
+              "annualEffectRub": 17951200
+            },
+            {
+              "delta": 0.2,
+              "paybackYears": 3.96,
+              "roiPercent": 126.2,
+              "annualEffectRub": 19894400
+            }
+          ]
+        },
+        {
+          "scenarioId": "purchase",
+          "param": "laborCost",
+          "label": "Стоимость труда",
+          "points": [
+            {
+              "delta": -0.2,
+              "paybackYears": 6,
+              "roiPercent": 83.3,
+              "annualEffectRub": 11676000
+            },
+            {
+              "delta": -0.1,
+              "paybackYears": 5.06,
+              "roiPercent": 98.8,
+              "annualEffectRub": 13842000
+            },
+            {
+              "delta": 0.1,
+              "paybackYears": 3.85,
+              "roiPercent": 129.7,
+              "annualEffectRub": 18174000
+            },
+            {
+              "delta": 0.2,
+              "paybackYears": 3.44,
+              "roiPercent": 145.2,
+              "annualEffectRub": 20340000
+            }
+          ]
+        },
+        {
+          "scenarioId": "raas",
+          "param": "equipmentPrice",
+          "label": "Стоимость оборудования",
+          "points": [
+            {
+              "delta": -0.2,
+              "paybackYears": 0.31,
+              "roiPercent": 1616,
+              "annualEffectRub": 4848000
+            },
+            {
+              "delta": -0.1,
+              "paybackYears": 0.54,
+              "roiPercent": 926,
+              "annualEffectRub": 2778000
+            },
+            {
+              "delta": 0.1,
+              "paybackYears": null,
+              "roiPercent": -454,
+              "annualEffectRub": -1362000
+            },
+            {
+              "delta": 0.2,
+              "paybackYears": null,
+              "roiPercent": -1144,
+              "annualEffectRub": -3432000
+            }
+          ]
+        },
+        {
+          "scenarioId": "raas",
+          "param": "operationsVolume",
+          "label": "Объём операций",
+          "points": [
+            {
+              "delta": -0.2,
+              "paybackYears": 0.86,
+              "roiPercent": 578.4,
+              "annualEffectRub": 1735200
+            },
+            {
+              "delta": -0.1,
+              "paybackYears": null,
+              "roiPercent": -58.4,
+              "annualEffectRub": -175200
+            },
+            {
+              "delta": 0.1,
+              "paybackYears": 0.94,
+              "roiPercent": 530.4,
+              "annualEffectRub": 1591200
+            },
+            {
+              "delta": 0.2,
+              "paybackYears": 0.61,
+              "roiPercent": 824.8,
+              "annualEffectRub": 2474400
+            }
+          ]
+        },
+        {
+          "scenarioId": "raas",
+          "param": "laborCost",
+          "label": "Стоимость труда",
+          "points": [
+            {
+              "delta": -0.2,
+              "paybackYears": null,
+              "roiPercent": -1208,
+              "annualEffectRub": -3624000
+            },
+            {
+              "delta": -0.1,
+              "paybackYears": null,
+              "roiPercent": -486,
+              "annualEffectRub": -1458000
+            },
+            {
+              "delta": 0.1,
+              "paybackYears": 0.52,
+              "roiPercent": 958,
+              "annualEffectRub": 2874000
+            },
+            {
+              "delta": 0.2,
+              "paybackYears": 0.3,
+              "roiPercent": 1680,
+              "annualEffectRub": 5040000
+            }
+          ]
+        }
+      ],
+      "assumptionsUsed": [
+        {
+          "key": "horizonYears",
+          "label": "Горизонт расчёта",
+          "value": 5,
+          "unit": "лет",
+          "source": "Параметры проекта",
+          "confirmed": true
+        },
+        {
+          "key": "workDaysPerYear",
+          "label": "Рабочих дней в году",
+          "value": 250,
+          "unit": "дн.",
+          "source": "Допущение: пятидневная рабочая неделя, округлённо",
+          "confirmed": false
+        },
+        {
+          "key": "shiftsPerDay",
+          "label": "Смен в сутки",
+          "value": 2,
+          "unit": "смен",
+          "source": "Параметры проекта",
+          "confirmed": true
+        },
+        {
+          "key": "hoursPerShift",
+          "label": "Длительность смены",
+          "value": 8,
+          "unit": "ч",
+          "source": "ТК РФ, ст. 91",
+          "confirmed": true
+        },
+        {
+          "key": "utilization",
+          "label": "Загрузка робота",
+          "value": 85,
+          "unit": "%",
+          "source": "Демо-оценка по отраслевой практике",
+          "confirmed": false
+        },
+        {
+          "key": "availability",
+          "label": "Техническая готовность",
+          "value": 95,
+          "unit": "%",
+          "source": "Демо-оценка по данным производителей",
+          "confirmed": false
+        },
+        {
+          "key": "reserveShare",
+          "label": "Резерв парка",
+          "value": 10,
+          "unit": "%",
+          "source": "Демо-оценка",
+          "confirmed": false
+        },
+        {
+          "key": "staffReplacedShare",
+          "label": "Доля замещаемого персонала",
+          "value": 30,
+          "unit": "%",
+          "source": "Демо-оценка",
+          "confirmed": false
+        },
+        {
+          "key": "staffCostMonthRub",
+          "label": "Стоимость сотрудника",
+          "value": 95000,
+          "unit": "₽/мес",
+          "source": "Параметры объекта",
+          "confirmed": true
+        },
+        {
+          "key": "energyTariffRub",
+          "label": "Тариф на электроэнергию",
+          "value": 7,
+          "unit": "₽/кВт·ч",
+          "source": "Демо-оценка",
+          "confirmed": false
+        },
+        {
+          "key": "integrationRub",
+          "label": "Интеграция с WMS",
+          "value": 3500000,
+          "unit": "₽",
+          "source": "Демо-оценка по рынку",
+          "confirmed": false
+        }
+      ]
+    }
+  },
+  {
+    "name": "warehouse-overrides",
+    "request": {
+      "projectId": null,
+      "objectType": "warehouse",
+      "processes": [
+        "internal_transport",
+        "picking"
+      ],
+      "params": {
+        "areaM2": 12000,
+        "workMode": "2x8",
+        "inboundPerDay": 700,
+        "internalPerDay": 1300,
+        "outboundPerDay": 900,
+        "processPerfPerHour": 180,
+        "storageType": "pallet_rack",
+        "skuCount": 8500,
+        "unitWeightKg": 350,
+        "unitLengthM": 1.2,
+        "unitWidthM": 0.8,
+        "unitHeightM": 1.5,
+        "staffCount": 38,
+        "staffCostMonthRub": 78000,
+        "avgRouteM": 120,
+        "aisleWidthM": 2.8
+      },
+      "assumptions": {
+        "horizonYears": 5,
+        "workDaysPerYear": 300,
+        "shiftsPerDay": 3,
+        "hoursPerShift": 8,
+        "utilization": 0.85,
+        "availability": 0.95,
+        "reserveShare": 0.15,
+        "staffReplacedShare": 0.3
+      },
+      "scenarios": [
+        {
+          "id": "base",
+          "kind": "baseline",
+          "title": "Как сейчас",
+          "robotId": null
+        },
+        {
+          "id": "amr1500",
+          "kind": "purchase",
+          "title": "AMR-1500, 6 шт.",
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000002",
+          "overrides": {
+            "robotCount": 6,
+            "unitPriceRub": 6500000,
+            "maintenancePerYearRub": 400000
+          }
+        },
+        {
+          "id": "fmr12",
+          "kind": "purchase",
+          "title": "ФМР-12 по оценке",
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000004",
+          "overrides": {
+            "perfOpsPerHour": 30
+          }
+        },
+        {
+          "id": "fmr12-rent",
+          "kind": "raas",
+          "title": "ФМР-12 в аренду",
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000004",
+          "overrides": {
+            "robotCount": 3
+          },
+          "raas": {
+            "monthlyFeePerRobotRub": 250000,
+            "contractYears": 5,
+            "setupRub": 2000000
+          }
+        }
+      ],
+      "sensitivity": {
+        "params": [
+          "operationsVolume",
+          "equipmentPrice"
+        ],
+        "deltas": [
+          -0.3,
+          0.5
+        ]
+      }
+    },
+    "result": {
+      "calculationId": null,
+      "modelVersion": "mock-1.0",
+      "dataVersion": "catalog-2026.09",
+      "calculatedAt": "2026-01-01T00:00:00.000Z",
+      "disclaimer": "Предварительная оценка, требует верификации при обследовании объекта. Расчёт основан на введённых параметрах и каталожных данных и не является инвестиционным решением: перед закупкой нужны коммерческие предложения поставщиков.",
+      "recommendation": [
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000001",
+          "name": "Логимов AMR-600",
+          "solutionType": "amr",
+          "status": "recommended",
+          "score": 75.8,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "pass",
+              "required": 350,
+              "actual": 600,
+              "unit": "кг",
+              "message": "Грузоподъёмность 600 кг достаточна для единицы 350 кг"
+            },
+            {
+              "rule": "aisle",
+              "label": "Ширина прохода",
+              "critical": true,
+              "result": "pass",
+              "required": 1.2,
+              "actual": 2.8,
+              "unit": "м",
+              "message": "Роботу нужно 1,2 м, на объекте 2,8 м"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "pass",
+              "required": 180,
+              "actual": 45,
+              "unit": "опер./ч",
+              "message": "Целевые 180 опер./ч обеспечат 6 роб."
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "pass",
+              "required": 8,
+              "actual": 10,
+              "unit": "ч",
+              "message": "Заряда хватает на смену (10 ч)"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 38,
+              "contribution": 13.3
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 100,
+              "contribution": 25
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 100,
+              "contribution": 20
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 75,
+              "contribution": 7.5
+            }
+          ],
+          "missingData": []
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000002",
+          "name": "Логимов AMR-1500",
+          "solutionType": "amr",
+          "status": "recommended",
+          "score": 57,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "pass",
+              "required": 350,
+              "actual": 1500,
+              "unit": "кг",
+              "message": "Грузоподъёмность 1 500 кг достаточна для единицы 350 кг"
+            },
+            {
+              "rule": "aisle",
+              "label": "Ширина прохода",
+              "critical": true,
+              "result": "pass",
+              "required": 1.8,
+              "actual": 2.8,
+              "unit": "м",
+              "message": "Роботу нужно 1,8 м, на объекте 2,8 м"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "pass",
+              "required": 180,
+              "actual": 35,
+              "unit": "опер./ч",
+              "message": "Целевые 180 опер./ч обеспечат 9 роб."
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "pass",
+              "required": 8,
+              "actual": 8,
+              "unit": "ч",
+              "message": "Заряда хватает на смену (8 ч)"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 0,
+              "contribution": 0
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 78,
+              "contribution": 19.5
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 100,
+              "contribution": 20
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 75,
+              "contribution": 7.5
+            }
+          ],
+          "missingData": []
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000006",
+          "name": "Тягач АТ-3000",
+          "solutionType": "tugger",
+          "status": "recommended",
+          "score": 54.3,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "pass",
+              "required": 350,
+              "actual": 3000,
+              "unit": "кг",
+              "message": "Грузоподъёмность 3 000 кг достаточна для единицы 350 кг"
+            },
+            {
+              "rule": "aisle",
+              "label": "Ширина прохода",
+              "critical": true,
+              "result": "pass",
+              "required": 2.5,
+              "actual": 2.8,
+              "unit": "м",
+              "message": "Роботу нужно 2,5 м, на объекте 2,8 м"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "pass",
+              "required": 180,
+              "actual": 30,
+              "unit": "опер./ч",
+              "message": "Целевые 180 опер./ч обеспечат 10 роб."
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "pass",
+              "required": 8,
+              "actual": 9,
+              "unit": "ч",
+              "message": "Заряда хватает на смену (9 ч)"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 0,
+              "contribution": 0
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 67,
+              "contribution": 16.8
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 100,
+              "contribution": 20
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 75,
+              "contribution": 7.5
+            }
+          ],
+          "missingData": []
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000005",
+          "name": "Штабелер АШ-12",
+          "solutionType": "stacker",
+          "status": "recommended",
+          "score": 48.5,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "pass",
+              "required": 350,
+              "actual": 1200,
+              "unit": "кг",
+              "message": "Грузоподъёмность 1 200 кг достаточна для единицы 350 кг"
+            },
+            {
+              "rule": "aisle",
+              "label": "Ширина прохода",
+              "critical": true,
+              "result": "pass",
+              "required": 2.6,
+              "actual": 2.8,
+              "unit": "м",
+              "message": "Роботу нужно 2,6 м, на объекте 2,8 м"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "pass",
+              "required": 180,
+              "actual": 20,
+              "unit": "опер./ч",
+              "message": "Целевые 180 опер./ч обеспечат 14 роб."
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "pass",
+              "required": 8,
+              "actual": 8,
+              "unit": "ч",
+              "message": "Заряда хватает на смену (8 ч)"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 0,
+              "contribution": 0
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 44,
+              "contribution": 11
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 100,
+              "contribution": 20
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 75,
+              "contribution": 7.5
+            }
+          ],
+          "missingData": []
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000007",
+          "name": "Тягач АТ-1000 Лайт",
+          "solutionType": "tugger",
+          "status": "needs_check",
+          "score": 37.2,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "pass",
+              "required": 350,
+              "actual": 1000,
+              "unit": "кг",
+              "message": "Грузоподъёмность 1 000 кг достаточна для единицы 350 кг"
+            },
+            {
+              "rule": "aisle",
+              "label": "Ширина прохода",
+              "critical": true,
+              "result": "unknown",
+              "required": null,
+              "actual": 2.8,
+              "unit": "м",
+              "message": "Нет данных о минимальной ширине прохода — запросите у производителя"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "pass",
+              "required": 180,
+              "actual": 28,
+              "unit": "опер./ч",
+              "message": "Целевые 180 опер./ч обеспечат 10 роб."
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "unknown",
+              "required": 8,
+              "actual": null,
+              "unit": "ч",
+              "message": "Время автономной работы не указано"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "unknown",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики не подтверждены — используйте оценку с осторожностью"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 19,
+              "contribution": 6.7
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 62,
+              "contribution": 15.5
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 40,
+              "contribution": 8
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 40,
+              "contribution": 4
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 30,
+              "contribution": 3
+            }
+          ],
+          "missingData": [
+            "Минимальная ширина прохода",
+            "Время автономной работы",
+            "Время зарядки",
+            "Срок службы"
+          ]
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000004",
+          "name": "ФМР-12 Узкопроходный",
+          "solutionType": "fmr",
+          "status": "needs_check",
+          "score": 33.5,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "pass",
+              "required": 350,
+              "actual": 1200,
+              "unit": "кг",
+              "message": "Грузоподъёмность 1 200 кг достаточна для единицы 350 кг"
+            },
+            {
+              "rule": "aisle",
+              "label": "Ширина прохода",
+              "critical": true,
+              "result": "pass",
+              "required": 1.9,
+              "actual": 2.8,
+              "unit": "м",
+              "message": "Роботу нужно 1,9 м, на объекте 2,8 м"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "unknown",
+              "required": 180,
+              "actual": null,
+              "unit": "опер./ч",
+              "message": "Производительность не указана — число роботов нельзя оценить"
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "unknown",
+              "required": 8,
+              "actual": null,
+              "unit": "ч",
+              "message": "Время автономной работы не указано"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "unknown",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики не подтверждены — используйте оценку с осторожностью"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 40,
+              "contribution": 14
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 0,
+              "contribution": 0
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 40,
+              "contribution": 8
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 40,
+              "contribution": 4
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 75,
+              "contribution": 7.5
+            }
+          ],
+          "missingData": [
+            "Производительность",
+            "Время автономной работы",
+            "Время зарядки",
+            "Срок службы"
+          ]
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000003",
+          "name": "Автопогрузчик ФМР-16",
+          "solutionType": "fmr",
+          "status": "excluded",
+          "score": null,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "pass",
+              "required": 350,
+              "actual": 1600,
+              "unit": "кг",
+              "message": "Грузоподъёмность 1 600 кг достаточна для единицы 350 кг"
+            },
+            {
+              "rule": "aisle",
+              "label": "Ширина прохода",
+              "critical": true,
+              "result": "fail",
+              "required": 3.2,
+              "actual": 2.8,
+              "unit": "м",
+              "message": "Роботу нужен проход 3,2 м, а на объекте только 2,8 м"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "pass",
+              "required": 180,
+              "actual": 22,
+              "unit": "опер./ч",
+              "message": "Целевые 180 опер./ч обеспечат 13 роб."
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "pass",
+              "required": 8,
+              "actual": 8,
+              "unit": "ч",
+              "message": "Заряда хватает на смену (8 ч)"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [],
+          "missingData": []
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000009",
+          "name": "Шаттл-система АСХ-Шаттл",
+          "solutionType": "asrs",
+          "status": "excluded",
+          "score": null,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "fail",
+              "required": 350,
+              "actual": 50,
+              "unit": "кг",
+              "message": "Грузоподъёмность 50 кг меньше массы единицы 350 кг"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "pass",
+              "required": 180,
+              "actual": 600,
+              "unit": "опер./ч",
+              "message": "Целевые 180 опер./ч обеспечат 2 роб."
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "unknown",
+              "required": 8,
+              "actual": null,
+              "unit": "ч",
+              "message": "Время автономной работы не указано"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [],
+          "missingData": [
+            "Минимальная ширина прохода",
+            "Время автономной работы",
+            "Время зарядки"
+          ]
+        }
+      ],
+      "scenarios": [
+        {
+          "id": "base",
+          "kind": "baseline",
+          "title": "Как сейчас",
+          "robotId": null,
+          "equipment": [],
+          "metrics": {
+            "robotCount": {
+              "label": "Количество роботов",
+              "value": 0,
+              "unit": "шт.",
+              "formula": "⌈Целевая производительность / (Производительность робота × Загрузка × Готовность)⌉ × (1 + Резерв)",
+              "overridden": false,
+              "inputs": {
+                "targetPerHour": 180,
+                "utilization": 0.85,
+                "availability": 0.95,
+                "reserveShare": 0.15
+              }
+            },
+            "capexRub": {
+              "label": "Капитальные затраты",
+              "value": 0,
+              "unit": "₽",
+              "formula": "Сумма строк спецификации оборудования и работ",
+              "overridden": false,
+              "breakdown": []
+            },
+            "opexAnnualRub": {
+              "label": "Операционные затраты в год",
+              "value": 35568000,
+              "unit": "₽/год",
+              "formula": "ФОТ оставшегося персонала + обслуживание, энергия и ПО роботов",
+              "overridden": false,
+              "breakdown": [
+                {
+                  "key": "labor",
+                  "label": "ФОТ оставшегося персонала",
+                  "value": 35568000,
+                  "source": "Параметры объекта"
+                },
+                {
+                  "key": "robots",
+                  "label": "Обслуживание, аренда, энергия, ПО",
+                  "value": 0,
+                  "source": "Каталог роботов"
+                }
+              ]
+            },
+            "opexDeltaRub": {
+              "label": "Изменение операционных затрат",
+              "value": 0,
+              "unit": "₽/год",
+              "formula": "OPEX сценария − OPEX текущего состояния",
+              "overridden": false
+            },
+            "annualEffectRub": {
+              "label": "Годовой эффект",
+              "value": 0,
+              "unit": "₽/год",
+              "formula": "Экономия ФОТ − расходы на роботов",
+              "overridden": false,
+              "inputs": {
+                "replacedStaff": 0,
+                "laborSavingRub": 0,
+                "robotOpexRub": 0
+              }
+            },
+            "paybackYears": {
+              "label": "Срок окупаемости",
+              "value": null,
+              "unit": "лет",
+              "formula": "Капитальные затраты / Годовой эффект",
+              "overridden": false
+            },
+            "roiPercent": {
+              "label": "ROI за горизонт расчёта",
+              "value": null,
+              "unit": "%",
+              "formula": "Накопленный эффект за горизонт (Годовой эффект × Горизонт) / Капзатраты × 100 %",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            },
+            "tcoRub": {
+              "label": "Совокупная стоимость владения",
+              "value": 177840000,
+              "unit": "₽",
+              "formula": "Капзатраты + OPEX × Горизонт расчёта",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            }
+          },
+          "cashflow": [
+            {
+              "year": 0,
+              "capexRub": 0,
+              "opexRub": 0,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 1,
+              "capexRub": 0,
+              "opexRub": 35568000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 2,
+              "capexRub": 0,
+              "opexRub": 35568000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 3,
+              "capexRub": 0,
+              "opexRub": 35568000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 4,
+              "capexRub": 0,
+              "opexRub": 35568000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 5,
+              "capexRub": 0,
+              "opexRub": 35568000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            }
+          ],
+          "verdict": {
+            "level": "moderate",
+            "label": "Текущее состояние",
+            "interpretation": "Процессы выполняет персонал, инвестиций нет. Сценарий — точка отсчёта для сравнения.",
+            "risks": [
+              "Рост фонда оплаты труда",
+              "Нехватка персонала в пиковые периоды"
+            ]
+          }
+        },
+        {
+          "id": "amr1500",
+          "kind": "purchase",
+          "title": "AMR-1500, 6 шт.",
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000002",
+          "equipment": [
+            {
+              "item": "Логимов AMR-1500",
+              "qty": 6,
+              "unitPriceRub": 6500000,
+              "totalRub": 39000000
+            },
+            {
+              "item": "Зарядная станция",
+              "qty": 2,
+              "unitPriceRub": 350000,
+              "totalRub": 700000
+            },
+            {
+              "item": "ПО управления парком и интеграция с WMS",
+              "qty": 1,
+              "unitPriceRub": 3500000,
+              "totalRub": 3500000
+            },
+            {
+              "item": "Пусконаладка и обучение персонала",
+              "qty": 1,
+              "unitPriceRub": 1800000,
+              "totalRub": 1800000
+            }
+          ],
+          "metrics": {
+            "robotCount": {
+              "label": "Количество роботов",
+              "value": 6,
+              "unit": "шт.",
+              "formula": "⌈Целевая производительность / (Производительность робота × Загрузка × Готовность)⌉ × (1 + Резерв)",
+              "overridden": true,
+              "inputs": {
+                "targetPerHour": 180,
+                "utilization": 0.85,
+                "availability": 0.95,
+                "reserveShare": 0.15
+              }
+            },
+            "capexRub": {
+              "label": "Капитальные затраты",
+              "value": 45000000,
+              "unit": "₽",
+              "formula": "Сумма строк спецификации оборудования и работ",
+              "overridden": true,
+              "breakdown": [
+                {
+                  "key": "line1",
+                  "label": "Логимов AMR-1500",
+                  "value": 39000000
+                },
+                {
+                  "key": "line2",
+                  "label": "Зарядная станция",
+                  "value": 700000
+                },
+                {
+                  "key": "line3",
+                  "label": "ПО управления парком и интеграция с WMS",
+                  "value": 3500000
+                },
+                {
+                  "key": "line4",
+                  "label": "Пусконаладка и обучение персонала",
+                  "value": 1800000
+                }
+              ]
+            },
+            "opexAnnualRub": {
+              "label": "Операционные затраты в год",
+              "value": 32197440,
+              "unit": "₽/год",
+              "formula": "ФОТ оставшегося персонала + обслуживание, энергия и ПО роботов",
+              "overridden": true,
+              "breakdown": [
+                {
+                  "key": "labor",
+                  "label": "ФОТ оставшегося персонала",
+                  "value": 29016000,
+                  "source": "Параметры объекта"
+                },
+                {
+                  "key": "robots",
+                  "label": "Обслуживание, аренда, энергия, ПО",
+                  "value": 3181440,
+                  "source": "Каталог роботов"
+                }
+              ]
+            },
+            "opexDeltaRub": {
+              "label": "Изменение операционных затрат",
+              "value": -3370560,
+              "unit": "₽/год",
+              "formula": "OPEX сценария − OPEX текущего состояния",
+              "overridden": false
+            },
+            "annualEffectRub": {
+              "label": "Годовой эффект",
+              "value": 3370560,
+              "unit": "₽/год",
+              "formula": "Экономия ФОТ − расходы на роботов",
+              "overridden": false,
+              "inputs": {
+                "replacedStaff": 7,
+                "laborSavingRub": 6552000,
+                "robotOpexRub": 3181440
+              }
+            },
+            "paybackYears": {
+              "label": "Срок окупаемости",
+              "value": 13.35,
+              "unit": "лет",
+              "formula": "Капитальные затраты / Годовой эффект",
+              "overridden": false
+            },
+            "roiPercent": {
+              "label": "ROI за горизонт расчёта",
+              "value": 37.5,
+              "unit": "%",
+              "formula": "Накопленный эффект за горизонт (Годовой эффект × Горизонт) / Капзатраты × 100 %",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            },
+            "tcoRub": {
+              "label": "Совокупная стоимость владения",
+              "value": 205987200,
+              "unit": "₽",
+              "formula": "Капзатраты + OPEX × Горизонт расчёта",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            }
+          },
+          "cashflow": [
+            {
+              "year": 0,
+              "capexRub": 45000000,
+              "opexRub": 0,
+              "effectRub": 0,
+              "cumulativeRub": -45000000
+            },
+            {
+              "year": 1,
+              "capexRub": 0,
+              "opexRub": 32197440,
+              "effectRub": 3370560,
+              "cumulativeRub": -41629440
+            },
+            {
+              "year": 2,
+              "capexRub": 0,
+              "opexRub": 32197440,
+              "effectRub": 3370560,
+              "cumulativeRub": -38258880
+            },
+            {
+              "year": 3,
+              "capexRub": 0,
+              "opexRub": 32197440,
+              "effectRub": 3370560,
+              "cumulativeRub": -34888320
+            },
+            {
+              "year": 4,
+              "capexRub": 0,
+              "opexRub": 32197440,
+              "effectRub": 3370560,
+              "cumulativeRub": -31517760
+            },
+            {
+              "year": 5,
+              "capexRub": 0,
+              "opexRub": 32197440,
+              "effectRub": 3370560,
+              "cumulativeRub": -28147200
+            }
+          ],
+          "verdict": {
+            "level": "poor",
+            "label": "Долгая окупаемость",
+            "interpretation": "Срок окупаемости более 5 лет — рассмотрите аренду или другой тип робота.",
+            "risks": [
+              "Стоимость интеграции с WMS может отличаться после обследования",
+              "Окупаемость дольше горизонта расчёта"
+            ]
+          }
+        },
+        {
+          "id": "fmr12",
+          "kind": "purchase",
+          "title": "ФМР-12 по оценке",
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000004",
+          "equipment": [
+            {
+              "item": "ФМР-12 Узкопроходный",
+              "qty": 10,
+              "unitPriceRub": 11200000,
+              "totalRub": 112000000
+            },
+            {
+              "item": "Зарядная станция",
+              "qty": 4,
+              "unitPriceRub": 350000,
+              "totalRub": 1400000
+            },
+            {
+              "item": "ПО управления парком и интеграция с WMS",
+              "qty": 1,
+              "unitPriceRub": 3500000,
+              "totalRub": 3500000
+            },
+            {
+              "item": "Пусконаладка и обучение персонала",
+              "qty": 1,
+              "unitPriceRub": 1800000,
+              "totalRub": 1800000
+            }
+          ],
+          "metrics": {
+            "robotCount": {
+              "label": "Количество роботов",
+              "value": 10,
+              "unit": "шт.",
+              "formula": "⌈Целевая производительность / (Производительность робота × Загрузка × Готовность)⌉ × (1 + Резерв)",
+              "overridden": true,
+              "inputs": {
+                "targetPerHour": 180,
+                "utilization": 0.85,
+                "availability": 0.95,
+                "reserveShare": 0.15
+              }
+            },
+            "capexRub": {
+              "label": "Капитальные затраты",
+              "value": 118700000,
+              "unit": "₽",
+              "formula": "Сумма строк спецификации оборудования и работ",
+              "overridden": false,
+              "breakdown": [
+                {
+                  "key": "line1",
+                  "label": "ФМР-12 Узкопроходный",
+                  "value": 112000000
+                },
+                {
+                  "key": "line2",
+                  "label": "Зарядная станция",
+                  "value": 1400000
+                },
+                {
+                  "key": "line3",
+                  "label": "ПО управления парком и интеграция с WMS",
+                  "value": 3500000
+                },
+                {
+                  "key": "line4",
+                  "label": "Пусконаладка и обучение персонала",
+                  "value": 1800000
+                }
+              ]
+            },
+            "opexAnnualRub": {
+              "label": "Операционные затраты в год",
+              "value": 34674400,
+              "unit": "₽/год",
+              "formula": "ФОТ оставшегося персонала + обслуживание, энергия и ПО роботов",
+              "overridden": false,
+              "breakdown": [
+                {
+                  "key": "labor",
+                  "label": "ФОТ оставшегося персонала",
+                  "value": 25272000,
+                  "source": "Параметры объекта"
+                },
+                {
+                  "key": "robots",
+                  "label": "Обслуживание, аренда, энергия, ПО",
+                  "value": 9402400,
+                  "source": "Каталог роботов"
+                }
+              ]
+            },
+            "opexDeltaRub": {
+              "label": "Изменение операционных затрат",
+              "value": -893600,
+              "unit": "₽/год",
+              "formula": "OPEX сценария − OPEX текущего состояния",
+              "overridden": false
+            },
+            "annualEffectRub": {
+              "label": "Годовой эффект",
+              "value": 893600,
+              "unit": "₽/год",
+              "formula": "Экономия ФОТ − расходы на роботов",
+              "overridden": false,
+              "inputs": {
+                "replacedStaff": 11,
+                "laborSavingRub": 10296000,
+                "robotOpexRub": 9402400
+              }
+            },
+            "paybackYears": {
+              "label": "Срок окупаемости",
+              "value": 132.83,
+              "unit": "лет",
+              "formula": "Капитальные затраты / Годовой эффект",
+              "overridden": false
+            },
+            "roiPercent": {
+              "label": "ROI за горизонт расчёта",
+              "value": 3.8,
+              "unit": "%",
+              "formula": "Накопленный эффект за горизонт (Годовой эффект × Горизонт) / Капзатраты × 100 %",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            },
+            "tcoRub": {
+              "label": "Совокупная стоимость владения",
+              "value": 292072000,
+              "unit": "₽",
+              "formula": "Капзатраты + OPEX × Горизонт расчёта",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            }
+          },
+          "cashflow": [
+            {
+              "year": 0,
+              "capexRub": 118700000,
+              "opexRub": 0,
+              "effectRub": 0,
+              "cumulativeRub": -118700000
+            },
+            {
+              "year": 1,
+              "capexRub": 0,
+              "opexRub": 34674400,
+              "effectRub": 893600,
+              "cumulativeRub": -117806400
+            },
+            {
+              "year": 2,
+              "capexRub": 0,
+              "opexRub": 34674400,
+              "effectRub": 893600,
+              "cumulativeRub": -116912800
+            },
+            {
+              "year": 3,
+              "capexRub": 0,
+              "opexRub": 34674400,
+              "effectRub": 893600,
+              "cumulativeRub": -116019200
+            },
+            {
+              "year": 4,
+              "capexRub": 0,
+              "opexRub": 34674400,
+              "effectRub": 893600,
+              "cumulativeRub": -115125600
+            },
+            {
+              "year": 5,
+              "capexRub": 0,
+              "opexRub": 34674400,
+              "effectRub": 893600,
+              "cumulativeRub": -114232000
+            }
+          ],
+          "verdict": {
+            "level": "poor",
+            "label": "Долгая окупаемость",
+            "interpretation": "Срок окупаемости более 5 лет — рассмотрите аренду или другой тип робота.",
+            "risks": [
+              "Характеристики робота не подтверждены источником",
+              "Стоимость интеграции с WMS может отличаться после обследования",
+              "Окупаемость дольше горизонта расчёта"
+            ]
+          }
+        },
+        {
+          "id": "fmr12-rent",
+          "kind": "raas",
+          "title": "ФМР-12 в аренду",
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000004",
+          "equipment": [
+            {
+              "item": "Внедрение, интеграция и подготовка площадки (RaaS)",
+              "qty": 1,
+              "unitPriceRub": 2000000,
+              "totalRub": 2000000
+            }
+          ],
+          "metrics": {
+            "robotCount": {
+              "label": "Количество роботов",
+              "value": 3,
+              "unit": "шт.",
+              "formula": "⌈Целевая производительность / (Производительность робота × Загрузка × Готовность)⌉ × (1 + Резерв)",
+              "overridden": true,
+              "inputs": {
+                "targetPerHour": 180,
+                "utilization": 0.85,
+                "availability": 0.95,
+                "reserveShare": 0.15
+              }
+            },
+            "capexRub": {
+              "label": "Капитальные затраты",
+              "value": 2000000,
+              "unit": "₽",
+              "formula": "Сумма строк спецификации оборудования и работ",
+              "overridden": false,
+              "breakdown": [
+                {
+                  "key": "line1",
+                  "label": "Внедрение, интеграция и подготовка площадки (RaaS)",
+                  "value": 2000000
+                }
+              ]
+            },
+            "opexAnnualRub": {
+              "label": "Операционные затраты в год",
+              "value": 34362720,
+              "unit": "₽/год",
+              "formula": "ФОТ оставшегося персонала + обслуживание, энергия и ПО роботов",
+              "overridden": false,
+              "breakdown": [
+                {
+                  "key": "labor",
+                  "label": "ФОТ оставшегося персонала",
+                  "value": 25272000,
+                  "source": "Параметры объекта"
+                },
+                {
+                  "key": "robots",
+                  "label": "Обслуживание, аренда, энергия, ПО",
+                  "value": 9090720,
+                  "source": "Каталог роботов"
+                }
+              ]
+            },
+            "opexDeltaRub": {
+              "label": "Изменение операционных затрат",
+              "value": -1205280,
+              "unit": "₽/год",
+              "formula": "OPEX сценария − OPEX текущего состояния",
+              "overridden": false
+            },
+            "annualEffectRub": {
+              "label": "Годовой эффект",
+              "value": 1205280,
+              "unit": "₽/год",
+              "formula": "Экономия ФОТ − расходы на роботов",
+              "overridden": false,
+              "inputs": {
+                "replacedStaff": 11,
+                "laborSavingRub": 10296000,
+                "robotOpexRub": 9090720
+              }
+            },
+            "paybackYears": {
+              "label": "Срок окупаемости",
+              "value": 1.66,
+              "unit": "лет",
+              "formula": "Капитальные затраты / Годовой эффект",
+              "overridden": false
+            },
+            "roiPercent": {
+              "label": "ROI за горизонт расчёта",
+              "value": 301.3,
+              "unit": "%",
+              "formula": "Накопленный эффект за горизонт (Годовой эффект × Горизонт) / Капзатраты × 100 %",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            },
+            "tcoRub": {
+              "label": "Совокупная стоимость владения",
+              "value": 173813600,
+              "unit": "₽",
+              "formula": "Капзатраты + OPEX × Горизонт расчёта",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            }
+          },
+          "cashflow": [
+            {
+              "year": 0,
+              "capexRub": 2000000,
+              "opexRub": 0,
+              "effectRub": 0,
+              "cumulativeRub": -2000000
+            },
+            {
+              "year": 1,
+              "capexRub": 0,
+              "opexRub": 34362720,
+              "effectRub": 1205280,
+              "cumulativeRub": -794720
+            },
+            {
+              "year": 2,
+              "capexRub": 0,
+              "opexRub": 34362720,
+              "effectRub": 1205280,
+              "cumulativeRub": 410560
+            },
+            {
+              "year": 3,
+              "capexRub": 0,
+              "opexRub": 34362720,
+              "effectRub": 1205280,
+              "cumulativeRub": 1615840
+            },
+            {
+              "year": 4,
+              "capexRub": 0,
+              "opexRub": 34362720,
+              "effectRub": 1205280,
+              "cumulativeRub": 2821120
+            },
+            {
+              "year": 5,
+              "capexRub": 0,
+              "opexRub": 34362720,
+              "effectRub": 1205280,
+              "cumulativeRub": 4026400
+            }
+          ],
+          "verdict": {
+            "level": "good",
+            "label": "Окупается быстро",
+            "interpretation": "Срок окупаемости до 3 лет — проект привлекателен для пилотного внедрения.",
+            "risks": [
+              "Характеристики робота не подтверждены источником"
+            ]
+          }
+        }
+      ],
+      "sensitivity": [
+        {
+          "scenarioId": "amr1500",
+          "param": "operationsVolume",
+          "label": "Объём операций",
+          "points": [
+            {
+              "delta": -0.3,
+              "paybackYears": 13.35,
+              "roiPercent": 37.5,
+              "annualEffectRub": 3370560
+            },
+            {
+              "delta": 0.5,
+              "paybackYears": 10.45,
+              "roiPercent": 47.9,
+              "annualEffectRub": 4306560
+            }
+          ]
+        },
+        {
+          "scenarioId": "amr1500",
+          "param": "equipmentPrice",
+          "label": "Стоимость оборудования",
+          "points": [
+            {
+              "delta": -0.3,
+              "paybackYears": 9.88,
+              "roiPercent": 50.6,
+              "annualEffectRub": 3370560
+            },
+            {
+              "delta": 0.5,
+              "paybackYears": 19.14,
+              "roiPercent": 26.1,
+              "annualEffectRub": 3370560
+            }
+          ]
+        },
+        {
+          "scenarioId": "fmr12",
+          "param": "operationsVolume",
+          "label": "Объём операций",
+          "points": [
+            {
+              "delta": -0.3,
+              "paybackYears": null,
+              "roiPercent": -1.2,
+              "annualEffectRub": -209680
+            },
+            {
+              "delta": 0.5,
+              "paybackYears": 54.82,
+              "roiPercent": 9.1,
+              "annualEffectRub": 2988640
+            }
+          ]
+        },
+        {
+          "scenarioId": "fmr12",
+          "param": "equipmentPrice",
+          "label": "Стоимость оборудования",
+          "points": [
+            {
+              "delta": -0.3,
+              "paybackYears": 95.23,
+              "roiPercent": 5.3,
+              "annualEffectRub": 893600
+            },
+            {
+              "delta": 0.5,
+              "paybackYears": 195.5,
+              "roiPercent": 2.6,
+              "annualEffectRub": 893600
+            }
+          ]
+        },
+        {
+          "scenarioId": "fmr12-rent",
+          "param": "operationsVolume",
+          "label": "Объём операций",
+          "points": [
+            {
+              "delta": -0.3,
+              "paybackYears": null,
+              "roiPercent": -634.7,
+              "annualEffectRub": -2538720
+            },
+            {
+              "delta": 0.5,
+              "paybackYears": 0.29,
+              "roiPercent": 1705.3,
+              "annualEffectRub": 6821280
+            }
+          ]
+        },
+        {
+          "scenarioId": "fmr12-rent",
+          "param": "equipmentPrice",
+          "label": "Стоимость оборудования",
+          "points": [
+            {
+              "delta": -0.3,
+              "paybackYears": 0.51,
+              "roiPercent": 976.3,
+              "annualEffectRub": 3905280
+            },
+            {
+              "delta": 0.5,
+              "paybackYears": null,
+              "roiPercent": -823.7,
+              "annualEffectRub": -3294720
+            }
+          ]
+        }
+      ],
+      "assumptionsUsed": [
+        {
+          "key": "horizonYears",
+          "label": "Горизонт расчёта",
+          "value": 5,
+          "unit": "лет",
+          "source": "Параметры проекта",
+          "confirmed": true
+        },
+        {
+          "key": "workDaysPerYear",
+          "label": "Рабочих дней в году",
+          "value": 300,
+          "unit": "дн.",
+          "source": "Допущение: пятидневная рабочая неделя, округлённо",
+          "confirmed": false
+        },
+        {
+          "key": "shiftsPerDay",
+          "label": "Смен в сутки",
+          "value": 3,
+          "unit": "смен",
+          "source": "Параметры проекта",
+          "confirmed": true
+        },
+        {
+          "key": "hoursPerShift",
+          "label": "Длительность смены",
+          "value": 8,
+          "unit": "ч",
+          "source": "ТК РФ, ст. 91",
+          "confirmed": true
+        },
+        {
+          "key": "utilization",
+          "label": "Загрузка робота",
+          "value": 85,
+          "unit": "%",
+          "source": "Демо-оценка по отраслевой практике",
+          "confirmed": false
+        },
+        {
+          "key": "availability",
+          "label": "Техническая готовность",
+          "value": 95,
+          "unit": "%",
+          "source": "Демо-оценка по данным производителей",
+          "confirmed": false
+        },
+        {
+          "key": "reserveShare",
+          "label": "Резерв парка",
+          "value": 15,
+          "unit": "%",
+          "source": "Демо-оценка",
+          "confirmed": false
+        },
+        {
+          "key": "staffReplacedShare",
+          "label": "Доля замещаемого персонала",
+          "value": 30,
+          "unit": "%",
+          "source": "Демо-оценка",
+          "confirmed": false
+        },
+        {
+          "key": "staffCostMonthRub",
+          "label": "Стоимость сотрудника",
+          "value": 78000,
+          "unit": "₽/мес",
+          "source": "Параметры объекта",
+          "confirmed": true
+        },
+        {
+          "key": "energyTariffRub",
+          "label": "Тариф на электроэнергию",
+          "value": 7,
+          "unit": "₽/кВт·ч",
+          "source": "Демо-оценка",
+          "confirmed": false
+        },
+        {
+          "key": "integrationRub",
+          "label": "Интеграция с WMS",
+          "value": 3500000,
+          "unit": "₽",
+          "source": "Демо-оценка по рынку",
+          "confirmed": false
+        }
+      ]
+    }
+  },
+  {
+    "name": "warehouse-heavy",
+    "request": {
+      "projectId": null,
+      "objectType": "warehouse",
+      "processes": [
+        "receiving",
+        "internal_transport",
+        "picking",
+        "shipping",
+        "cleaning"
+      ],
+      "params": {
+        "areaM2": 12000,
+        "workMode": "2x8",
+        "inboundPerDay": 1200,
+        "internalPerDay": 2500,
+        "outboundPerDay": 1800,
+        "processPerfPerHour": 5000,
+        "storageType": "pallet_rack",
+        "skuCount": 8500,
+        "unitWeightKg": null,
+        "unitLengthM": 1.2,
+        "unitWidthM": 0.8,
+        "unitHeightM": 1.5,
+        "staffCount": 64,
+        "staffCostMonthRub": 95000,
+        "avgRouteM": 120,
+        "aisleWidthM": null
+      },
+      "assumptions": {
+        "horizonYears": 5,
+        "workDaysPerYear": 250,
+        "shiftsPerDay": 2,
+        "hoursPerShift": 8,
+        "utilization": 0.85,
+        "availability": 0.95,
+        "reserveShare": 0.1,
+        "staffReplacedShare": 0.3
+      },
+      "scenarios": [
+        {
+          "id": "buy",
+          "kind": "purchase",
+          "title": "Покупка АТ-3000",
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000006"
+        }
+      ],
+      "sensitivity": {
+        "params": [
+          "laborCost"
+        ],
+        "deltas": [
+          -0.1,
+          0.1
+        ]
+      }
+    },
+    "result": {
+      "calculationId": null,
+      "modelVersion": "mock-1.0",
+      "dataVersion": "catalog-2026.09",
+      "calculatedAt": "2026-01-01T00:00:00.000Z",
+      "disclaimer": "Предварительная оценка, требует верификации при обследовании объекта. Расчёт основан на введённых параметрах и каталожных данных и не является инвестиционным решением: перед закупкой нужны коммерческие предложения поставщиков.",
+      "recommendation": [
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000009",
+          "name": "Шаттл-система АСХ-Шаттл",
+          "solutionType": "asrs",
+          "status": "recommended",
+          "score": 55.9,
+          "checks": [
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "pass",
+              "required": 5000,
+              "actual": 600,
+              "unit": "опер./ч",
+              "message": "Целевые 5 000 опер./ч обеспечат 13 роб."
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "unknown",
+              "required": 8,
+              "actual": null,
+              "unit": "ч",
+              "message": "Время автономной работы не указано"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 0,
+              "contribution": 0
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 100,
+              "contribution": 25
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 67,
+              "contribution": 13.4
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 75,
+              "contribution": 7.5
+            }
+          ],
+          "missingData": [
+            "Минимальная ширина прохода",
+            "Время автономной работы",
+            "Время зарядки"
+          ]
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000008",
+          "name": "Уборщик ЧистоБот ПРО-50",
+          "solutionType": "cleaner",
+          "status": "recommended",
+          "score": 44,
+          "checks": [
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "fail",
+              "required": 8,
+              "actual": 4,
+              "unit": "ч",
+              "message": "Заряда хватает на 4 ч — понадобится подзарядка в смену"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 40,
+              "contribution": 14
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 0,
+              "contribution": 0
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 50,
+              "contribution": 10
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            }
+          ],
+          "missingData": [
+            "Грузоподъёмность",
+            "Производительность"
+          ]
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000004",
+          "name": "ФМР-12 Узкопроходный",
+          "solutionType": "fmr",
+          "status": "needs_check",
+          "score": 25.5,
+          "checks": [
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "unknown",
+              "required": 5000,
+              "actual": null,
+              "unit": "опер./ч",
+              "message": "Производительность не указана — число роботов нельзя оценить"
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "unknown",
+              "required": 8,
+              "actual": null,
+              "unit": "ч",
+              "message": "Время автономной работы не указано"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "unknown",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики не подтверждены — используйте оценку с осторожностью"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 40,
+              "contribution": 14
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 0,
+              "contribution": 0
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 0,
+              "contribution": 0
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 40,
+              "contribution": 4
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 75,
+              "contribution": 7.5
+            }
+          ],
+          "missingData": [
+            "Производительность",
+            "Время автономной работы",
+            "Время зарядки",
+            "Срок службы"
+          ]
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000001",
+          "name": "Логимов AMR-600",
+          "solutionType": "amr",
+          "status": "excluded",
+          "score": null,
+          "checks": [
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "fail",
+              "required": 5000,
+              "actual": 45,
+              "unit": "опер./ч",
+              "message": "Потребуется 152 роботов — больше разумного размера парка (40)"
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "pass",
+              "required": 8,
+              "actual": 10,
+              "unit": "ч",
+              "message": "Заряда хватает на смену (10 ч)"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [],
+          "missingData": []
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000002",
+          "name": "Логимов AMR-1500",
+          "solutionType": "amr",
+          "status": "excluded",
+          "score": null,
+          "checks": [
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "fail",
+              "required": 5000,
+              "actual": 35,
+              "unit": "опер./ч",
+              "message": "Потребуется 195 роботов — больше разумного размера парка (40)"
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "pass",
+              "required": 8,
+              "actual": 8,
+              "unit": "ч",
+              "message": "Заряда хватает на смену (8 ч)"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [],
+          "missingData": []
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000003",
+          "name": "Автопогрузчик ФМР-16",
+          "solutionType": "fmr",
+          "status": "excluded",
+          "score": null,
+          "checks": [
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "fail",
+              "required": 5000,
+              "actual": 22,
+              "unit": "опер./ч",
+              "message": "Потребуется 311 роботов — больше разумного размера парка (40)"
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "pass",
+              "required": 8,
+              "actual": 8,
+              "unit": "ч",
+              "message": "Заряда хватает на смену (8 ч)"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [],
+          "missingData": []
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000005",
+          "name": "Штабелер АШ-12",
+          "solutionType": "stacker",
+          "status": "excluded",
+          "score": null,
+          "checks": [
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "fail",
+              "required": 5000,
+              "actual": 20,
+              "unit": "опер./ч",
+              "message": "Потребуется 341 роботов — больше разумного размера парка (40)"
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "pass",
+              "required": 8,
+              "actual": 8,
+              "unit": "ч",
+              "message": "Заряда хватает на смену (8 ч)"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [],
+          "missingData": []
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000006",
+          "name": "Тягач АТ-3000",
+          "solutionType": "tugger",
+          "status": "excluded",
+          "score": null,
+          "checks": [
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "fail",
+              "required": 5000,
+              "actual": 30,
+              "unit": "опер./ч",
+              "message": "Потребуется 228 роботов — больше разумного размера парка (40)"
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "pass",
+              "required": 8,
+              "actual": 9,
+              "unit": "ч",
+              "message": "Заряда хватает на смену (9 ч)"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [],
+          "missingData": []
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000007",
+          "name": "Тягач АТ-1000 Лайт",
+          "solutionType": "tugger",
+          "status": "excluded",
+          "score": null,
+          "checks": [
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "fail",
+              "required": 5000,
+              "actual": 28,
+              "unit": "опер./ч",
+              "message": "Потребуется 245 роботов — больше разумного размера парка (40)"
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "unknown",
+              "required": 8,
+              "actual": null,
+              "unit": "ч",
+              "message": "Время автономной работы не указано"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "unknown",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики не подтверждены — используйте оценку с осторожностью"
+            }
+          ],
+          "scoreBreakdown": [],
+          "missingData": [
+            "Минимальная ширина прохода",
+            "Время автономной работы",
+            "Время зарядки",
+            "Срок службы"
+          ]
+        }
+      ],
+      "scenarios": [
+        {
+          "id": "buy",
+          "kind": "purchase",
+          "title": "Покупка АТ-3000",
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000006",
+          "equipment": [
+            {
+              "item": "Тягач АТ-3000",
+              "qty": 228,
+              "unitPriceRub": 5200000,
+              "totalRub": 1185600000
+            },
+            {
+              "item": "Зарядная станция",
+              "qty": 76,
+              "unitPriceRub": 350000,
+              "totalRub": 26600000
+            },
+            {
+              "item": "ПО управления парком и интеграция с WMS",
+              "qty": 1,
+              "unitPriceRub": 3500000,
+              "totalRub": 3500000
+            },
+            {
+              "item": "Пусконаладка и обучение персонала",
+              "qty": 1,
+              "unitPriceRub": 1800000,
+              "totalRub": 1800000
+            }
+          ],
+          "metrics": {
+            "robotCount": {
+              "label": "Количество роботов",
+              "value": 228,
+              "unit": "шт.",
+              "formula": "⌈Целевая производительность / (Производительность робота × Загрузка × Готовность)⌉ × (1 + Резерв)",
+              "overridden": false,
+              "inputs": {
+                "targetPerHour": 5000,
+                "utilization": 0.85,
+                "availability": 0.95,
+                "reserveShare": 0.1
+              }
+            },
+            "capexRub": {
+              "label": "Капитальные затраты",
+              "value": 1217500000,
+              "unit": "₽",
+              "formula": "Сумма строк спецификации оборудования и работ",
+              "overridden": false,
+              "breakdown": [
+                {
+                  "key": "line1",
+                  "label": "Тягач АТ-3000",
+                  "value": 1185600000
+                },
+                {
+                  "key": "line2",
+                  "label": "Зарядная станция",
+                  "value": 26600000
+                },
+                {
+                  "key": "line3",
+                  "label": "ПО управления парком и интеграция с WMS",
+                  "value": 3500000
+                },
+                {
+                  "key": "line4",
+                  "label": "Пусконаладка и обучение персонала",
+                  "value": 1800000
+                }
+              ]
+            },
+            "opexAnnualRub": {
+              "label": "Операционные затраты в год",
+              "value": 142370400,
+              "unit": "₽/год",
+              "formula": "ФОТ оставшегося персонала + обслуживание, энергия и ПО роботов",
+              "overridden": false,
+              "breakdown": [
+                {
+                  "key": "labor",
+                  "label": "ФОТ оставшегося персонала",
+                  "value": 51300000,
+                  "source": "Параметры объекта"
+                },
+                {
+                  "key": "robots",
+                  "label": "Обслуживание, аренда, энергия, ПО",
+                  "value": 91070400,
+                  "source": "Каталог роботов"
+                }
+              ]
+            },
+            "opexDeltaRub": {
+              "label": "Изменение операционных затрат",
+              "value": 69410400,
+              "unit": "₽/год",
+              "formula": "OPEX сценария − OPEX текущего состояния",
+              "overridden": false
+            },
+            "annualEffectRub": {
+              "label": "Годовой эффект",
+              "value": -69410400,
+              "unit": "₽/год",
+              "formula": "Экономия ФОТ − расходы на роботов",
+              "overridden": false,
+              "inputs": {
+                "replacedStaff": 19,
+                "laborSavingRub": 21660000,
+                "robotOpexRub": 91070400
+              }
+            },
+            "paybackYears": {
+              "label": "Срок окупаемости",
+              "value": null,
+              "unit": "лет",
+              "formula": "Капитальные затраты / Годовой эффект",
+              "overridden": false
+            },
+            "roiPercent": {
+              "label": "ROI за горизонт расчёта",
+              "value": -28.5,
+              "unit": "%",
+              "formula": "Накопленный эффект за горизонт (Годовой эффект × Горизонт) / Капзатраты × 100 %",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            },
+            "tcoRub": {
+              "label": "Совокупная стоимость владения",
+              "value": 1929352000,
+              "unit": "₽",
+              "formula": "Капзатраты + OPEX × Горизонт расчёта",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            }
+          },
+          "cashflow": [
+            {
+              "year": 0,
+              "capexRub": 1217500000,
+              "opexRub": 0,
+              "effectRub": 0,
+              "cumulativeRub": -1217500000
+            },
+            {
+              "year": 1,
+              "capexRub": 0,
+              "opexRub": 142370400,
+              "effectRub": -69410400,
+              "cumulativeRub": -1286910400
+            },
+            {
+              "year": 2,
+              "capexRub": 0,
+              "opexRub": 142370400,
+              "effectRub": -69410400,
+              "cumulativeRub": -1356320800
+            },
+            {
+              "year": 3,
+              "capexRub": 0,
+              "opexRub": 142370400,
+              "effectRub": -69410400,
+              "cumulativeRub": -1425731200
+            },
+            {
+              "year": 4,
+              "capexRub": 0,
+              "opexRub": 142370400,
+              "effectRub": -69410400,
+              "cumulativeRub": -1495141600
+            },
+            {
+              "year": 5,
+              "capexRub": 0,
+              "opexRub": 142370400,
+              "effectRub": -69410400,
+              "cumulativeRub": -1564552000
+            }
+          ],
+          "verdict": {
+            "level": "negative",
+            "label": "Не окупается",
+            "interpretation": "Экономия на персонале не покрывает расходы на роботов.",
+            "risks": [
+              "Стоимость интеграции с WMS может отличаться после обследования"
+            ]
+          }
+        }
+      ],
+      "sensitivity": [
+        {
+          "scenarioId": "buy",
+          "param": "laborCost",
+          "label": "Стоимость труда",
+          "points": [
+            {
+              "delta": -0.1,
+              "paybackYears": null,
+              "roiPercent": -29.4,
+              "annualEffectRub": -71576400
+            },
+            {
+              "delta": 0.1,
+              "paybackYears": null,
+              "roiPercent": -27.6,
+              "annualEffectRub": -67244400
+            }
+          ]
+        }
+      ],
+      "assumptionsUsed": [
+        {
+          "key": "horizonYears",
+          "label": "Горизонт расчёта",
+          "value": 5,
+          "unit": "лет",
+          "source": "Параметры проекта",
+          "confirmed": true
+        },
+        {
+          "key": "workDaysPerYear",
+          "label": "Рабочих дней в году",
+          "value": 250,
+          "unit": "дн.",
+          "source": "Допущение: пятидневная рабочая неделя, округлённо",
+          "confirmed": false
+        },
+        {
+          "key": "shiftsPerDay",
+          "label": "Смен в сутки",
+          "value": 2,
+          "unit": "смен",
+          "source": "Параметры проекта",
+          "confirmed": true
+        },
+        {
+          "key": "hoursPerShift",
+          "label": "Длительность смены",
+          "value": 8,
+          "unit": "ч",
+          "source": "ТК РФ, ст. 91",
+          "confirmed": true
+        },
+        {
+          "key": "utilization",
+          "label": "Загрузка робота",
+          "value": 85,
+          "unit": "%",
+          "source": "Демо-оценка по отраслевой практике",
+          "confirmed": false
+        },
+        {
+          "key": "availability",
+          "label": "Техническая готовность",
+          "value": 95,
+          "unit": "%",
+          "source": "Демо-оценка по данным производителей",
+          "confirmed": false
+        },
+        {
+          "key": "reserveShare",
+          "label": "Резерв парка",
+          "value": 10,
+          "unit": "%",
+          "source": "Демо-оценка",
+          "confirmed": false
+        },
+        {
+          "key": "staffReplacedShare",
+          "label": "Доля замещаемого персонала",
+          "value": 30,
+          "unit": "%",
+          "source": "Демо-оценка",
+          "confirmed": false
+        },
+        {
+          "key": "staffCostMonthRub",
+          "label": "Стоимость сотрудника",
+          "value": 95000,
+          "unit": "₽/мес",
+          "source": "Параметры объекта",
+          "confirmed": true
+        },
+        {
+          "key": "energyTariffRub",
+          "label": "Тариф на электроэнергию",
+          "value": 7,
+          "unit": "₽/кВт·ч",
+          "source": "Демо-оценка",
+          "confirmed": false
+        },
+        {
+          "key": "integrationRub",
+          "label": "Интеграция с WMS",
+          "value": 3500000,
+          "unit": "₽",
+          "source": "Демо-оценка по рынку",
+          "confirmed": false
+        }
+      ]
+    }
+  },
+  {
+    "name": "airport-demo",
+    "request": {
+      "projectId": null,
+      "objectType": "airport",
+      "processes": [
+        "baggage",
+        "cleaning",
+        "guidance"
+      ],
+      "params": {
+        "terminalAreaM2": 60000,
+        "hoursPerDay": 24,
+        "operationType": "baggage",
+        "operationZone": "baggage_hall",
+        "passengersPerYear": 12,
+        "bagsPerHourPeak": 600,
+        "bagTransferM": 450,
+        "cleaningAreaM2": 35000,
+        "hasBaggageSystem": true,
+        "loadKg": 100,
+        "loadLengthM": 1.6,
+        "loadWidthM": 0.8,
+        "loadHeightM": 1.2,
+        "safetyLevel": "enhanced",
+        "zoneEnvironment": "mixed",
+        "staffCount": 180,
+        "staffCostMonthRub": 88000
+      },
+      "assumptions": {
+        "horizonYears": 5,
+        "workDaysPerYear": 250,
+        "shiftsPerDay": 2,
+        "hoursPerShift": 8,
+        "utilization": 0.85,
+        "availability": 0.95,
+        "reserveShare": 0.1,
+        "staffReplacedShare": 0.3
+      },
+      "scenarios": [
+        {
+          "id": "baseline",
+          "kind": "baseline",
+          "title": "Текущее состояние",
+          "robotId": null
+        },
+        {
+          "id": "purchase",
+          "kind": "purchase",
+          "title": "Покупка Аэро-Б",
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000010"
+        },
+        {
+          "id": "raas",
+          "kind": "raas",
+          "title": "Аренда Аэро-Б",
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000010"
+        }
+      ],
+      "sensitivity": {
+        "params": [
+          "equipmentPrice",
+          "operationsVolume",
+          "laborCost"
+        ],
+        "deltas": [
+          -0.2,
+          -0.1,
+          0.1,
+          0.2
+        ]
+      }
+    },
+    "result": {
+      "calculationId": null,
+      "modelVersion": "mock-1.0",
+      "dataVersion": "catalog-2026.09",
+      "calculatedAt": "2026-01-01T00:00:00.000Z",
+      "disclaimer": "Предварительная оценка, требует верификации при обследовании объекта. Расчёт основан на введённых параметрах и каталожных данных и не является инвестиционным решением: перед закупкой нужны коммерческие предложения поставщиков.",
+      "recommendation": [
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000010",
+          "name": "Аэро-Б багажный AMR",
+          "solutionType": "amr",
+          "status": "recommended",
+          "score": 88,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "pass",
+              "required": 100,
+              "actual": 120,
+              "unit": "кг",
+              "message": "Грузоподъёмность 120 кг достаточна для единицы 100 кг"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "pass",
+              "required": 600,
+              "actual": 40,
+              "unit": "опер./ч",
+              "message": "Целевые 600 опер./ч обеспечат 21 роб."
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "pass",
+              "required": 8,
+              "actual": 12,
+              "unit": "ч",
+              "message": "Заряда хватает на смену (12 ч)"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 73,
+              "contribution": 25.5
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 100,
+              "contribution": 25
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 100,
+              "contribution": 20
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 75,
+              "contribution": 7.5
+            }
+          ],
+          "missingData": []
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000006",
+          "name": "Тягач АТ-3000",
+          "solutionType": "tugger",
+          "status": "recommended",
+          "score": 73.5,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "pass",
+              "required": 100,
+              "actual": 3000,
+              "unit": "кг",
+              "message": "Грузоподъёмность 3 000 кг достаточна для единицы 100 кг"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "pass",
+              "required": 600,
+              "actual": 30,
+              "unit": "опер./ч",
+              "message": "Целевые 600 опер./ч обеспечат 28 роб."
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "pass",
+              "required": 8,
+              "actual": 9,
+              "unit": "ч",
+              "message": "Заряда хватает на смену (9 ч)"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 49,
+              "contribution": 17.2
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 75,
+              "contribution": 18.8
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 100,
+              "contribution": 20
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 75,
+              "contribution": 7.5
+            }
+          ],
+          "missingData": []
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000008",
+          "name": "Уборщик ЧистоБот ПРО-50",
+          "solutionType": "cleaner",
+          "status": "recommended",
+          "score": 44,
+          "checks": [
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "fail",
+              "required": 8,
+              "actual": 4,
+              "unit": "ч",
+              "message": "Заряда хватает на 4 ч — понадобится подзарядка в смену"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 40,
+              "contribution": 14
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 0,
+              "contribution": 0
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 50,
+              "contribution": 10
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            }
+          ],
+          "missingData": [
+            "Грузоподъёмность",
+            "Производительность"
+          ]
+        }
+      ],
+      "scenarios": [
+        {
+          "id": "baseline",
+          "kind": "baseline",
+          "title": "Текущее состояние",
+          "robotId": null,
+          "equipment": [],
+          "metrics": {
+            "robotCount": {
+              "label": "Количество роботов",
+              "value": 0,
+              "unit": "шт.",
+              "formula": "⌈Целевая производительность / (Производительность робота × Загрузка × Готовность)⌉ × (1 + Резерв)",
+              "overridden": false,
+              "inputs": {
+                "targetPerHour": 600,
+                "utilization": 0.85,
+                "availability": 0.95,
+                "reserveShare": 0.1
+              }
+            },
+            "capexRub": {
+              "label": "Капитальные затраты",
+              "value": 0,
+              "unit": "₽",
+              "formula": "Сумма строк спецификации оборудования и работ",
+              "overridden": false,
+              "breakdown": []
+            },
+            "opexAnnualRub": {
+              "label": "Операционные затраты в год",
+              "value": 190080000,
+              "unit": "₽/год",
+              "formula": "ФОТ оставшегося персонала + обслуживание, энергия и ПО роботов",
+              "overridden": false,
+              "breakdown": [
+                {
+                  "key": "labor",
+                  "label": "ФОТ оставшегося персонала",
+                  "value": 190080000,
+                  "source": "Параметры объекта"
+                },
+                {
+                  "key": "robots",
+                  "label": "Обслуживание, аренда, энергия, ПО",
+                  "value": 0,
+                  "source": "Каталог роботов"
+                }
+              ]
+            },
+            "opexDeltaRub": {
+              "label": "Изменение операционных затрат",
+              "value": 0,
+              "unit": "₽/год",
+              "formula": "OPEX сценария − OPEX текущего состояния",
+              "overridden": false
+            },
+            "annualEffectRub": {
+              "label": "Годовой эффект",
+              "value": 0,
+              "unit": "₽/год",
+              "formula": "Экономия ФОТ − расходы на роботов",
+              "overridden": false,
+              "inputs": {
+                "replacedStaff": 0,
+                "laborSavingRub": 0,
+                "robotOpexRub": 0
+              }
+            },
+            "paybackYears": {
+              "label": "Срок окупаемости",
+              "value": null,
+              "unit": "лет",
+              "formula": "Капитальные затраты / Годовой эффект",
+              "overridden": false
+            },
+            "roiPercent": {
+              "label": "ROI за горизонт расчёта",
+              "value": null,
+              "unit": "%",
+              "formula": "Накопленный эффект за горизонт (Годовой эффект × Горизонт) / Капзатраты × 100 %",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            },
+            "tcoRub": {
+              "label": "Совокупная стоимость владения",
+              "value": 950400000,
+              "unit": "₽",
+              "formula": "Капзатраты + OPEX × Горизонт расчёта",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            }
+          },
+          "cashflow": [
+            {
+              "year": 0,
+              "capexRub": 0,
+              "opexRub": 0,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 1,
+              "capexRub": 0,
+              "opexRub": 190080000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 2,
+              "capexRub": 0,
+              "opexRub": 190080000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 3,
+              "capexRub": 0,
+              "opexRub": 190080000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 4,
+              "capexRub": 0,
+              "opexRub": 190080000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 5,
+              "capexRub": 0,
+              "opexRub": 190080000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            }
+          ],
+          "verdict": {
+            "level": "moderate",
+            "label": "Текущее состояние",
+            "interpretation": "Процессы выполняет персонал, инвестиций нет. Сценарий — точка отсчёта для сравнения.",
+            "risks": [
+              "Рост фонда оплаты труда",
+              "Нехватка персонала в пиковые периоды"
+            ]
+          }
+        },
+        {
+          "id": "purchase",
+          "kind": "purchase",
+          "title": "Покупка Аэро-Б",
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000010",
+          "equipment": [
+            {
+              "item": "Аэро-Б багажный AMR",
+              "qty": 21,
+              "unitPriceRub": 3900000,
+              "totalRub": 81900000
+            },
+            {
+              "item": "Зарядная станция",
+              "qty": 7,
+              "unitPriceRub": 350000,
+              "totalRub": 2450000
+            },
+            {
+              "item": "ПО управления парком и интеграция с WMS",
+              "qty": 1,
+              "unitPriceRub": 3500000,
+              "totalRub": 3500000
+            },
+            {
+              "item": "Пусконаладка и обучение персонала",
+              "qty": 1,
+              "unitPriceRub": 1800000,
+              "totalRub": 1800000
+            }
+          ],
+          "metrics": {
+            "robotCount": {
+              "label": "Количество роботов",
+              "value": 21,
+              "unit": "шт.",
+              "formula": "⌈Целевая производительность / (Производительность робота × Загрузка × Готовность)⌉ × (1 + Резерв)",
+              "overridden": false,
+              "inputs": {
+                "targetPerHour": 600,
+                "utilization": 0.85,
+                "availability": 0.95,
+                "reserveShare": 0.1
+              }
+            },
+            "capexRub": {
+              "label": "Капитальные затраты",
+              "value": 89650000,
+              "unit": "₽",
+              "formula": "Сумма строк спецификации оборудования и работ",
+              "overridden": false,
+              "breakdown": [
+                {
+                  "key": "line1",
+                  "label": "Аэро-Б багажный AMR",
+                  "value": 81900000
+                },
+                {
+                  "key": "line2",
+                  "label": "Зарядная станция",
+                  "value": 2450000
+                },
+                {
+                  "key": "line3",
+                  "label": "ПО управления парком и интеграция с WMS",
+                  "value": 3500000
+                },
+                {
+                  "key": "line4",
+                  "label": "Пусконаладка и обучение персонала",
+                  "value": 1800000
+                }
+              ]
+            },
+            "opexAnnualRub": {
+              "label": "Операционные затраты в год",
+              "value": 140308800,
+              "unit": "₽/год",
+              "formula": "ФОТ оставшегося персонала + обслуживание, энергия и ПО роботов",
+              "overridden": false,
+              "breakdown": [
+                {
+                  "key": "labor",
+                  "label": "ФОТ оставшегося персонала",
+                  "value": 133056000,
+                  "source": "Параметры объекта"
+                },
+                {
+                  "key": "robots",
+                  "label": "Обслуживание, аренда, энергия, ПО",
+                  "value": 7252800,
+                  "source": "Каталог роботов"
+                }
+              ]
+            },
+            "opexDeltaRub": {
+              "label": "Изменение операционных затрат",
+              "value": -49771200,
+              "unit": "₽/год",
+              "formula": "OPEX сценария − OPEX текущего состояния",
+              "overridden": false
+            },
+            "annualEffectRub": {
+              "label": "Годовой эффект",
+              "value": 49771200,
+              "unit": "₽/год",
+              "formula": "Экономия ФОТ − расходы на роботов",
+              "overridden": false,
+              "inputs": {
+                "replacedStaff": 54,
+                "laborSavingRub": 57024000,
+                "robotOpexRub": 7252800
+              }
+            },
+            "paybackYears": {
+              "label": "Срок окупаемости",
+              "value": 1.8,
+              "unit": "лет",
+              "formula": "Капитальные затраты / Годовой эффект",
+              "overridden": false
+            },
+            "roiPercent": {
+              "label": "ROI за горизонт расчёта",
+              "value": 277.6,
+              "unit": "%",
+              "formula": "Накопленный эффект за горизонт (Годовой эффект × Горизонт) / Капзатраты × 100 %",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            },
+            "tcoRub": {
+              "label": "Совокупная стоимость владения",
+              "value": 791194000,
+              "unit": "₽",
+              "formula": "Капзатраты + OPEX × Горизонт расчёта",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            }
+          },
+          "cashflow": [
+            {
+              "year": 0,
+              "capexRub": 89650000,
+              "opexRub": 0,
+              "effectRub": 0,
+              "cumulativeRub": -89650000
+            },
+            {
+              "year": 1,
+              "capexRub": 0,
+              "opexRub": 140308800,
+              "effectRub": 49771200,
+              "cumulativeRub": -39878800
+            },
+            {
+              "year": 2,
+              "capexRub": 0,
+              "opexRub": 140308800,
+              "effectRub": 49771200,
+              "cumulativeRub": 9892400
+            },
+            {
+              "year": 3,
+              "capexRub": 0,
+              "opexRub": 140308800,
+              "effectRub": 49771200,
+              "cumulativeRub": 59663600
+            },
+            {
+              "year": 4,
+              "capexRub": 0,
+              "opexRub": 140308800,
+              "effectRub": 49771200,
+              "cumulativeRub": 109434800
+            },
+            {
+              "year": 5,
+              "capexRub": 0,
+              "opexRub": 140308800,
+              "effectRub": 49771200,
+              "cumulativeRub": 159206000
+            }
+          ],
+          "verdict": {
+            "level": "good",
+            "label": "Окупается быстро",
+            "interpretation": "Срок окупаемости до 3 лет — проект привлекателен для пилотного внедрения.",
+            "risks": [
+              "Стоимость интеграции с WMS может отличаться после обследования"
+            ]
+          }
+        },
+        {
+          "id": "raas",
+          "kind": "raas",
+          "title": "Аренда Аэро-Б",
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000010",
+          "equipment": [
+            {
+              "item": "Внедрение, интеграция и подготовка площадки (RaaS)",
+              "qty": 1,
+              "unitPriceRub": 1500000,
+              "totalRub": 1500000
+            }
+          ],
+          "metrics": {
+            "robotCount": {
+              "label": "Количество роботов",
+              "value": 21,
+              "unit": "шт.",
+              "formula": "⌈Целевая производительность / (Производительность робота × Загрузка × Готовность)⌉ × (1 + Резерв)",
+              "overridden": false,
+              "inputs": {
+                "targetPerHour": 600,
+                "utilization": 0.85,
+                "availability": 0.95,
+                "reserveShare": 0.1
+              }
+            },
+            "capexRub": {
+              "label": "Капитальные затраты",
+              "value": 1500000,
+              "unit": "₽",
+              "formula": "Сумма строк спецификации оборудования и работ",
+              "overridden": false,
+              "breakdown": [
+                {
+                  "key": "line1",
+                  "label": "Внедрение, интеграция и подготовка площадки (RaaS)",
+                  "value": 1500000
+                }
+              ]
+            },
+            "opexAnnualRub": {
+              "label": "Операционные затраты в год",
+              "value": 159868800,
+              "unit": "₽/год",
+              "formula": "ФОТ оставшегося персонала + обслуживание, энергия и ПО роботов",
+              "overridden": false,
+              "breakdown": [
+                {
+                  "key": "labor",
+                  "label": "ФОТ оставшегося персонала",
+                  "value": 133056000,
+                  "source": "Параметры объекта"
+                },
+                {
+                  "key": "robots",
+                  "label": "Обслуживание, аренда, энергия, ПО",
+                  "value": 26812800,
+                  "source": "Каталог роботов"
+                }
+              ]
+            },
+            "opexDeltaRub": {
+              "label": "Изменение операционных затрат",
+              "value": -30211200,
+              "unit": "₽/год",
+              "formula": "OPEX сценария − OPEX текущего состояния",
+              "overridden": false
+            },
+            "annualEffectRub": {
+              "label": "Годовой эффект",
+              "value": 30211200,
+              "unit": "₽/год",
+              "formula": "Экономия ФОТ − расходы на роботов",
+              "overridden": false,
+              "inputs": {
+                "replacedStaff": 54,
+                "laborSavingRub": 57024000,
+                "robotOpexRub": 26812800
+              }
+            },
+            "paybackYears": {
+              "label": "Срок окупаемости",
+              "value": 0.05,
+              "unit": "лет",
+              "formula": "Капитальные затраты / Годовой эффект",
+              "overridden": false
+            },
+            "roiPercent": {
+              "label": "ROI за горизонт расчёта",
+              "value": 10070.4,
+              "unit": "%",
+              "formula": "Накопленный эффект за горизонт (Годовой эффект × Горизонт) / Капзатраты × 100 %",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            },
+            "tcoRub": {
+              "label": "Совокупная стоимость владения",
+              "value": 800844000,
+              "unit": "₽",
+              "formula": "Капзатраты + OPEX × Горизонт расчёта",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            }
+          },
+          "cashflow": [
+            {
+              "year": 0,
+              "capexRub": 1500000,
+              "opexRub": 0,
+              "effectRub": 0,
+              "cumulativeRub": -1500000
+            },
+            {
+              "year": 1,
+              "capexRub": 0,
+              "opexRub": 159868800,
+              "effectRub": 30211200,
+              "cumulativeRub": 28711200
+            },
+            {
+              "year": 2,
+              "capexRub": 0,
+              "opexRub": 159868800,
+              "effectRub": 30211200,
+              "cumulativeRub": 58922400
+            },
+            {
+              "year": 3,
+              "capexRub": 0,
+              "opexRub": 159868800,
+              "effectRub": 30211200,
+              "cumulativeRub": 89133600
+            },
+            {
+              "year": 4,
+              "capexRub": 0,
+              "opexRub": 159868800,
+              "effectRub": 30211200,
+              "cumulativeRub": 119344800
+            },
+            {
+              "year": 5,
+              "capexRub": 0,
+              "opexRub": 159868800,
+              "effectRub": 30211200,
+              "cumulativeRub": 149556000
+            }
+          ],
+          "verdict": {
+            "level": "good",
+            "label": "Окупается быстро",
+            "interpretation": "Срок окупаемости до 3 лет — проект привлекателен для пилотного внедрения.",
+            "risks": []
+          }
+        }
+      ],
+      "sensitivity": [
+        {
+          "scenarioId": "purchase",
+          "param": "equipmentPrice",
+          "label": "Стоимость оборудования",
+          "points": [
+            {
+              "delta": -0.2,
+              "paybackYears": 1.47,
+              "roiPercent": 339.6,
+              "annualEffectRub": 49771200
+            },
+            {
+              "delta": -0.1,
+              "paybackYears": 1.64,
+              "roiPercent": 305.5,
+              "annualEffectRub": 49771200
+            },
+            {
+              "delta": 0.1,
+              "paybackYears": 1.97,
+              "roiPercent": 254.3,
+              "annualEffectRub": 49771200
+            },
+            {
+              "delta": 0.2,
+              "paybackYears": 2.13,
+              "roiPercent": 234.7,
+              "annualEffectRub": 49771200
+            }
+          ]
+        },
+        {
+          "scenarioId": "purchase",
+          "param": "operationsVolume",
+          "label": "Объём операций",
+          "points": [
+            {
+              "delta": -0.2,
+              "paybackYears": 1.87,
+              "roiPercent": 267.5,
+              "annualEffectRub": 39422400
+            },
+            {
+              "delta": -0.1,
+              "paybackYears": 1.86,
+              "roiPercent": 269.2,
+              "annualEffectRub": 44068800
+            },
+            {
+              "delta": 0.1,
+              "paybackYears": 1.88,
+              "roiPercent": 266,
+              "annualEffectRub": 54100800
+            },
+            {
+              "delta": 0.2,
+              "paybackYears": 1.87,
+              "roiPercent": 267.4,
+              "annualEffectRub": 58747200
+            }
+          ]
+        },
+        {
+          "scenarioId": "purchase",
+          "param": "laborCost",
+          "label": "Стоимость труда",
+          "points": [
+            {
+              "delta": -0.2,
+              "paybackYears": 2.34,
+              "roiPercent": 214,
+              "annualEffectRub": 38366400
+            },
+            {
+              "delta": -0.1,
+              "paybackYears": 2.03,
+              "roiPercent": 245.8,
+              "annualEffectRub": 44068800
+            },
+            {
+              "delta": 0.1,
+              "paybackYears": 1.62,
+              "roiPercent": 309.4,
+              "annualEffectRub": 55473600
+            },
+            {
+              "delta": 0.2,
+              "paybackYears": 1.47,
+              "roiPercent": 341.2,
+              "annualEffectRub": 61176000
+            }
+          ]
+        },
+        {
+          "scenarioId": "raas",
+          "param": "equipmentPrice",
+          "label": "Стоимость оборудования",
+          "points": [
+            {
+              "delta": -0.2,
+              "paybackYears": 0.04,
+              "roiPercent": 11834.4,
+              "annualEffectRub": 35503200
+            },
+            {
+              "delta": -0.1,
+              "paybackYears": 0.05,
+              "roiPercent": 10952.4,
+              "annualEffectRub": 32857200
+            },
+            {
+              "delta": 0.1,
+              "paybackYears": 0.05,
+              "roiPercent": 9188.4,
+              "annualEffectRub": 27565200
+            },
+            {
+              "delta": 0.2,
+              "paybackYears": 0.06,
+              "roiPercent": 8306.4,
+              "annualEffectRub": 24919200
+            }
+          ]
+        },
+        {
+          "scenarioId": "raas",
+          "param": "operationsVolume",
+          "label": "Объём операций",
+          "points": [
+            {
+              "delta": -0.2,
+              "paybackYears": 0.06,
+              "roiPercent": 7900.8,
+              "annualEffectRub": 23702400
+            },
+            {
+              "delta": -0.1,
+              "paybackYears": 0.06,
+              "roiPercent": 8809.6,
+              "annualEffectRub": 26428800
+            },
+            {
+              "delta": 0.1,
+              "paybackYears": 0.05,
+              "roiPercent": 10553.6,
+              "annualEffectRub": 31660800
+            },
+            {
+              "delta": 0.2,
+              "paybackYears": 0.04,
+              "roiPercent": 11462.4,
+              "annualEffectRub": 34387200
+            }
+          ]
+        },
+        {
+          "scenarioId": "raas",
+          "param": "laborCost",
+          "label": "Стоимость труда",
+          "points": [
+            {
+              "delta": -0.2,
+              "paybackYears": 0.08,
+              "roiPercent": 6268.8,
+              "annualEffectRub": 18806400
+            },
+            {
+              "delta": -0.1,
+              "paybackYears": 0.06,
+              "roiPercent": 8169.6,
+              "annualEffectRub": 24508800
+            },
+            {
+              "delta": 0.1,
+              "paybackYears": 0.04,
+              "roiPercent": 11971.2,
+              "annualEffectRub": 35913600
+            },
+            {
+              "delta": 0.2,
+              "paybackYears": 0.04,
+              "roiPercent": 13872,
+              "annualEffectRub": 41616000
+            }
+          ]
+        }
+      ],
+      "assumptionsUsed": [
+        {
+          "key": "horizonYears",
+          "label": "Горизонт расчёта",
+          "value": 5,
+          "unit": "лет",
+          "source": "Параметры проекта",
+          "confirmed": true
+        },
+        {
+          "key": "workDaysPerYear",
+          "label": "Рабочих дней в году",
+          "value": 250,
+          "unit": "дн.",
+          "source": "Допущение: пятидневная рабочая неделя, округлённо",
+          "confirmed": false
+        },
+        {
+          "key": "shiftsPerDay",
+          "label": "Смен в сутки",
+          "value": 2,
+          "unit": "смен",
+          "source": "Параметры проекта",
+          "confirmed": true
+        },
+        {
+          "key": "hoursPerShift",
+          "label": "Длительность смены",
+          "value": 8,
+          "unit": "ч",
+          "source": "ТК РФ, ст. 91",
+          "confirmed": true
+        },
+        {
+          "key": "utilization",
+          "label": "Загрузка робота",
+          "value": 85,
+          "unit": "%",
+          "source": "Демо-оценка по отраслевой практике",
+          "confirmed": false
+        },
+        {
+          "key": "availability",
+          "label": "Техническая готовность",
+          "value": 95,
+          "unit": "%",
+          "source": "Демо-оценка по данным производителей",
+          "confirmed": false
+        },
+        {
+          "key": "reserveShare",
+          "label": "Резерв парка",
+          "value": 10,
+          "unit": "%",
+          "source": "Демо-оценка",
+          "confirmed": false
+        },
+        {
+          "key": "staffReplacedShare",
+          "label": "Доля замещаемого персонала",
+          "value": 30,
+          "unit": "%",
+          "source": "Демо-оценка",
+          "confirmed": false
+        },
+        {
+          "key": "staffCostMonthRub",
+          "label": "Стоимость сотрудника",
+          "value": 88000,
+          "unit": "₽/мес",
+          "source": "Параметры объекта",
+          "confirmed": true
+        },
+        {
+          "key": "energyTariffRub",
+          "label": "Тариф на электроэнергию",
+          "value": 7,
+          "unit": "₽/кВт·ч",
+          "source": "Демо-оценка",
+          "confirmed": false
+        },
+        {
+          "key": "integrationRub",
+          "label": "Интеграция с WMS",
+          "value": 3500000,
+          "unit": "₽",
+          "source": "Демо-оценка по рынку",
+          "confirmed": false
+        }
+      ]
+    }
+  },
+  {
+    "name": "hospital-no-scenarios",
+    "request": {
+      "projectId": null,
+      "objectType": "hospital",
+      "processes": [
+        "delivery",
+        "disinfection",
+        "cleaning"
+      ],
+      "params": {
+        "institutionType": "multi",
+        "areaM2": 48000,
+        "workMode": "around_clock",
+        "beds": 600,
+        "floors": 9,
+        "elevators": 4,
+        "corridorWidthM": 2.4,
+        "deliveriesPerDay": 900,
+        "avgRouteM": 260,
+        "loadKg": 40,
+        "sanitationLevel": "enhanced",
+        "accessRestrictions": "staff_only",
+        "staffCount": 45,
+        "staffCostMonthRub": 72000
+      },
+      "assumptions": {
+        "horizonYears": 5,
+        "workDaysPerYear": 250,
+        "shiftsPerDay": 2,
+        "hoursPerShift": 8,
+        "utilization": 0.85,
+        "availability": 0.95,
+        "reserveShare": 0.1,
+        "staffReplacedShare": 0.3
+      },
+      "scenarios": [],
+      "sensitivity": {
+        "params": [
+          "equipmentPrice",
+          "operationsVolume",
+          "laborCost"
+        ],
+        "deltas": [
+          -0.2,
+          -0.1,
+          0.1,
+          0.2
+        ]
+      }
+    },
+    "result": {
+      "calculationId": null,
+      "modelVersion": "mock-1.0",
+      "dataVersion": "catalog-2026.09",
+      "calculatedAt": "2026-01-01T00:00:00.000Z",
+      "disclaimer": "Предварительная оценка, требует верификации при обследовании объекта. Расчёт основан на введённых параметрах и каталожных данных и не является инвестиционным решением: перед закупкой нужны коммерческие предложения поставщиков.",
+      "recommendation": [
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000001",
+          "name": "Логимов AMR-600",
+          "solutionType": "amr",
+          "status": "recommended",
+          "score": 84.5,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "pass",
+              "required": 40,
+              "actual": 600,
+              "unit": "кг",
+              "message": "Грузоподъёмность 600 кг достаточна для единицы 40 кг"
+            },
+            {
+              "rule": "aisle",
+              "label": "Ширина прохода",
+              "critical": true,
+              "result": "pass",
+              "required": 1.2,
+              "actual": 2.4,
+              "unit": "м",
+              "message": "Роботу нужно 1,2 м, на объекте 2,4 м"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "pass",
+              "required": 73,
+              "actual": 45,
+              "unit": "опер./ч",
+              "message": "Целевые 73 опер./ч обеспечат 4 роб."
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "pass",
+              "required": 8,
+              "actual": 10,
+              "unit": "ч",
+              "message": "Заряда хватает на смену (10 ч)"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 63,
+              "contribution": 22
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 100,
+              "contribution": 25
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 100,
+              "contribution": 20
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 75,
+              "contribution": 7.5
+            }
+          ],
+          "missingData": []
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000008",
+          "name": "Уборщик ЧистоБот ПРО-50",
+          "solutionType": "cleaner",
+          "status": "recommended",
+          "score": 47.4,
+          "checks": [
+            {
+              "rule": "aisle",
+              "label": "Ширина прохода",
+              "critical": true,
+              "result": "pass",
+              "required": 1,
+              "actual": 2.4,
+              "unit": "м",
+              "message": "Роботу нужно 1 м, на объекте 2,4 м"
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "fail",
+              "required": 8,
+              "actual": 4,
+              "unit": "ч",
+              "message": "Заряда хватает на 4 ч — понадобится подзарядка в смену"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "pass",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики подтверждены источником"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 40,
+              "contribution": 14
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 0,
+              "contribution": 0
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 67,
+              "contribution": 13.4
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 100,
+              "contribution": 10
+            }
+          ],
+          "missingData": [
+            "Грузоподъёмность",
+            "Производительность"
+          ]
+        },
+        {
+          "robotId": "b1f0a3c2-1111-4a01-9c01-000000000007",
+          "name": "Тягач АТ-1000 Лайт",
+          "solutionType": "tugger",
+          "status": "needs_check",
+          "score": 53.6,
+          "checks": [
+            {
+              "rule": "payload",
+              "label": "Грузоподъёмность",
+              "critical": true,
+              "result": "pass",
+              "required": 40,
+              "actual": 1000,
+              "unit": "кг",
+              "message": "Грузоподъёмность 1 000 кг достаточна для единицы 40 кг"
+            },
+            {
+              "rule": "aisle",
+              "label": "Ширина прохода",
+              "critical": true,
+              "result": "unknown",
+              "required": null,
+              "actual": 2.4,
+              "unit": "м",
+              "message": "Нет данных о минимальной ширине прохода — запросите у производителя"
+            },
+            {
+              "rule": "performance",
+              "label": "Производительность",
+              "critical": true,
+              "result": "pass",
+              "required": 73,
+              "actual": 28,
+              "unit": "опер./ч",
+              "message": "Целевые 73 опер./ч обеспечат 5 роб."
+            },
+            {
+              "rule": "autonomy",
+              "label": "Автономность",
+              "critical": false,
+              "result": "unknown",
+              "required": 8,
+              "actual": null,
+              "unit": "ч",
+              "message": "Время автономной работы не указано"
+            },
+            {
+              "rule": "dataConfirmed",
+              "label": "Достоверность данных",
+              "critical": false,
+              "result": "unknown",
+              "required": null,
+              "actual": null,
+              "unit": null,
+              "message": "Характеристики не подтверждены — используйте оценку с осторожностью"
+            }
+          ],
+          "scoreBreakdown": [
+            {
+              "factor": "economy",
+              "label": "Экономика (окупаемость)",
+              "weight": 0.35,
+              "value": 66,
+              "contribution": 23.1
+            },
+            {
+              "factor": "performance",
+              "label": "Производительность",
+              "weight": 0.25,
+              "value": 62,
+              "contribution": 15.5
+            },
+            {
+              "factor": "fit",
+              "label": "Соответствие объекту",
+              "weight": 0.2,
+              "value": 40,
+              "contribution": 8
+            },
+            {
+              "factor": "dataQuality",
+              "label": "Полнота и достоверность данных",
+              "weight": 0.1,
+              "value": 40,
+              "contribution": 4
+            },
+            {
+              "factor": "availability",
+              "label": "Доступность поставки",
+              "weight": 0.1,
+              "value": 30,
+              "contribution": 3
+            }
+          ],
+          "missingData": [
+            "Минимальная ширина прохода",
+            "Время автономной работы",
+            "Время зарядки",
+            "Срок службы"
+          ]
+        }
+      ],
+      "scenarios": [
+        {
+          "id": "baseline",
+          "kind": "baseline",
+          "title": "Текущее состояние",
+          "robotId": null,
+          "equipment": [],
+          "metrics": {
+            "robotCount": {
+              "label": "Количество роботов",
+              "value": 0,
+              "unit": "шт.",
+              "formula": "⌈Целевая производительность / (Производительность робота × Загрузка × Готовность)⌉ × (1 + Резерв)",
+              "overridden": false,
+              "inputs": {
+                "targetPerHour": 73,
+                "utilization": 0.85,
+                "availability": 0.95,
+                "reserveShare": 0.1
+              }
+            },
+            "capexRub": {
+              "label": "Капитальные затраты",
+              "value": 0,
+              "unit": "₽",
+              "formula": "Сумма строк спецификации оборудования и работ",
+              "overridden": false,
+              "breakdown": []
+            },
+            "opexAnnualRub": {
+              "label": "Операционные затраты в год",
+              "value": 38880000,
+              "unit": "₽/год",
+              "formula": "ФОТ оставшегося персонала + обслуживание, энергия и ПО роботов",
+              "overridden": false,
+              "breakdown": [
+                {
+                  "key": "labor",
+                  "label": "ФОТ оставшегося персонала",
+                  "value": 38880000,
+                  "source": "Параметры объекта"
+                },
+                {
+                  "key": "robots",
+                  "label": "Обслуживание, аренда, энергия, ПО",
+                  "value": 0,
+                  "source": "Каталог роботов"
+                }
+              ]
+            },
+            "opexDeltaRub": {
+              "label": "Изменение операционных затрат",
+              "value": 0,
+              "unit": "₽/год",
+              "formula": "OPEX сценария − OPEX текущего состояния",
+              "overridden": false
+            },
+            "annualEffectRub": {
+              "label": "Годовой эффект",
+              "value": 0,
+              "unit": "₽/год",
+              "formula": "Экономия ФОТ − расходы на роботов",
+              "overridden": false,
+              "inputs": {
+                "replacedStaff": 0,
+                "laborSavingRub": 0,
+                "robotOpexRub": 0
+              }
+            },
+            "paybackYears": {
+              "label": "Срок окупаемости",
+              "value": null,
+              "unit": "лет",
+              "formula": "Капитальные затраты / Годовой эффект",
+              "overridden": false
+            },
+            "roiPercent": {
+              "label": "ROI за горизонт расчёта",
+              "value": null,
+              "unit": "%",
+              "formula": "Накопленный эффект за горизонт (Годовой эффект × Горизонт) / Капзатраты × 100 %",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            },
+            "tcoRub": {
+              "label": "Совокупная стоимость владения",
+              "value": 194400000,
+              "unit": "₽",
+              "formula": "Капзатраты + OPEX × Горизонт расчёта",
+              "overridden": false,
+              "inputs": {
+                "horizonYears": 5
+              }
+            }
+          },
+          "cashflow": [
+            {
+              "year": 0,
+              "capexRub": 0,
+              "opexRub": 0,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 1,
+              "capexRub": 0,
+              "opexRub": 38880000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 2,
+              "capexRub": 0,
+              "opexRub": 38880000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 3,
+              "capexRub": 0,
+              "opexRub": 38880000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 4,
+              "capexRub": 0,
+              "opexRub": 38880000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            },
+            {
+              "year": 5,
+              "capexRub": 0,
+              "opexRub": 38880000,
+              "effectRub": 0,
+              "cumulativeRub": 0
+            }
+          ],
+          "verdict": {
+            "level": "moderate",
+            "label": "Текущее состояние",
+            "interpretation": "Процессы выполняет персонал, инвестиций нет. Сценарий — точка отсчёта для сравнения.",
+            "risks": [
+              "Рост фонда оплаты труда",
+              "Нехватка персонала в пиковые периоды"
+            ]
+          }
+        }
+      ],
+      "sensitivity": [],
+      "assumptionsUsed": [
+        {
+          "key": "horizonYears",
+          "label": "Горизонт расчёта",
+          "value": 5,
+          "unit": "лет",
+          "source": "Параметры проекта",
+          "confirmed": true
+        },
+        {
+          "key": "workDaysPerYear",
+          "label": "Рабочих дней в году",
+          "value": 250,
+          "unit": "дн.",
+          "source": "Допущение: пятидневная рабочая неделя, округлённо",
+          "confirmed": false
+        },
+        {
+          "key": "shiftsPerDay",
+          "label": "Смен в сутки",
+          "value": 2,
+          "unit": "смен",
+          "source": "Параметры проекта",
+          "confirmed": true
+        },
+        {
+          "key": "hoursPerShift",
+          "label": "Длительность смены",
+          "value": 8,
+          "unit": "ч",
+          "source": "ТК РФ, ст. 91",
+          "confirmed": true
+        },
+        {
+          "key": "utilization",
+          "label": "Загрузка робота",
+          "value": 85,
+          "unit": "%",
+          "source": "Демо-оценка по отраслевой практике",
+          "confirmed": false
+        },
+        {
+          "key": "availability",
+          "label": "Техническая готовность",
+          "value": 95,
+          "unit": "%",
+          "source": "Демо-оценка по данным производителей",
+          "confirmed": false
+        },
+        {
+          "key": "reserveShare",
+          "label": "Резерв парка",
+          "value": 10,
+          "unit": "%",
+          "source": "Демо-оценка",
+          "confirmed": false
+        },
+        {
+          "key": "staffReplacedShare",
+          "label": "Доля замещаемого персонала",
+          "value": 30,
+          "unit": "%",
+          "source": "Демо-оценка",
+          "confirmed": false
+        },
+        {
+          "key": "staffCostMonthRub",
+          "label": "Стоимость сотрудника",
+          "value": 72000,
+          "unit": "₽/мес",
+          "source": "Параметры объекта",
+          "confirmed": true
+        },
+        {
+          "key": "energyTariffRub",
+          "label": "Тариф на электроэнергию",
+          "value": 7,
+          "unit": "₽/кВт·ч",
+          "source": "Демо-оценка",
+          "confirmed": false
+        },
+        {
+          "key": "integrationRub",
+          "label": "Интеграция с WMS",
+          "value": 3500000,
+          "unit": "₽",
+          "source": "Демо-оценка по рынку",
+          "confirmed": false
+        }
+      ]
+    }
+  }
+]

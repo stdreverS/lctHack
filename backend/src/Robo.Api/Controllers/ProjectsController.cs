@@ -1,115 +1,154 @@
-using Robo.Api.Data;
-using Robo.Api.Data.Entities;
-using Robo.Api.Contracts;
+using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
-using Npgsql.Internal.Postgres;
+using Robo.Api.Auth;
+using Robo.Api.Contracts;
+using Robo.Api.Data;
+using Robo.Api.Data.Entities;
+using Robo.Api.Errors;
+using Robo.Api.Mapping;
+using Robo.Core.Contracts;
 
 namespace Robo.Api.Controllers;
 
+/// <summary>
+/// Проекты текущего пользователя. Владелец — по UserId из токена; чужой проект неотличим от
+/// несуществующего (404), в том числе для admin.
+/// </summary>
 [Authorize]
 [ApiController]
 [Route("api/v1/projects")]
 public class ProjectsController : ControllerBase
 {
     private readonly AppDbContext _db;
-    public ProjectsController(AppDbContext db)
+    private readonly EngineConfig _config;
+
+    public ProjectsController(AppDbContext db, EngineConfig config)
     {
         _db = db;
-    }
-
-    private string GetUserId()
-    {
-        return User.FindFirst("userId")?.Value ?? "";
+        _config = config;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAllProjects()
     {
-        var userId = GetUserId();
-        var projects = await _db.Projects.Where(p => p.UserId == userId).ToListAsync();
-        return Ok(projects);
+        var userId = User.UserId();
+        // lastPaybackYears — из последнего расчёта проекта
+        var list = await _db.Projects.AsNoTracking()
+            .Where(p => p.UserId == userId)
+            .OrderByDescending(p => p.UpdatedAt)
+            .Select(p => new ProjectSummary(
+                p.Id, p.Name, p.ObjectType, p.UpdatedAt,
+                _db.CalculationResults
+                    .Where(c => c.ProjectId == p.Id)
+                    .OrderByDescending(c => c.CreatedAt)
+                    .Select(c => c.BestPaybackYears)
+                    .FirstOrDefault()))
+            .ToListAsync();
+        return Ok(list);
     }
 
     [HttpPost]
     public async Task<IActionResult> CreateProject([FromBody] ProjectRequest request)
     {
-        var userId = Guid.NewGuid().ToString();
-        var project = new Project
-        {
-            Id = userId,
-            Name = request.Name,
-            ObjectType = request.ObjectType,
-            Params = request.Params,
-            CreatedAt = DateTime.UtcNow.ToString(),
-            UpdatedAt = DateTime.UtcNow.ToString()
-        };
+        var errors = Validate(request);
+        if (errors.Count > 0) return ApiResults.Invalid(errors);
+
+        var now = ApiTime.Now();
+        var project = new Project { Id = Guid.NewGuid().ToString(), UserId = User.UserId(), CreatedAt = now };
+        Apply(project, request, now);
         _db.Projects.Add(project);
         await _db.SaveChangesAsync();
-
-        return StatusCode(201, project);
+        return StatusCode(201, project.ToResponse());
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetProject(string id)
     {
-        var userId = GetUserId();
-        var project = await _db.Projects.FirstOrDefaultAsync(r => r.Id == id && r.Id == userId);
-        if (project == null)
-            return NotFound(new ErrorResponse
-            {
-                Status = 404,
-                Code = "NOT_FOUND",
-                Title = "Проект не найден - возможно, он был удален",
-                Errors = new()
-            });
-        return Ok(project);
+        var project = await FindOwnAsync(id);
+        return project == null ? ApiResults.NotFound("Проект") : Ok(project.ToResponse());
     }
 
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateProject(string id, [FromBody] ProjectRequest request)
+    {
+        var project = await FindOwnAsync(id);
+        if (project == null) return ApiResults.NotFound("Проект");
+
+        var errors = Validate(request);
+        if (errors.Count > 0) return ApiResults.Invalid(errors);
+
+        Apply(project, request, ApiTime.Now());
+        await _db.SaveChangesAsync();
+        return Ok(project.ToResponse());
+    }
+
+    /// <summary>Удаление проекта; его расчёты удаляет каскад внешнего ключа calculations → projects.</summary>
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteProject(string id)
     {
-        var project = await _db.Projects.FirstOrDefaultAsync(r => r.Id == id);
-        if (project == null)
-            return NotFound(new ErrorResponse
-            {
-                Status = 404,
-                Code = "NOT_FOUND",
-                Title = "Проект не найден - возможно, он был удален",
-                Errors = new()
-            });
+        var project = await FindOwnAsync(id);
+        if (project == null) return ApiResults.NotFound("Проект");
+
         _db.Projects.Remove(project);
         await _db.SaveChangesAsync();
         return NoContent();
     }
 
+    /// <summary>Копия: новый id, « (копия)» к названию, даты — сейчас. Расчёты не копируются.</summary>
     [HttpPost("{id}/copy")]
-    public async Task<IActionResult> CreateCopyProject(string id)
+    public async Task<IActionResult> CopyProject(string id)
     {
-        var userId = GetUserId();
-        var project = await _db.Projects.FirstOrDefaultAsync(r => r.Id == id && r.Id == userId);
-        if (project == null)
-            return NotFound(new ErrorResponse
-            {
-                Status = 404,
-                Code = "NOT_FOUND",
-                Title = "Проект не найден - возможно, он был удален",
-                Errors = new()
-            });
-        var projectCopy = new Project
+        var source = await FindOwnAsync(id);
+        if (source == null) return ApiResults.NotFound("Проект");
+
+        var now = ApiTime.Now();
+        var copy = new Project
         {
             Id = Guid.NewGuid().ToString(),
-            UserId = userId,
-            Name = project.Name + "(Копия)",
-            ObjectType = project.ObjectType,
-            Params = project.Params,
-            Assumptions = project.Assumptions,
-            CreatedAt = DateTime.UtcNow.ToString(),
-            UpdatedAt = DateTime.UtcNow.ToString()
+            UserId = source.UserId,
+            Name = source.Name + " (копия)",
+            ObjectType = source.ObjectType,
+            Params = new Dictionary<string, JsonElement>(source.Params),
+            Assumptions = source.Assumptions,
+            CreatedAt = now,
+            UpdatedAt = now
         };
-        _db.Projects.Add(projectCopy);
+        _db.Projects.Add(copy);
         await _db.SaveChangesAsync();
-        return StatusCode(201, project);
+        return StatusCode(201, copy.ToResponse());
+    }
+
+    private Task<Project?> FindOwnAsync(string id)
+    {
+        var userId = User.UserId();
+        return _db.Projects.FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId);
+    }
+
+    private List<ErrorDetail> Validate(ProjectRequest r)
+    {
+        var errors = new List<ErrorDetail>();
+        if (string.IsNullOrWhiteSpace(r.Name))
+            errors.Add(new ErrorDetail { Field = "name", Message = "Укажите название проекта", Hint = "Например: «Склад Подольск — роботизация приёмки»" });
+        if (_config.ObjectTypes.All(t => t.Code != r.ObjectType))
+            errors.Add(new ErrorDetail { Field = "objectType", Message = "Выберите тип объекта из списка" });
+        // ParamValue: число, строка, boolean или null — вложенные объекты и массивы не принимаются
+        foreach (var (key, value) in r.Params ?? [])
+            if (value.ValueKind is JsonValueKind.Object or JsonValueKind.Array)
+                errors.Add(new ErrorDetail { Field = $"params.{key}", Message = "Значение параметра должно быть числом, строкой, да/нет или пустым" });
+        if (r.Assumptions == null)
+            errors.Add(new ErrorDetail { Field = "assumptions", Message = "Укажите допущения расчёта" });
+        return errors;
+    }
+
+    // Вызывается после Validate: обязательные поля заполнены.
+    private static void Apply(Project project, ProjectRequest r, DateTime now)
+    {
+        project.Name = r.Name!.Trim();
+        project.ObjectType = r.ObjectType!;
+        project.Params = r.Params ?? [];
+        project.Assumptions = r.Assumptions!;
+        project.UpdatedAt = now;
     }
 }

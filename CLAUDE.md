@@ -10,10 +10,8 @@ what-if → 2D-симуляция → экспорт. Интерфейс — д�
 
 ## 1. Зоны ответственности
 
-- Я (Амир): frontend/, backend/src/Robo.Core/, backend/tests/, backend/config/, docs/,
-  docker-compose.yml.
-- Напарник: backend/src/Robo.Api/ и backend/Dockerfile. НЕ ТРОГАТЬ эти файлы.
-- Если задача требует изменений в зоне напарника — остановись и скажи, что именно нужно.
+- Я (Амир): весь репозиторий, включая backend/src/Robo.Api. Напарник временно не
+  правит backend, мы согласовали.
 
 ## 2. Стек фронтенда
 

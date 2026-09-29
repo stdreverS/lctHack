@@ -1,5 +1,5 @@
-# Демо-сборка фронтенда: данные отдают моки в браузере (VITE_USE_MOCKS=true), сервер не нужен.
-# Когда появится бэкенд, соберите с --build-arg VITE_USE_MOCKS=false и включите прокси /api в nginx.conf.
+# Фронтенд за nginx. VITE_USE_MOCKS=false (docker-compose.yml) — запросы /api/ nginx проксирует
+# в контейнер api; VITE_USE_MOCKS=true — автономное демо на моках в браузере, сервер не нужен.
 
 FROM node:24-alpine AS build
 WORKDIR /app

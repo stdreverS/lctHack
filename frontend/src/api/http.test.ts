@@ -19,8 +19,18 @@ describe('toApiError', () => {
     expect(toApiError(403, {}).code).toBe('FORBIDDEN')
     expect(toApiError(404, 'Not Found').code).toBe('NOT_FOUND')
     expect(toApiError(409, {}).code).toBe('CONFLICT')
-    expect(toApiError(502, {}).code).toBe('SERVER_ERROR')
+    expect(toApiError(500, {}).code).toBe('SERVER_ERROR')
+    expect(toApiError(501, {}).code).toBe('SERVER_ERROR')
     expect(toApiError(500, {}).title).toMatch(/Ошибка на сервере/)
+  })
+
+  it('502/503/504 от прокси без кода контракта — сервер недоступен', () => {
+    // nginx или прокси Vite отвечают HTML или пустым телом, когда API не запущен
+    expect(toApiError(502, '<html>Bad Gateway</html>')).toMatchObject({ code: 'NETWORK_ERROR', title: expect.stringMatching(/Сервер недоступен/) })
+    expect(toApiError(503, undefined).code).toBe('NETWORK_ERROR')
+    expect(toApiError(504, {}).code).toBe('NETWORK_ERROR')
+    // Код из тела сервера важнее статуса
+    expect(toApiError(503, { code: 'SERVER_ERROR', title: 'Идёт обновление' }).code).toBe('SERVER_ERROR')
   })
 
   it('неизвестный code заменяется кодом по статусу', () => {

@@ -1,8 +1,10 @@
-# Демо-запуск: docker compose up -d → http://localhost:8080
+# Запуск: cp .env.example .env (поменяйте пароли), затем docker compose up -d --build
+# → http://localhost:8080. Три контейнера: web (nginx + фронтенд) → api (Robo.Api) → db (PostgreSQL).
+# API при старте применяет миграции и заливает демо-каталог и демо-учётки (backend/seed).
 #
-# Сейчас работает только сервис web: фронтенд в режиме моков (данные хранятся в браузере).
-# Закомментированные api и db — целевая схема из трёх контейнеров; включаются, когда
-# в backend/src/Robo.Api появятся эндпоинты и backend/Dockerfile (см. docs/deployment.md).
+# Автономное демо без сервера (моки в браузере), без compose:
+#   docker build --build-arg VITE_USE_MOCKS=true -t robo-platform-web:demo frontend
+#   docker run -d -p 8080:80 robo-platform-web:demo
 
 name: robo-platform
 
@@ -11,49 +13,46 @@ services:
     build:
       context: ./frontend
       args:
-        VITE_USE_MOCKS: "true"
-    image: robo-platform-web:demo
+        VITE_USE_MOCKS: "false"
+    image: robo-platform-web
     ports:
       - "8080:80"
+    depends_on:
+      - api
     restart: unless-stopped
-    # depends_on:
-    #   - api
 
-  # api:
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #   image: robo-platform-api
-  #   environment:
-  #     ASPNETCORE_ENVIRONMENT: Production
-  #     ASPNETCORE_URLS: http://+:8080
-  #     # Имена переменных — предложение, согласовать с Robo.Api/Program.cs
-  #     ConnectionStrings__Default: Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
-  #     Jwt__Secret: ${JWT_SECRET}
-  #     Seed__AdminEmail: ${ADMIN_EMAIL}
-  #     Seed__AdminPassword: ${ADMIN_PASSWORD}
-  #     Robo__ConfigDir: /app/config
-  #   volumes:
-  #     - ./backend/config:/app/config:ro
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #   restart: unless-stopped
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: robo-platform-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Default: Host=db;Port=5432;Database=${POSTGRES_DB:-robo};Username=${POSTGRES_USER:-robo};Password=${POSTGRES_PASSWORD:?Задайте POSTGRES_PASSWORD в .env}
+      Jwt__Secret: ${JWT_SECRET:?Задайте JWT_SECRET в .env (не короче 32 символов)}
+      # Справочники можно править без пересборки образа: папка монтируется поверх копии из образа
+      Robo__ConfigDir: /app/config
+    volumes:
+      - ./backend/config:/app/config:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
 
-  # db:
-  #   image: postgres:17-alpine
-  #   environment:
-  #     POSTGRES_DB: ${POSTGRES_DB}
-  #     POSTGRES_USER: ${POSTGRES_USER}
-  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  #   volumes:
-  #     - pgdata:/var/lib/postgresql/data
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-  #     interval: 5s
-  #     timeout: 3s
-  #     retries: 10
-  #   restart: unless-stopped
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-robo}
+      POSTGRES_USER: ${POSTGRES_USER:-robo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Задайте POSTGRES_PASSWORD в .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
 
-# volumes:
-#   pgdata:
+volumes:
+  pgdata:

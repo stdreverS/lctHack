@@ -37,14 +37,22 @@
 
 | Пакет | Версия | Проект | Для чего | Ссылка |
 |---|---|---|---|---|
-| Microsoft.AspNetCore.Authentication.JwtBearer | 10.0.12 | Robo.Api | JWT-авторизация (подключён, не используется) | <https://www.nuget.org/packages/Microsoft.AspNetCore.Authentication.JwtBearer> |
-| Microsoft.AspNetCore.OpenApi | 10.0.12 | Robo.Api | Спецификация OpenAPI (подключён, не используется) | <https://www.nuget.org/packages/Microsoft.AspNetCore.OpenApi> |
-| Microsoft.EntityFrameworkCore.Design | 10.0.12 | Robo.Api | Миграции EF Core (только инструменты) | <https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Design> |
-| Npgsql.EntityFrameworkCore.PostgreSQL | 10.0.3 | Robo.Api | EF Core для PostgreSQL (подключён, не используется) | <https://www.nuget.org/packages/Npgsql.EntityFrameworkCore.PostgreSQL> |
+| BCrypt.Net-Next | 4.2.0 | Robo.Api | Хэширование паролей (BCrypt) | <https://www.nuget.org/packages/BCrypt.Net-Next> |
+| ClosedXML | 0.105.1 | Robo.Api | Выгрузка расчёта в Excel | <https://www.nuget.org/packages/ClosedXML> |
+| Microsoft.AspNetCore.Authentication.JwtBearer | 10.0.12 | Robo.Api | JWT-авторизация | <https://www.nuget.org/packages/Microsoft.AspNetCore.Authentication.JwtBearer> |
+| System.IdentityModel.Tokens.Jwt | 8.23.0 | Robo.Api | Выпуск JWT-токенов | <https://www.nuget.org/packages/System.IdentityModel.Tokens.Jwt> |
+| Microsoft.AspNetCore.OpenApi | 10.0.12 | Robo.Api | Спецификация OpenAPI (`/openapi/v1.json`) | <https://www.nuget.org/packages/Microsoft.AspNetCore.OpenApi> |
+| Swashbuckle.AspNetCore.SwaggerUI | 10.2.3 | Robo.Api | Swagger UI (`/swagger`) | <https://www.nuget.org/packages/Swashbuckle.AspNetCore.SwaggerUI> |
+| Npgsql.EntityFrameworkCore.PostgreSQL | 10.0.3 | Robo.Api | EF Core для PostgreSQL | <https://www.nuget.org/packages/Npgsql.EntityFrameworkCore.PostgreSQL> |
+| Microsoft.EntityFrameworkCore.Relational | 10.0.12 | Robo.Api | EF Core: миграции, единая версия для всех проектов | <https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Relational> |
+| Microsoft.EntityFrameworkCore.Design | 10.0.12 | Robo.Api | Инструменты миграций EF Core (только разработка) | <https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Design> |
+| Microsoft.AspNetCore.Mvc.Testing | 10.0.12 | Robo.Tests | Тесты API на `WebApplicationFactory` | <https://www.nuget.org/packages/Microsoft.AspNetCore.Mvc.Testing> |
+| Microsoft.EntityFrameworkCore.InMemory | 10.0.12 | Robo.Tests | База в памяти для тестов API | <https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.InMemory> |
 | xunit | 2.9.3 | Robo.Tests | Модульные тесты | <https://www.nuget.org/packages/xunit> |
 | xunit.runner.visualstudio | 3.1.4 | Robo.Tests | Запуск тестов xUnit | <https://www.nuget.org/packages/xunit.runner.visualstudio> |
 | Microsoft.NET.Test.Sdk | 17.14.1 | Robo.Tests | Инфраструктура `dotnet test` | <https://www.nuget.org/packages/Microsoft.NET.Test.Sdk> |
 | coverlet.collector | 6.0.4 | Robo.Tests | Сбор покрытия тестами | <https://www.nuget.org/packages/coverlet.collector> |
+| dotnet-ef | 10.0.12 | локальный инструмент (`backend/dotnet-tools.json`) | Создание миграций | <https://www.nuget.org/packages/dotnet-ef> |
 
 `Robo.Core` внешних пакетов не использует (только стандартная библиотека .NET, в том числе
 System.Text.Json).
@@ -53,9 +61,11 @@ System.Text.Json).
 
 | Образ | Для чего | Ссылка |
 |---|---|---|
-| node:24-alpine | Сборка фронтенда | <https://hub.docker.com/_/node> |
-| nginx:stable-alpine | Раздача собранного фронтенда | <https://hub.docker.com/_/nginx> |
-| postgres:17-alpine | Целевая БД (в `docker-compose.yml` закомментирована) | <https://hub.docker.com/_/postgres> |
+| node:24-alpine | Сборка фронтенда (`frontend/Dockerfile`) | <https://hub.docker.com/_/node> |
+| nginx:stable-alpine | Раздача фронтенда и прокси `/api/` (сервис `web`) | <https://hub.docker.com/_/nginx> |
+| mcr.microsoft.com/dotnet/sdk:10.0 | Сборка API (`backend/Dockerfile`) | <https://mcr.microsoft.com/product/dotnet/sdk> |
+| mcr.microsoft.com/dotnet/aspnet:10.0 | Запуск API (сервис `api`) | <https://mcr.microsoft.com/product/dotnet/aspnet> |
+| postgres:17-alpine | База данных (сервис `db`) | <https://hub.docker.com/_/postgres> |
 
 ## Источники данных
 

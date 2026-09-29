@@ -1,6 +1,5 @@
-
 using Microsoft.AspNetCore.Mvc;
-using Robo.Api.Contracts;
+using Robo.Core.Contracts;
 
 namespace Robo.Api.Controllers;
 
@@ -8,21 +7,15 @@ namespace Robo.Api.Controllers;
 [Route("api/v1/object-types")]
 public class ObjectTypes : ControllerBase
 {
+    private readonly EngineConfig _config;
 
-    public ObjectTypes() { }
-
-    [HttpGet]
-    public async Task<IActionResult> GetObjectTypes()
+    // EngineConfig загружает ConfigLoader при старте из Robo:ConfigDir (Program.cs)
+    public ObjectTypes(EngineConfig config)
     {
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "config", "object-types.json");
-        if (!System.IO.File.Exists(filePath))
-            return NotFound(new ErrorResponse
-            {
-                Status = 404,
-                Title = "Файл конфигурации  типов объектов не найден на сервере"
-            });
-
-        var jsonContent = await System.IO.File.ReadAllTextAsync(filePath);
-        return Content(jsonContent, "application/json");
+        _config = config;
     }
+
+    // Структура ObjectTypeConfig совпадает с ObjectType контракта — отдаём как есть.
+    [HttpGet]
+    public IActionResult GetObjectTypes() => Ok(_config.ObjectTypes);
 }

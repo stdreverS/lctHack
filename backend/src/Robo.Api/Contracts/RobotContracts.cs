@@ -1,101 +1,66 @@
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Robo.Api.Contracts;
 
+// RobotInput из контракта (CLAUDE.md, раздел 5): тело POST и PUT /robots.
+// Поля nullable, чтобы пропуски и null проверял RobotsController.Validate с русскими сообщениями.
 public class CreateRobotRequest
 {
     [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
+    public string? Name { get; set; }
     [JsonPropertyName("manufacturer")]
-    public string Manufacturer { get; set; } = string.Empty;
+    public string? Manufacturer { get; set; }
     [JsonPropertyName("solutionType")]
-    public string SolutionType { get; set; } = string.Empty;
+    public string? SolutionType { get; set; }
     [JsonPropertyName("solutionTypeName")]
-    public string SolutionTypeName { get; set; } = string.Empty;
+    public string? SolutionTypeName { get; set; }
     [JsonPropertyName("objectTypes")]
-    public List<string> ObjectTypes { get; set; } = new();
+    public List<string>? ObjectTypes { get; set; }
     [JsonPropertyName("country")]
-    public string Country { get; set; } = string.Empty;
+    public string? Country { get; set; }
     [JsonPropertyName("availability")]
-    public string Availability { get; set; } = string.Empty;
+    public string? Availability { get; set; }
     [JsonPropertyName("price")]
     public decimal? Price { get; set; }
     [JsonPropertyName("raasMonthlyPrice")]
-    public decimal? RaasMothlyPrice { get; set; }
+    public decimal? RaasMonthlyPrice { get; set; }
     [JsonPropertyName("maintenancePerYear")]
     public decimal? MaintenancePerYear { get; set; }
     [JsonPropertyName("specs")]
-    public RobotSpecs Specs { get; set; } = new();
+    public RobotSpecs? Specs { get; set; }
     [JsonPropertyName("sourceUrl")]
-    public string SourceUrl { get; set; } = string.Empty;
+    public string? SourceUrl { get; set; }
     [JsonPropertyName("sourceDate")]
-    public string SourceDate { get; set; } = string.Empty;
+    public DateOnly? SourceDate { get; set; }
     [JsonPropertyName("confirmed")]
-    public bool Confirmed { get; set; } = false;
-
+    public bool Confirmed { get; set; }
 }
 
+// RobotSpecs: все характеристики необязательны, null — «нет данных». Хранится в jsonb.
 public class RobotSpecs
 {
     [JsonPropertyName("payloadKg")]
     public double? PayloadKg { get; set; }
     [JsonPropertyName("speedMps")]
     public double? SpeedMps { get; set; }
-    [JsonPropertyName("perfOpsPerHouse")]
+    [JsonPropertyName("perfOpsPerHour")]
     public double? PerfOpsPerHour { get; set; }
     [JsonPropertyName("autonomyH")]
     public double? AutonomyH { get; set; }
     [JsonPropertyName("chargeTimeH")]
-    public float? ChargeTimeH { get; set; }
+    public double? ChargeTimeH { get; set; }
     [JsonPropertyName("positioningMm")]
     public double? PositioningMm { get; set; }
     [JsonPropertyName("navigation")]
-    public string? Navigation { get; set; } = string.Empty;
-    [JsonPropertyName("minAislemM")]
-    public float? MinAisleM { get; set; }
+    public string? Navigation { get; set; }
+    [JsonPropertyName("minAisleM")]
+    public double? MinAisleM { get; set; }
     [JsonPropertyName("widthM")]
     public double? WidthM { get; set; }
     [JsonPropertyName("lengthM")]
-    public float? LengthM { get; set; }
+    public double? LengthM { get; set; }
     [JsonPropertyName("heightM")]
-    public float? HeightM { get; set; }
+    public double? HeightM { get; set; }
     [JsonPropertyName("lifeYears")]
     public double? LifeYears { get; set; }
-}
-
-
-public class RobotResponse
-{
-    [JsonPropertyName("id")]
-    public string Id { get; set; } = string.Empty;
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
-    [JsonPropertyName("manufacturer")]
-    public string Manufacturer { get; set; } = string.Empty;
-    [JsonPropertyName("solutionType")]
-    public string SolutionType { get; set; } = string.Empty;
-    [JsonPropertyName("solutionTypeName")]
-    public string SolutionTypeName { get; set; } = string.Empty;
-    [JsonPropertyName("objectTypes")]
-    public List<string> ObjectTypes { get; set; } = new();
-    [JsonPropertyName("country")]
-    public string Country { get; set; } = string.Empty;
-    [JsonPropertyName("availability")]
-    public string Availability { get; set; } = string.Empty;
-    [JsonPropertyName("price")]
-    public decimal? Price { get; set; }
-    [JsonPropertyName("raasMonthlyPrice")]
-    public decimal? RaasMothlyPrice { get; set; }
-    [JsonPropertyName("maintenancePerYear")]
-    public decimal? MaintenancePerYear { get; set; }
-    [JsonPropertyName("specs")]
-    public RobotSpecs Specs { get; set; } = new();
-    [JsonPropertyName("sourceUrl")]
-    public string SourceUrl { get; set; } = string.Empty;
-    [JsonPropertyName("sourceDate")]
-    public string SourceDate { get; set; } = string.Empty;
-    [JsonPropertyName("confirmed")]
-    public bool Confirmed { get; set; } = false;
-
 }
