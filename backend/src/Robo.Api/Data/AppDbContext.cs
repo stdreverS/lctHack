@@ -10,4 +10,5 @@ public class AppDbContext : DbContext
     public DbSet<Robot> Robots { get; set; }
     public DbSet<Project> Projects { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<CalculationResult> CalculationResults { get; set; }
 }

@@ -12,7 +12,7 @@ public class Robot
 
     public List<string> ObjectTypes { get; set; } = new();
     public decimal? Price { get; set; }
-    public decimal? RaasMothlyPrice { get; set; }
+    public decimal? RaasMonthlyPrice { get; set; }
     public decimal? MaintenancePerYear { get; set; }
     public RobotSpecs Specs { get; set; } = new();
     public string SourceUrl { get; set; } = string.Empty;
