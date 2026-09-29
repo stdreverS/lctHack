@@ -32,8 +32,9 @@ import { buildRecommendation } from './recommendation'
 export const MODEL_VERSION = 'mock-1.0'
 export const DATA_VERSION = 'catalog-2026.09'
 const DISCLAIMER =
-  'Предварительная оценка на основе введённых параметров и каталожных данных. Точность ±30 %. ' +
-  'Не является инвестиционным решением: перед закупкой требуется обследование объекта и коммерческие предложения поставщиков.'
+  'Предварительная оценка, требует верификации при обследовании объекта. ' +
+  'Расчёт основан на введённых параметрах и каталожных данных и не является инвестиционным решением: ' +
+  'перед закупкой нужны коммерческие предложения поставщиков.'
 
 /** Множители для анализа чувствительности. */
 interface Factors {
@@ -57,6 +58,7 @@ interface Computed {
   equipment: EquipmentLine[]
   countOverridden: boolean
   priceOverridden: boolean
+  opexOverridden: boolean
 }
 
 function line(item: string, qty: number, unitPriceRub: number): EquipmentLine {
@@ -67,13 +69,17 @@ function computeScenario(s: ScenarioInput, robot: Robot | null, base: ModelInput
   const inputs = scaled(base, f)
   const a = inputs.assumptions
   if (s.kind === 'baseline' || !robot) {
-    return { econ: economics(inputs, 0, 0, 0), equipment: [], countOverridden: false, priceOverridden: false }
+    return { econ: economics(inputs, 0, 0, 0), equipment: [], countOverridden: false, priceOverridden: false, opexOverridden: false }
   }
   const manualCount = s.overrides?.robotCount ?? null
-  const count = manualCount ?? fleetSize(inputs.targetPerHour, robot, a)
+  const manualPerf = s.overrides?.perfOpsPerHour ?? null
+  const manualMaintenance = s.overrides?.maintenancePerYearRub ?? null
+  const needed = fleetSize(inputs.targetPerHour, robot, a, manualPerf)
+  const count = manualCount ?? needed
+  const coverage = needed ? (count ?? 0) / needed : 1
   if (count === null) {
     throw new MockFail(422, 'CALCULATION_ERROR',
-      `Для «${robot.name}» не указана производительность — задайте число роботов вручную`)
+      `Для «${robot.name}» не указана производительность — задайте её или число роботов вручную`)
   }
   if (s.kind === 'purchase') {
     const manualPrice = s.overrides?.unitPriceRub ?? null
@@ -86,8 +92,11 @@ function computeScenario(s: ScenarioInput, robot: Robot | null, base: ModelInput
     ]
     const capex = equipment.reduce((sum, l) => sum + l.totalRub, 0)
     return {
-      econ: economics(inputs, count, capex, purchaseRobotOpex(count, robot, a)),
-      equipment, countOverridden: manualCount !== null, priceOverridden: manualPrice !== null,
+      econ: economics(inputs, count, capex, purchaseRobotOpex(count, robot, a, manualMaintenance), coverage),
+      equipment,
+      countOverridden: manualCount !== null || manualPerf !== null,
+      priceOverridden: manualPrice !== null,
+      opexOverridden: manualMaintenance !== null,
     }
   }
   const fee = s.raas?.monthlyFeePerRobotRub ?? robot.raasMonthlyPrice
@@ -98,8 +107,11 @@ function computeScenario(s: ScenarioInput, robot: Robot | null, base: ModelInput
   const setup = s.raas?.setupRub ?? MOCK_CONST.raasSetupRub
   const equipment = [line('Внедрение, интеграция и подготовка площадки (RaaS)', 1, setup)]
   return {
-    econ: economics(inputs, count, setup, raasRobotOpex(count, Math.round(fee * f.price), a)),
-    equipment, countOverridden: manualCount !== null, priceOverridden: false,
+    econ: economics(inputs, count, setup, raasRobotOpex(count, Math.round(fee * f.price), a), coverage),
+    equipment,
+    countOverridden: manualCount !== null || manualPerf !== null,
+    priceOverridden: false,
+    opexOverridden: false,
   }
 }
 
@@ -143,7 +155,7 @@ function metrics(c: Computed, inputs: ModelInputs): Record<MetricKey, Metric> {
     capexRub: metric('Капитальные затраты', e.capexRub, '₽', 'Сумма строк спецификации оборудования и работ',
       { overridden: c.priceOverridden, breakdown: c.equipment.map((l, i) => ({ key: `line${i + 1}`, label: l.item, value: l.totalRub })) }),
     opexAnnualRub: metric('Операционные затраты в год', e.opexAnnualRub, '₽/год', 'ФОТ оставшегося персонала + обслуживание, энергия и ПО роботов',
-      { breakdown: [
+      { overridden: c.opexOverridden, breakdown: [
         { key: 'labor', label: 'ФОТ оставшегося персонала', value: e.laborBaseRub - e.laborSavingRub, source: 'Параметры объекта' },
         { key: 'robots', label: 'Обслуживание, аренда, энергия, ПО', value: e.robotOpexRub, source: 'Каталог роботов' },
       ] }),
@@ -151,7 +163,7 @@ function metrics(c: Computed, inputs: ModelInputs): Record<MetricKey, Metric> {
     annualEffectRub: metric('Годовой эффект', e.annualEffectRub, '₽/год', 'Экономия ФОТ − расходы на роботов',
       { inputs: { replacedStaff: e.replacedStaff, laborSavingRub: e.laborSavingRub, robotOpexRub: e.robotOpexRub } }),
     paybackYears: metric('Срок окупаемости', e.paybackYears, 'лет', 'Капитальные затраты / Годовой эффект'),
-    roiPercent: metric('ROI за горизонт расчёта', e.roiPercent, '%', '(Годовой эффект × Горизонт − Капзатраты) / Капзатраты × 100 %',
+    roiPercent: metric('ROI за горизонт расчёта', e.roiPercent, '%', 'Накопленный эффект за горизонт (Годовой эффект × Горизонт) / Капзатраты × 100 %',
       { inputs: { horizonYears: a.horizonYears } }),
     tcoRub: metric('Совокупная стоимость владения', e.tcoRub, '₽', 'Капзатраты + OPEX × Горизонт расчёта', { inputs: { horizonYears: a.horizonYears } }),
   }
@@ -174,7 +186,7 @@ function assumptionsUsed(inputs: ModelInputs): AssumptionRef[] {
   const pct = (v: number) => Math.round(v * 1000) / 10
   return [
     { key: 'horizonYears', label: 'Горизонт расчёта', value: a.horizonYears, unit: 'лет', source: 'Параметры проекта', confirmed: true },
-    { key: 'workDaysPerYear', label: 'Рабочих дней в году', value: a.workDaysPerYear, unit: 'дн.', source: 'Производственный календарь РФ', confirmed: true },
+    { key: 'workDaysPerYear', label: 'Рабочих дней в году', value: a.workDaysPerYear, unit: 'дн.', source: 'Допущение: пятидневная рабочая неделя, округлённо', confirmed: false },
     { key: 'shiftsPerDay', label: 'Смен в сутки', value: a.shiftsPerDay, unit: 'смен', source: 'Параметры проекта', confirmed: true },
     { key: 'hoursPerShift', label: 'Длительность смены', value: a.hoursPerShift, unit: 'ч', source: 'ТК РФ, ст. 91', confirmed: true },
     { key: 'utilization', label: 'Загрузка робота', value: pct(a.utilization), unit: '%', source: 'Демо-оценка по отраслевой практике', confirmed: false },

@@ -1,4 +1,5 @@
-// Мок-сервер: "METHOD /path" → обработчик. Данные живут в памяти модуля до перезагрузки.
+// Мок-сервер: "METHOD /path" → обработчик. Данные живут в памяти модуля и после каждого
+// успешного изменения сохраняются в localStorage (mocks/persist.ts), поэтому переживают F5.
 import type {
   AuthResponse,
   CalcRequest,
@@ -18,6 +19,9 @@ import { objectTypes } from './data/objectTypes'
 import { calculations, projects, type MockCalculation, type MockProject } from './data/projects'
 import { robots } from './data/robots'
 import { toPublicUser, users, type MockUser } from './data/users'
+import { restoreMockDb, saveMockDb } from './persist'
+
+restoreMockDb()
 
 export type MockMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
 
@@ -120,6 +124,12 @@ function validateRobot(body: unknown): RobotInput {
   if (typeof b.name !== 'string' || !b.name.trim()) errors.push({ field: 'name', message: 'Укажите название робота' })
   if (typeof b.manufacturer !== 'string' || !b.manufacturer.trim()) errors.push({ field: 'manufacturer', message: 'Укажите производителя' })
   if (typeof b.price !== 'number' || b.price <= 0) errors.push({ field: 'price', message: 'Цена должна быть больше нуля', hint: 'Цена в рублях с НДС, например 4200000' })
+  if (typeof b.solutionType !== 'string' || !b.solutionType.trim()) errors.push({ field: 'solutionType', message: 'Укажите тип решения', hint: 'Код латиницей, например amr' })
+  if (typeof b.maintenancePerYear !== 'number' || b.maintenancePerYear < 0) errors.push({ field: 'maintenancePerYear', message: 'Стоимость обслуживания не может быть отрицательной' })
+  const types = Array.isArray(b.objectTypes) ? b.objectTypes : []
+  if (!types.length || types.some((code) => !objectTypes.some((t) => t.code === code))) {
+    errors.push({ field: 'objectTypes', message: 'Выберите типы объектов из списка', hint: 'Хотя бы один тип, например «Склад»' })
+  }
   if (errors.length) invalid(errors)
   return b as unknown as RobotInput
 }
@@ -345,7 +355,9 @@ export function handleMockRequest(req: MockRequest): MockResponse {
       if (!match) continue
       const params: Record<string, string> = {}
       route.keys.forEach((k, i) => (params[k] = decodeURIComponent(match[i + 1]!)))
-      return route.handler({ params, query: url.searchParams, body: req.body, user: userByToken(req.token) })
+      const response = route.handler({ params, query: url.searchParams, body: req.body, user: userByToken(req.token) })
+      if (req.method !== 'GET' && response.status < 400) saveMockDb()
+      return response
     }
     throw new MockFail(404, 'NOT_FOUND', `Адрес ${req.method} ${path} не найден`)
   } catch (error) {

@@ -143,6 +143,13 @@ interface RawResponse {
   body: unknown
 }
 
+/** Режим моков: вернуть демо-данные (проекты, расчёты, каталог, пользователей) к исходным. */
+export async function resetMockData(): Promise<void> {
+  if (!USE_MOCKS) return
+  const { resetMockDb } = await import('@/mocks/persist')
+  resetMockDb()
+}
+
 async function sendMock(
   method: HttpMethod,
   url: string,

@@ -1,0 +1,79 @@
+# Библиотеки и источники данных
+
+Документ для п. 6.8 ТЗ. Версии — установленные по `frontend/package-lock.json` и указанные в
+`.csproj`. Лицензии — из метаданных пакетов.
+
+## Фронтенд: зависимости сборки приложения (`frontend/package.json`, `dependencies`)
+
+| Пакет | Версия | Лицензия | Для чего | Ссылка |
+|---|---|---|---|---|
+| vue | 3.5.43 | MIT | Фреймворк интерфейса | <https://www.npmjs.com/package/vue> |
+| vue-router | 5.3.1 | MIT | Маршруты, защита разделов по ролям | <https://www.npmjs.com/package/vue-router> |
+| pinia | 4.0.3 | MIT | Хранилища состояния: авторизация, мастер | <https://www.npmjs.com/package/pinia> |
+| element-plus | 2.14.6 | MIT | Компоненты интерфейса, локаль ru | <https://www.npmjs.com/package/element-plus> |
+| @element-plus/icons-vue | 2.3.2 | MIT | Иконки | <https://www.npmjs.com/package/@element-plus/icons-vue> |
+| chart.js | 4.5.1 | MIT | Графики: денежный поток, чувствительность, очередь | <https://www.npmjs.com/package/chart.js> |
+| vue-chartjs | 5.3.4 | MIT | Компоненты Vue для Chart.js | <https://www.npmjs.com/package/vue-chartjs> |
+| papaparse | 5.7.0 | MIT | Разбор CSV с параметрами объекта | <https://www.npmjs.com/package/papaparse> |
+| @fontsource/golos-text | 5.3.0 | OFL-1.1 | Шрифт Golos Text локально, без CDN | <https://www.npmjs.com/package/@fontsource/golos-text> |
+
+## Фронтенд: инструменты разработки (`devDependencies`)
+
+| Пакет | Версия | Лицензия | Для чего | Ссылка |
+|---|---|---|---|---|
+| vite | 8.3.0 | MIT | Сборка и dev-сервер | <https://www.npmjs.com/package/vite> |
+| @vitejs/plugin-vue | 6.0.9 | MIT | Однофайловые компоненты Vue в Vite | <https://www.npmjs.com/package/@vitejs/plugin-vue> |
+| vite-plugin-vue-devtools | 8.2.1 | MIT | Инструменты разработчика Vue (только dev-сервер) | <https://www.npmjs.com/package/vite-plugin-vue-devtools> |
+| typescript | 6.0.3 | Apache-2.0 | Язык, проверка типов | <https://www.npmjs.com/package/typescript> |
+| vue-tsc | 3.3.11 | MIT | Проверка типов в `.vue` (`npm run type-check`) | <https://www.npmjs.com/package/vue-tsc> |
+| vitest | 5.0.1 | MIT | Модульные тесты | <https://www.npmjs.com/package/vitest> |
+| npm-run-all2 | 9.0.3 | MIT | Параллельный запуск проверки типов и сборки | <https://www.npmjs.com/package/npm-run-all2> |
+| @tsconfig/node24 | 24.0.5 | MIT | Базовый tsconfig для Node 24 | <https://www.npmjs.com/package/@tsconfig/node24> |
+| @vue/tsconfig | 0.9.1 | MIT | Базовый tsconfig для Vue | <https://www.npmjs.com/package/@vue/tsconfig> |
+| @types/node | 24.13.6 | MIT | Типы Node.js | <https://www.npmjs.com/package/@types/node> |
+| @types/papaparse | 5.5.2 | MIT | Типы PapaParse | <https://www.npmjs.com/package/@types/papaparse> |
+
+## Бэкенд (.NET 10)
+
+| Пакет | Версия | Проект | Для чего | Ссылка |
+|---|---|---|---|---|
+| Microsoft.AspNetCore.Authentication.JwtBearer | 10.0.12 | Robo.Api | JWT-авторизация (подключён, не используется) | <https://www.nuget.org/packages/Microsoft.AspNetCore.Authentication.JwtBearer> |
+| Microsoft.AspNetCore.OpenApi | 10.0.12 | Robo.Api | Спецификация OpenAPI (подключён, не используется) | <https://www.nuget.org/packages/Microsoft.AspNetCore.OpenApi> |
+| Microsoft.EntityFrameworkCore.Design | 10.0.12 | Robo.Api | Миграции EF Core (только инструменты) | <https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Design> |
+| Npgsql.EntityFrameworkCore.PostgreSQL | 10.0.3 | Robo.Api | EF Core для PostgreSQL (подключён, не используется) | <https://www.nuget.org/packages/Npgsql.EntityFrameworkCore.PostgreSQL> |
+| xunit | 2.9.3 | Robo.Tests | Модульные тесты | <https://www.nuget.org/packages/xunit> |
+| xunit.runner.visualstudio | 3.1.4 | Robo.Tests | Запуск тестов xUnit | <https://www.nuget.org/packages/xunit.runner.visualstudio> |
+| Microsoft.NET.Test.Sdk | 17.14.1 | Robo.Tests | Инфраструктура `dotnet test` | <https://www.nuget.org/packages/Microsoft.NET.Test.Sdk> |
+| coverlet.collector | 6.0.4 | Robo.Tests | Сбор покрытия тестами | <https://www.nuget.org/packages/coverlet.collector> |
+
+`Robo.Core` внешних пакетов не использует (только стандартная библиотека .NET, в том числе
+System.Text.Json).
+
+## Образы Docker
+
+| Образ | Для чего | Ссылка |
+|---|---|---|
+| node:24-alpine | Сборка фронтенда | <https://hub.docker.com/_/node> |
+| nginx:stable-alpine | Раздача собранного фронтенда | <https://hub.docker.com/_/nginx> |
+| postgres:17-alpine | Целевая БД (в `docker-compose.yml` закомментирована) | <https://hub.docker.com/_/postgres> |
+
+## Источники данных
+
+| Источник | Где используется |
+|---|---|
+| Техническое задание хакатона ФЦ БАС и «Дополнения для участников» | Требования, состав параметров объектов (п. 3.2.1), определения CAPEX, OPEX, RaaS |
+| Трудовой кодекс РФ, ст. 91 | Длительность смены 8 ч по умолчанию |
+| ГОСТ 33757-2016 | Размеры поддона 1200×800 мм — длина и ширина грузовой единицы склада по умолчанию |
+| СП 158.13330.2014 | Ширина коридоров больницы по умолчанию |
+| Демо-оценки команды | Каталог роботов, демо-параметры объектов, коэффициенты модели (`docs/economics.md`) |
+
+Каталог роботов — вымышленный (ссылки на `example.com`); открытые источники производителей
+не использовались.
+
+## Ограничения
+
+- Лицензии указаны по метаданным пакетов, юридическая проверка не проводилась.
+- Транзитивные зависимости не перечислены — полный список в `frontend/package-lock.json` и
+  выводе `dotnet list package --include-transitive`.
+- Нормативные документы указаны так, как они записаны в данных проекта; соответствие значений
+  их актуальным редакциям не перепроверялось.

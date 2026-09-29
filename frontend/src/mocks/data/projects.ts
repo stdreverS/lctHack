@@ -51,18 +51,22 @@ export function defaultScenarios(robotId: string = ROBOT_IDS.amr600): ScenarioIn
   ]
 }
 
-/** KPI 2D-симуляции, приложенные к сохранённому расчёту (на результат мок-расчёта не влияют). */
+/**
+ * KPI 2D-симуляции, приложенные к сохранённому расчёту (на результат мок-расчёта не влияют).
+ * Получены прогоном sim-1.2 на этом расчёте: сценарий «Покупка», 15 × AMR-600, цель 447 опер./ч,
+ * зерно SIM_SEED — шаг 7 проекта покажет те же числа.
+ */
 export const demoSimKpi: SimKpi = {
-  engineVersion: 'sim-1.0',
-  seed: 42,
-  throughputPerHour: 338,
-  targetPerHour: 350,
-  achievedPercent: 96.6,
-  avgUtilization: 0.78,
-  idleShare: 0.12,
-  chargingShare: 0.1,
-  maxQueue: 4,
-  bottleneck: 'Зона приёмки: очередь на разгрузку в пиковый час',
+  engineVersion: 'sim-1.2',
+  seed: 20260922,
+  throughputPerHour: 424.8,
+  targetPerHour: 447,
+  achievedPercent: 95,
+  avgUtilization: 0.631,
+  idleShare: 0.369,
+  chargingShare: 0,
+  maxQueue: 7,
+  bottleneck: 'Длина маршрута: 120 м в одну сторону, на переезды уходит 42 % времени',
   confirmsCalculation: true,
 }
 

@@ -54,10 +54,10 @@ function buildChecks(robot: Robot, params: Params, inputs: ModelInputs): Check[]
   if (aisle !== null && robot.solutionType !== 'asrs') {
     checks.push(
       s.minAisleM == null
-        ? check('aisle', 'Ширина прохода', true, 'unknown', 'Нет данных о минимальной ширине прохода — запросите у производителя', aisle, null, 'м')
+        ? check('aisle', 'Ширина прохода', true, 'unknown', 'Нет данных о минимальной ширине прохода — запросите у производителя', null, aisle, 'м')
         : s.minAisleM <= aisle
-          ? check('aisle', 'Ширина прохода', true, 'pass', `Роботу нужно ${formatNumber(s.minAisleM)} м, на объекте ${formatNumber(aisle)} м`, aisle, s.minAisleM, 'м')
-          : check('aisle', 'Ширина прохода', true, 'fail', `Роботу нужен проход ${formatNumber(s.minAisleM)} м, а на объекте только ${formatNumber(aisle)} м`, aisle, s.minAisleM, 'м'),
+          ? check('aisle', 'Ширина прохода', true, 'pass', `Роботу нужно ${formatNumber(s.minAisleM)} м, на объекте ${formatNumber(aisle)} м`, s.minAisleM, aisle, 'м')
+          : check('aisle', 'Ширина прохода', true, 'fail', `Роботу нужен проход ${formatNumber(s.minAisleM)} м, а на объекте только ${formatNumber(aisle)} м`, s.minAisleM, aisle, 'м'),
     )
   }
 

@@ -2,9 +2,9 @@
 import type { Assumptions, ObjectType, Params, ProjectInput, Verdict } from '@/types/api'
 
 /**
- * Допущения нового проекта. В API нет справочника допущений по умолчанию,
- * поэтому фронтенд задаёт их сам (значения — как в примерах docs/api-examples.md).
- * Пользователь уточнит их в мастере.
+ * Допущения по умолчанию для нового проекта и мастера гостя. В API нет справочника
+ * допущений, поэтому их задаёт фронтенд. Значения совпадают с backend/config/norms.json
+ * и defaultAssumptions моков. Пользователь уточнит их в мастере.
  */
 export const DEFAULT_ASSUMPTIONS: Readonly<Assumptions> = {
   horizonYears: 5,
@@ -40,4 +40,18 @@ export function paybackLevel(years: number | null | undefined): PaybackLevel {
   if (years <= 3) return 'good'
   if (years <= 5) return 'moderate'
   return 'poor'
+}
+
+/**
+ * Стартовые параметры для ручного заполнения: уже введённые значения сохраняются,
+ * пустые поля заполняются только нормативными значениями (с defaultSource), остальные — null.
+ */
+export function manualParams(type: Pick<ObjectType, 'fields'>, current: Params): Params {
+  return Object.fromEntries(
+    type.fields.map((f) => {
+      const value = current[f.key]
+      if (value !== null && value !== undefined && value !== '') return [f.key, value]
+      return [f.key, f.defaultSource ? (f.default ?? null) : null]
+    }),
+  )
 }

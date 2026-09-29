@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatDate, formatNumber, formatPercent, formatRub, formatYears, pluralYears } from './format'
+import { formatClock, formatDate, pluralRobots as robots, formatNumber, formatPercent, formatRub, formatYears, pluralYears } from './format'
 
 // В ожидаемых строках пробел — неразрывный (U+00A0); заменяем для читаемости.
 const s = (text: string) => text.replace(/ /g, ' ')
@@ -124,5 +124,43 @@ describe('formatDate', () => {
     expect(formatDate(null)).toBe('—')
     expect(formatDate('')).toBe('—')
     expect(formatDate('не дата')).toBe('—')
+  })
+})
+
+describe('formatClock', () => {
+  it('меньше часа — минуты и секунды', () => {
+    expect(formatClock(0)).toBe('00:00')
+    expect(formatClock(59)).toBe('00:59')
+    expect(formatClock(754)).toBe('12:34')
+    expect(formatClock(3599)).toBe('59:59')
+  })
+
+  it('час и больше — с часами', () => {
+    expect(formatClock(3600)).toBe('1:00:00')
+    expect(formatClock(3930)).toBe('1:05:30')
+  })
+
+  it('пустое и отрицательное значение — начало отсчёта', () => {
+    expect(formatClock(null)).toBe('00:00')
+    expect(formatClock(-5)).toBe('00:00')
+    expect(formatClock(Number.NaN)).toBe('00:00')
+  })
+})
+
+describe('pluralRobots', () => {
+  it('именительный падеж', () => {
+    expect(robots(1)).toBe('робот')
+    expect(robots(2)).toBe('робота')
+    expect(robots(5)).toBe('роботов')
+    expect(robots(11)).toBe('роботов')
+    expect(robots(21)).toBe('робот')
+    expect(robots(0)).toBe('роботов')
+  })
+
+  it('творительный падеж — «с N роботом/роботами»', () => {
+    expect(robots(1, 'instrumental')).toBe('роботом')
+    expect(robots(21, 'instrumental')).toBe('роботом')
+    expect(robots(11, 'instrumental')).toBe('роботами')
+    expect(robots(7, 'instrumental')).toBe('роботами')
   })
 })

@@ -159,7 +159,12 @@ type ScenarioKind = 'baseline' | 'purchase' | 'raas'
 interface ScenarioInput {
   id: string; kind: ScenarioKind; title: string
   robotId: string | null                      // null только для baseline
-  overrides?: { robotCount?: number | null; unitPriceRub?: number | null }   // ручные правки
+  // ручные правки (what-if); null или отсутствие ключа — считает сервер
+  overrides?: {
+    robotCount?: number | null; unitPriceRub?: number | null
+    perfOpsPerHour?: number | null        // опер./ч вместо значения из каталога
+    maintenancePerYearRub?: number | null // ₽/год на одного робота вместо каталога
+  }
   raas?: { monthlyFeePerRobotRub: number; contractYears: number; setupRub: number }
 }
 type SensParam = 'equipmentPrice' | 'operationsVolume' | 'laborCost'

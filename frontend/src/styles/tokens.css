@@ -18,6 +18,32 @@
   --color-warning: #c98a00; /* требует проверки / 3–5 лет */
   --color-danger: #c0392b; /* не подходит / более 5 лет */
 
+  /* Серии графиков сценариев (проверено на различимость, в т. ч. при нарушениях цветовосприятия;
+     дополнительно различаются типом линии и маркера) */
+  --color-series-baseline: #7b8893;
+  --color-series-purchase: var(--color-primary);
+  --color-series-raas: #b5628a;
+
+  /* Линии графика чувствительности (та же проверка различимости; плюс тип линии и маркера) */
+  --color-sens-equipment: var(--color-primary);
+  --color-sens-volume: #b5628a;
+  --color-sens-labor: #6e7b2e;
+
+  /* Зоны на плане симуляции: спокойные заливки, различимые между собой */
+  --color-zone-receiving: #cfe0ea;
+  --color-zone-storage: #e3e8eb;
+  --color-zone-picking: #d9e7d9;
+  --color-zone-shipping: #ecd9d2;
+  --color-zone-charging: #f7e7c0;
+  --color-zone-other: #e6eaec;
+
+  /* Состояния роботов в симуляции (цвет дублируется подписью в легенде) */
+  --color-robot-idle: #9aa7b1;
+  --color-robot-moving-empty: #5b8fb0;
+  --color-robot-moving-loaded: var(--color-primary);
+  --color-robot-handling: var(--color-success);
+  --color-robot-charging: var(--color-warning);
+
   /* Типографика */
   --font-family: 'Golos Text', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
   --font-size-base: 14px;
