@@ -57,6 +57,10 @@ describe('checkValues', () => {
   it('строковые значения и отсутствие единицы', () => {
     expect(checkValues({ required: 'SLAM', actual: 'Магнитная лента', unit: null })).toBe('требуется SLAM, у робота Магнитная лента')
   })
+  it('проход: требование робота и ширина на объекте', () => {
+    expect(checkValues({ rule: 'aisle', required: 1.2, actual: 3, unit: 'м' })).toBe(`требуется 1,2${N}м, на объекте 3${N}м`)
+    expect(checkValues({ rule: 'aisle', required: null, actual: 3, unit: 'м' })).toBe(`требуется нет данных, на объекте 3${N}м`)
+  })
   it('нечего сравнивать → пустая строка', () => {
     expect(checkValues({ required: null, actual: undefined, unit: 'ч' })).toBe('')
   })

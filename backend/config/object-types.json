@@ -407,11 +407,19 @@
     "groups": [
       {
         "key": "object",
-        "label": "Терминал"
+        "label": "Терминал и операция"
       },
       {
         "key": "operations",
         "label": "Пассажиропоток и багаж"
+      },
+      {
+        "key": "cargo",
+        "label": "Перемещаемые объекты"
+      },
+      {
+        "key": "safety",
+        "label": "Безопасность и зоны"
       },
       {
         "key": "staff",
@@ -434,7 +442,7 @@
       },
       {
         "key": "hoursPerDay",
-        "label": "Часы работы в сутки",
+        "label": "Режим работы: часов в сутки",
         "group": "object",
         "type": "integer",
         "unit": "ч",
@@ -443,7 +451,61 @@
         "max": 24,
         "default": 24,
         "example": 24,
-        "hint": "Большинство терминалов работает круглосуточно"
+        "hint": "Сколько часов в сутки выполняется операция; большинство терминалов работает круглосуточно"
+      },
+      {
+        "key": "operationType",
+        "label": "Тип операции",
+        "group": "object",
+        "type": "enum",
+        "required": true,
+        "default": "baggage",
+        "options": [
+          {
+            "value": "baggage",
+            "label": "Транспортировка багажа"
+          },
+          {
+            "value": "cargo",
+            "label": "Перемещение грузов и почты"
+          },
+          {
+            "value": "cleaning",
+            "label": "Уборка помещений терминала"
+          },
+          {
+            "value": "passenger_service",
+            "label": "Сопровождение и навигация пассажиров"
+          }
+        ],
+        "hint": "Операция, которую планируется роботизировать"
+      },
+      {
+        "key": "operationZone",
+        "label": "Зона операции",
+        "group": "object",
+        "type": "enum",
+        "required": true,
+        "default": "baggage_hall",
+        "options": [
+          {
+            "value": "landside",
+            "label": "Общедоступная зона терминала"
+          },
+          {
+            "value": "airside",
+            "label": "Контролируемая зона (после досмотра)"
+          },
+          {
+            "value": "baggage_hall",
+            "label": "Зона сортировки багажа"
+          },
+          {
+            "value": "apron",
+            "label": "Перрон и места стоянки ВС"
+          }
+        ],
+        "hint": "Где будут работать роботы"
       },
       {
         "key": "passengersPerYear",
@@ -507,6 +569,104 @@
         "hint": "Конвейерная сортировка багажа (BHS)"
       },
       {
+        "key": "loadKg",
+        "label": "Масса груза за один рейс",
+        "group": "cargo",
+        "type": "number",
+        "unit": "кг",
+        "required": true,
+        "min": 0.1,
+        "max": 5000,
+        "default": 100,
+        "example": 100,
+        "hint": "Багажная тележка или контейнер, который перемещает робот за один рейс"
+      },
+      {
+        "key": "loadLengthM",
+        "label": "Длина перемещаемого объекта",
+        "group": "cargo",
+        "type": "number",
+        "unit": "м",
+        "required": true,
+        "min": 0.1,
+        "max": 10,
+        "default": 1.6,
+        "example": 1.6,
+        "hint": "Тележка, контейнер или связка тележек"
+      },
+      {
+        "key": "loadWidthM",
+        "label": "Ширина перемещаемого объекта",
+        "group": "cargo",
+        "type": "number",
+        "unit": "м",
+        "required": true,
+        "min": 0.1,
+        "max": 5,
+        "default": 0.8,
+        "example": 0.8,
+        "hint": "Габарит по самой широкой части"
+      },
+      {
+        "key": "loadHeightM",
+        "label": "Высота перемещаемого объекта",
+        "group": "cargo",
+        "type": "number",
+        "unit": "м",
+        "required": false,
+        "min": 0.1,
+        "max": 5,
+        "default": 1.2,
+        "example": 1.2,
+        "hint": "Вместе с грузом"
+      },
+      {
+        "key": "safetyLevel",
+        "label": "Требования безопасности",
+        "group": "safety",
+        "type": "enum",
+        "required": true,
+        "default": "enhanced",
+        "options": [
+          {
+            "value": "basic",
+            "label": "Базовые: работа рядом с людьми, ограничение скорости"
+          },
+          {
+            "value": "enhanced",
+            "label": "Повышенные: допуск оборудования в контролируемую зону"
+          },
+          {
+            "value": "apron",
+            "label": "Перронные: движение рядом с ВС и спецтехникой"
+          }
+        ],
+        "hint": "Самые строгие требования на маршрутах роботов"
+      },
+      {
+        "key": "zoneEnvironment",
+        "label": "Закрытые и открытые зоны",
+        "group": "safety",
+        "type": "enum",
+        "required": true,
+        "default": "mixed",
+        "options": [
+          {
+            "value": "indoor",
+            "label": "Только закрытые помещения"
+          },
+          {
+            "value": "outdoor",
+            "label": "Только открытые площадки"
+          },
+          {
+            "value": "mixed",
+            "label": "Закрытые и открытые зоны"
+          }
+        ],
+        "hint": "Открытые зоны требуют работы при осадках и перепадах температуры"
+      },
+      {
         "key": "staffCount",
         "label": "Численность персонала на процессах",
         "group": "staff",
@@ -540,11 +700,19 @@
     "demoParams": {
       "terminalAreaM2": 60000,
       "hoursPerDay": 24,
+      "operationType": "baggage",
+      "operationZone": "baggage_hall",
       "passengersPerYear": 12,
       "bagsPerHourPeak": 600,
       "bagTransferM": 450,
       "cleaningAreaM2": 35000,
       "hasBaggageSystem": true,
+      "loadKg": 100,
+      "loadLengthM": 1.6,
+      "loadWidthM": 0.8,
+      "loadHeightM": 1.2,
+      "safetyLevel": "enhanced",
+      "zoneEnvironment": "mixed",
       "staffCount": 180,
       "staffCostMonthRub": 88000
     },
@@ -571,11 +739,15 @@
     "groups": [
       {
         "key": "object",
-        "label": "Здание"
+        "label": "Учреждение и здание"
       },
       {
         "key": "operations",
         "label": "Доставки"
+      },
+      {
+        "key": "safety",
+        "label": "Санитарные требования и доступ"
       },
       {
         "key": "staff",
@@ -583,6 +755,69 @@
       }
     ],
     "fields": [
+      {
+        "key": "institutionType",
+        "label": "Тип учреждения",
+        "group": "object",
+        "type": "enum",
+        "required": true,
+        "default": "multi",
+        "options": [
+          {
+            "value": "multi",
+            "label": "Многопрофильный стационар"
+          },
+          {
+            "value": "specialized",
+            "label": "Специализированный стационар"
+          },
+          {
+            "value": "perinatal",
+            "label": "Перинатальный центр"
+          },
+          {
+            "value": "outpatient",
+            "label": "Поликлиника или диагностический центр"
+          }
+        ],
+        "hint": "Профиль учреждения определяет виды доставок и санитарные требования"
+      },
+      {
+        "key": "areaM2",
+        "label": "Площадь здания",
+        "group": "object",
+        "type": "number",
+        "unit": "м²",
+        "required": true,
+        "min": 500,
+        "max": 1000000,
+        "default": 48000,
+        "example": 48000,
+        "hint": "Общая площадь корпусов, по которым ходят доставки"
+      },
+      {
+        "key": "workMode",
+        "label": "Режим работы доставок",
+        "group": "object",
+        "type": "enum",
+        "required": true,
+        "default": "around_clock",
+        "options": [
+          {
+            "value": "day",
+            "label": "Днём, 12 ч"
+          },
+          {
+            "value": "extended",
+            "label": "Расширенный, 16 ч"
+          },
+          {
+            "value": "around_clock",
+            "label": "Круглосуточно"
+          }
+        ],
+        "hint": "Когда выполняются внутренние доставки"
+      },
       {
         "key": "beds",
         "label": "Коечный фонд",
@@ -679,6 +914,52 @@
         "hint": "Средняя масса груза за один рейс"
       },
       {
+        "key": "sanitationLevel",
+        "label": "Санитарная обработка",
+        "group": "safety",
+        "type": "enum",
+        "required": true,
+        "default": "enhanced",
+        "options": [
+          {
+            "value": "standard",
+            "label": "Обычная: ежедневная обработка поверхностей робота"
+          },
+          {
+            "value": "enhanced",
+            "label": "Усиленная: обработка после рейсов в отделения"
+          },
+          {
+            "value": "strict",
+            "label": "Строгая: рейсы в чистые зоны (операционные, стерилизационная)"
+          }
+        ],
+        "hint": "Как часто и чем обрабатывается робот; влияет на время простоя и выбор модели"
+      },
+      {
+        "key": "accessRestrictions",
+        "label": "Ограничения доступа",
+        "group": "safety",
+        "type": "enum",
+        "required": true,
+        "default": "staff_only",
+        "options": [
+          {
+            "value": "none",
+            "label": "Нет: общие коридоры и лифты"
+          },
+          {
+            "value": "staff_only",
+            "label": "Служебные коридоры и лифты по пропускам"
+          },
+          {
+            "value": "restricted",
+            "label": "Есть закрытые отделения (реанимация, инфекционное)"
+          }
+        ],
+        "hint": "Нужна ли роботу интеграция с системой контроля доступа и лифтами"
+      },
+      {
         "key": "staffCount",
         "label": "Персонал на доставках",
         "group": "staff",
@@ -710,6 +991,9 @@
       }
     ],
     "demoParams": {
+      "institutionType": "multi",
+      "areaM2": 48000,
+      "workMode": "around_clock",
       "beds": 600,
       "floors": 9,
       "elevators": 4,
@@ -717,6 +1001,8 @@
       "deliveriesPerDay": 900,
       "avgRouteM": 260,
       "loadKg": 40,
+      "sanitationLevel": "enhanced",
+      "accessRestrictions": "staff_only",
       "staffCount": 45,
       "staffCostMonthRub": 72000
     },

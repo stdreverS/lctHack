@@ -38,12 +38,19 @@ function checkValue(value: number | string | null | undefined, unit: string | nu
   return unit ? `${text} ${unit}` : text
 }
 
-/** «требуется 350 кг, у робота 600 кг»; если сравнивать нечего — пустая строка. */
-export function checkValues(check: Pick<Check, 'required' | 'actual' | 'unit'>): string {
+/** Проверки, где требование задаёт робот, а фактическое значение — у объекта. */
+const ACTUAL_AT_OBJECT: ReadonlySet<string> = new Set(['aisle'])
+
+/**
+ * «требуется 350 кг, у робота 600 кг»; для проверок из ACTUAL_AT_OBJECT —
+ * «требуется 1,2 м, на объекте 3 м». Если сравнивать нечего — пустая строка.
+ */
+export function checkValues(check: Pick<Check, 'required' | 'actual' | 'unit'> & { rule?: string }): string {
   const hasRequired = check.required !== null && check.required !== undefined && check.required !== ''
   const hasActual = check.actual !== null && check.actual !== undefined && check.actual !== ''
   if (!hasRequired && !hasActual) return ''
-  return `требуется ${checkValue(check.required, check.unit)}, у робота ${checkValue(check.actual, check.unit)}`
+  const where = check.rule && ACTUAL_AT_OBJECT.has(check.rule) ? 'на объекте' : 'у робота'
+  return `требуется ${checkValue(check.required, check.unit)}, ${where} ${checkValue(check.actual, check.unit)}`
 }
 
 /** Критические проверки, которые робот не прошёл, — для предупреждения при ручном добавлении. */

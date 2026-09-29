@@ -29,6 +29,7 @@ const router = createRouter({
         { path: 'catalog', name: 'catalog', component: () => import('@/views/CatalogView.vue'), meta: { title: 'Каталог роботов' } },
         { path: 'catalog/:id', name: 'robot', component: () => import('@/views/RobotView.vue'), meta: { title: 'Карточка робота' } },
         { path: 'demo', name: 'demo', component: () => import('@/views/DemoView.vue'), meta: { title: 'Оценка без регистрации' } },
+        { path: 'demo/report', name: 'demo-report', component: () => import('@/views/ReportView.vue'), meta: { title: 'Отчёт' } },
       ],
     },
     {
@@ -39,6 +40,7 @@ const router = createRouter({
         { path: '', redirect: { name: 'projects' } },
         { path: 'projects', name: 'projects', component: () => import('@/views/ProjectsView.vue'), meta: { title: 'Мои проекты' } },
         { path: 'projects/:id', name: 'project', component: () => import('@/views/ProjectView.vue'), meta: { title: 'Проект' } },
+        { path: 'projects/:id/report', name: 'project-report', component: () => import('@/views/ReportView.vue'), meta: { title: 'Отчёт по проекту' } },
         { path: 'profile', name: 'profile', component: () => import('@/views/ProfileView.vue'), meta: { title: 'Профиль' } },
       ],
     },

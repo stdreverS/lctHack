@@ -91,6 +91,8 @@ export function buildSimInput(args: {
   if (speed === null) notes.push(`Скорость робота не указана в каталоге — принято ${SIM_FALLBACK.speedMps} м/с`)
   const autonomy = positive(robot?.specs.autonomyH)
   if (autonomy === null) notes.push(`Автономность не указана в каталоге — принято ${SIM_FALLBACK.autonomyH} ч`)
+  const perf = positive(robot?.specs.perfOpsPerHour)
+  if (perf === null) notes.push('Производительность робота не указана в каталоге — время заявки считается по скорости и длине маршрута')
   const charge = positive(robot?.specs.chargeTimeH)
   if (charge === null) notes.push(`Время зарядки не указано в каталоге — принято ${SIM_FALLBACK.chargeTimeH} ч`)
 
@@ -110,6 +112,7 @@ export function buildSimInput(args: {
       robots: {
         count: robotCount,
         speedMps: speed ?? SIM_FALLBACK.speedMps,
+        ...(perf !== null ? { opsPerHour: perf } : {}),
         autonomyH: autonomy ?? SIM_FALLBACK.autonomyH,
         chargeTimeH: charge ?? SIM_FALLBACK.chargeTimeH,
       },

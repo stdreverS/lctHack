@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Document, Download, Picture, Tickets } from '@element-plus/icons-vue'
 import type { CalcResult } from '@/types/api'
 import { useWizardStore } from '@/stores/wizard'
-import { REPORTS_AVAILABLE, getExportXlsxUrl, getReportPdfUrl } from '@/api/calculations'
+import { REPORTS_AVAILABLE, getExportXlsxUrl } from '@/api/calculations'
 import { buildTimeline } from '@/sim/renderer'
 import { renderSchemePng } from '@/sim/snapshot'
 import { SIM_HOURS } from '@/utils/simInput'
@@ -12,32 +13,47 @@ import { saveBlob, saveObjectUrl } from '@/utils/download'
 import { describeError } from '@/utils/errors'
 import { exportFileName, scenariosCsv } from '@/utils/export'
 
-// Кнопки выгрузки шага «Экспорт». PDF и Excel формирует сервер по сохранённому расчёту;
-// CSV и схема PNG собираются в браузере из уже полученных данных.
+// Кнопки выгрузки шага «Экспорт». PDF — из печатной версии отчёта (views/ReportView.vue);
+// Excel формирует сервер по сохранённому расчёту; CSV и схема PNG собираются в браузере.
 const props = defineProps<{ result: CalcResult; objectName: string }>()
 
 const wizard = useWizardStore()
-const busy = ref<'pdf' | 'xlsx' | 'png' | null>(null)
+const router = useRouter()
+const busy = ref<'report' | 'xlsx' | 'png' | null>(null)
 
-const reportsReady = computed(() => wizard.mode === 'project' && wizard.calculationSaved)
-const reportsHint = computed(() => {
-  if (wizard.mode === 'guest') return 'PDF и Excel доступны в проекте после сохранения расчёта.'
-  if (!wizard.calculationSaved) return 'Сначала сохраните расчёт — отчёт формируется по сохранённой версии.'
-  return REPORTS_AVAILABLE ? '' : 'Демо-режим: отчёты формирует сервер, они появятся после подключения бэкенда.'
+const excelReady = computed(() => REPORTS_AVAILABLE && wizard.mode === 'project' && wizard.calculationSaved)
+const excelHint = computed(() => {
+  if (!REPORTS_AVAILABLE) return 'Excel формирует сервер, в демо-режиме недоступно.'
+  if (wizard.mode === 'guest') return 'Excel доступен в проекте после сохранения расчёта.'
+  return wizard.calculationSaved ? '' : 'Сначала сохраните расчёт — Excel формируется по сохранённой версии.'
 })
 const layout = computed(() => wizard.currentType?.layout ?? null)
 
-async function downloadReport(kind: 'pdf' | 'xlsx') {
-  if (!REPORTS_AVAILABLE) {
-    ElMessage.info('Отчёты формирует сервер, доступно после подключения бэкенда')
-    return
-  }
-  const id = wizard.calculationId
-  if (!id || busy.value) return
-  busy.value = kind
+/** Печатная версия отчёта; несохранённые параметры проекта сначала сохраняются. */
+async function openReport() {
+  if (busy.value) return
+  busy.value = 'report'
   try {
-    const url = kind === 'pdf' ? await getReportPdfUrl(id) : await getExportXlsxUrl(id)
-    saveObjectUrl(url, exportFileName(kind === 'pdf' ? 'robo-report' : 'robo-calculation', kind))
+    if (wizard.mode === 'project' && wizard.projectId) {
+      if (wizard.hasUnsavedChanges) await wizard.save()
+      await router.push({ name: 'project-report', params: { id: wizard.projectId } })
+    } else {
+      await router.push({ name: 'demo-report' })
+    }
+  } catch (e) {
+    const text = describeError(e)
+    ElMessage.error({ message: `Проект не сохранён, отчёт не открыт. ${text.title}. ${text.description}`, duration: 6000 })
+  } finally {
+    busy.value = null
+  }
+}
+
+async function downloadExcel() {
+  const id = wizard.calculationId
+  if (!excelReady.value || !id || busy.value) return
+  busy.value = 'xlsx'
+  try {
+    saveObjectUrl(await getExportXlsxUrl(id), exportFileName('robo-calculation', 'xlsx'))
   } catch (e) {
     const text = describeError(e)
     ElMessage.error({ message: `Файл не скачан. ${text.title}. ${text.description}`, duration: 6000 })
@@ -76,13 +92,16 @@ async function downloadPng() {
 <template>
   <div class="export-actions">
     <div class="export-actions__group">
-      <el-button :icon="Document" :disabled="!reportsReady" :loading="busy === 'pdf'" @click="downloadReport('pdf')">
-        Скачать PDF
+      <el-button type="primary" :icon="Document" :loading="busy === 'report'" @click="openReport">
+        Отчёт для печати и PDF
       </el-button>
-      <el-button :icon="Tickets" :disabled="!reportsReady" :loading="busy === 'xlsx'" @click="downloadReport('xlsx')">
+      <el-button :icon="Tickets" :disabled="!excelReady" :loading="busy === 'xlsx'" @click="downloadExcel">
         Скачать Excel
       </el-button>
-      <p v-if="reportsHint" class="export-actions__hint">{{ reportsHint }}</p>
+      <p class="export-actions__hint">
+        PDF формируется из печатной версии отчёта: откройте её и нажмите «Скачать PDF».
+        <template v-if="excelHint">{{ excelHint }}</template>
+      </p>
     </div>
 
     <div class="export-actions__group">

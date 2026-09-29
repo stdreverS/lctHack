@@ -1,4 +1,5 @@
-// Мок-сервер: "METHOD /path" → обработчик. Данные живут в памяти модуля до перезагрузки.
+// Мок-сервер: "METHOD /path" → обработчик. Данные живут в памяти модуля и после каждого
+// успешного изменения сохраняются в localStorage (mocks/persist.ts), поэтому переживают F5.
 import type {
   AuthResponse,
   CalcRequest,
@@ -18,6 +19,9 @@ import { objectTypes } from './data/objectTypes'
 import { calculations, projects, type MockCalculation, type MockProject } from './data/projects'
 import { robots } from './data/robots'
 import { toPublicUser, users, type MockUser } from './data/users'
+import { restoreMockDb, saveMockDb } from './persist'
+
+restoreMockDb()
 
 export type MockMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
 
@@ -351,7 +355,9 @@ export function handleMockRequest(req: MockRequest): MockResponse {
       if (!match) continue
       const params: Record<string, string> = {}
       route.keys.forEach((k, i) => (params[k] = decodeURIComponent(match[i + 1]!)))
-      return route.handler({ params, query: url.searchParams, body: req.body, user: userByToken(req.token) })
+      const response = route.handler({ params, query: url.searchParams, body: req.body, user: userByToken(req.token) })
+      if (req.method !== 'GET' && response.status < 400) saveMockDb()
+      return response
     }
     throw new MockFail(404, 'NOT_FOUND', `Адрес ${req.method} ${path} не найден`)
   } catch (error) {

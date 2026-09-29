@@ -42,9 +42,9 @@ describe('runSimulation: воспроизводимость', () => {
     )
   })
 
-  it('версия движка — sim-1.0', () => {
-    expect(runSimulation(input()).kpi.engineVersion).toBe('sim-1.0')
-    expect(SIM_MODEL.engineVersion).toBe('sim-1.0')
+  it('версия движка — sim-1.2', () => {
+    expect(runSimulation(input()).kpi.engineVersion).toBe('sim-1.2')
+    expect(SIM_MODEL.engineVersion).toBe('sim-1.2')
   })
 })
 
@@ -178,5 +178,38 @@ describe('runSimulation: окно измерения и скорость', () =>
     const spentMs = performance.now() - started
     expect(result.kpi.throughputPerHour).toBeGreaterThan(0)
     expect(spentMs).toBeLessThan(1000)
+  })
+})
+
+describe('runSimulation: производительность из каталога и порог подтверждения', () => {
+  it('opsPerHour задан — каждая заявка занимает робота ровно 3600 / opsPerHour с', () => {
+    const result = runSimulation(input({}, { opsPerHour: 45, autonomyH: 0 }))
+    const busy = result.segments.filter((s) => s.state !== 'idle' && s.state !== 'charging')
+    const tasks = busy.filter((s) => s.state === 'moving_loaded').length
+    const busySec = busy.reduce((sum, s) => sum + (s.t1 - s.t0), 0)
+    expect(tasks).toBeGreaterThan(0)
+    expect(busySec / tasks).toBeCloseTo(3600 / 45, 6)
+  })
+
+  it('opsPerHour не задан — время заявки по скорости и маршруту, как раньше', () => {
+    const slow = runSimulation(input({}, { autonomyH: 0 }))
+    const fast = runSimulation(input({}, { autonomyH: 0, opsPerHour: 200 }))
+    expect(fast.kpi.avgUtilization).toBeLessThan(slow.kpi.avgUtilization)
+  })
+
+  it('порог 90 %: демо-склад (15 × 45 опер./ч, цель 447) подтверждает расчёт', () => {
+    expect(SIM_MODEL.confirmPercent).toBe(90)
+    const kpi = runSimulation(input({ seed: 20260922, demand: { peakOpsPerHour: 447, avgRouteM: 120 } },
+      { count: 15, speedMps: 1.5, opsPerHour: 45, autonomyH: 10, chargeTimeH: 1.5 })).kpi
+    expect(kpi.achievedPercent).toBeGreaterThanOrEqual(90)
+    expect(kpi.achievedPercent).toBeLessThan(100)
+    expect(kpi.confirmsCalculation).toBe(true)
+  })
+
+  it('недостаточный парк не проходит порог: 8 роботов вместо 15 на демо-складе', () => {
+    const kpi = runSimulation(input({ seed: 20260922, demand: { peakOpsPerHour: 447, avgRouteM: 120 } },
+      { count: 8, speedMps: 1.5, opsPerHour: 45, autonomyH: 10, chargeTimeH: 1.5 })).kpi
+    expect(kpi.achievedPercent).toBeLessThan(SIM_MODEL.confirmPercent)
+    expect(kpi.confirmsCalculation).toBe(false)
   })
 })

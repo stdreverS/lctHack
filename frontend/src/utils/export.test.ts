@@ -19,7 +19,7 @@ const result: CalcResult = {
   modelVersion: 'mock-1.0',
   dataVersion: 'catalog-2026.09',
   calculatedAt: '2026-09-23T10:00:00Z',
-  disclaimer: 'Предварительная оценка; точность ±30 %',
+  disclaimer: 'Предварительная оценка; требует верификации',
   recommendation: [],
   scenarios: [
     scenario('baseline', 'Текущее состояние', null, 0),
@@ -74,7 +74,7 @@ describe('scenariosCsv', () => {
 
   it('вывод и оговорка', () => {
     expect(lines).toContain('Вывод;;Точка отсчёта;Окупается до 3 лет;Окупается до 3 лет')
-    expect(lines).toContain('Предварительная оценка; точность ±30 %'.replace(/^(.*)$/, '"$1"'))
+    expect(lines).toContain('Предварительная оценка; требует верификации'.replace(/^(.*)$/, '"$1"'))
   })
 })
 

@@ -9,7 +9,7 @@ type Pt = [number, number]
 
 /** Константы модели. Все допущения симуляции собраны здесь (docs/simulation.md). */
 export const SIM_MODEL = {
-  engineVersion: 'sim-1.0',
+  engineVersion: 'sim-1.2',
   /** Погрузка или разгрузка, с, если не задано во входных данных. */
   handlingSec: 30,
   /** Доля заряда, ниже которой робот едет на зарядку. */
@@ -32,6 +32,12 @@ export const SIM_MODEL = {
   busyShare: 0.9,
   /** Доля времени на зарядке, выше которой узкое место — зарядка. */
   chargingShare: 0.2,
+  /**
+   * Порог подтверждения расчёта, % целевой производительности. Не 100: поток заявок
+   * случайный, и за один час прогона поступает в среднем 100 % цели, но с разбросом
+   * (30 зёрен на демо-складе: 90,7–112,5 %). Порог ниже нижней границы разброса.
+   */
+  confirmPercent: 90,
 } as const
 
 // ---------- Геометрия ----------
@@ -226,6 +232,9 @@ export function runSimulation(input: SimInput): SimResult {
     typeof input.robots.handlingSec === 'number' && input.robots.handlingSec >= 0
       ? input.robots.handlingSec
       : SIM_MODEL.handlingSec
+  const opsPerHour = input.robots.opsPerHour
+  // Время цикла заявки из каталога: погрузка, два проезда и разгрузка вместе.
+  const cycleSec = typeof opsPerHour === 'number' && opsPerHour > 0 ? 3600 / opsPerHour : null
   const fullBatterySec = Math.max(0, input.robots.autonomyH) * 3600
   const chargeSec = Math.max(0, input.robots.chargeTimeH) * 3600
   const chargeZone = input.layout.zones.find((z) => z.type === 'charging') ?? null
@@ -273,13 +282,17 @@ export function runSimulation(input: SimInput): SimResult {
 
   function assign(r: RobotRt, task: Task, t: number): void {
     closeIdle(r, t)
-    const emptyEnd = t + (distance(r.pos, task.from) * scale) / speed
+    const emptySec = (distance(r.pos, task.from) * scale) / speed
+    const loadedSec = task.distM / speed
+    // Производительность из каталога: растягиваем или сжимаем цикл до 3600 / opsPerHour с.
+    const k = cycleSec === null ? 1 : cycleSec / (emptySec + loadedSec + 2 * handlingSec)
+    const emptyEnd = t + emptySec * k
     emit(r, 'moving_empty', t, emptyEnd, r.pos, task.from, 'travel')
-    const loadEnd = emptyEnd + handlingSec
+    const loadEnd = emptyEnd + handlingSec * k
     emit(r, 'handling', emptyEnd, loadEnd, task.from, task.from, 'handling')
-    const loadedEnd = loadEnd + task.distM / speed
+    const loadedEnd = loadEnd + loadedSec * k
     emit(r, 'moving_loaded', loadEnd, loadedEnd, task.from, task.to, 'travel')
-    const end = loadedEnd + handlingSec
+    const end = loadedEnd + handlingSec * k
     emit(r, 'handling', loadedEnd, end, task.to, task.to, 'handling')
 
     r.batterySec = Math.max(0, r.batterySec - (end - t))
@@ -464,7 +477,7 @@ function buildKpi(
       maxQueue,
       avgRouteM: Math.max(0, input.demand.avgRouteM),
     }),
-    confirmsCalculation: achievedPercent >= 100,
+    confirmsCalculation: achievedPercent >= SIM_MODEL.confirmPercent,
   }
 }
 

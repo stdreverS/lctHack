@@ -202,3 +202,138 @@ table,
   color: var(--color-text-secondary);
   text-align: center;
 }
+
+/* ---------- Печатный отчёт ---------- */
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.report-table caption {
+  padding-bottom: var(--space-1);
+  font-weight: 600;
+  text-align: left;
+}
+
+.report-table th,
+.report-table td {
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.report-table thead th,
+.report-table__group th {
+  background: var(--color-bg);
+  font-weight: 600;
+}
+
+.report-table .num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.report-link {
+  word-break: break-all;
+}
+
+/* Таблица параметров: одинаковые колонки во всех группах */
+.report-table--params {
+  table-layout: fixed;
+}
+
+.report-table--params col:nth-child(1) {
+  width: 44%;
+}
+
+.report-table--params col:nth-child(2) {
+  width: 24%;
+}
+
+.report-table--params .num {
+  white-space: normal;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 12mm;
+  }
+
+  html,
+  body {
+    background: #fff;
+    font-size: 12px;
+  }
+
+  /* Навигация, кнопки и служебные элементы в PDF не нужны */
+  .topbar,
+  .no-print,
+  .el-message,
+  .el-overlay,
+  #__vue-devtools-container__ {
+    display: none !important;
+  }
+
+  .page {
+    max-width: none;
+    padding: 0;
+  }
+
+  .report {
+    max-width: none !important;
+    padding: 0 !important;
+    border: 0 !important;
+  }
+
+  /* Grid при разрыве страницы накладывает блоки друг на друга — в печати обычный поток */
+  .report,
+  .report__section,
+  .report-block {
+    display: block !important;
+  }
+
+  .report > * + *,
+  .report__section > * + *,
+  .report-block > * + * {
+    margin-top: 10px;
+  }
+
+  /* Крупные разделы — с новой страницы; строки и заголовки не разрываются */
+  .report__section--page {
+    break-before: page;
+  }
+
+  .report-table {
+    font-size: 10.5px;
+  }
+
+  .report-table tr {
+    break-inside: avoid;
+  }
+
+  .report-table caption,
+  h2,
+  h3 {
+    break-inside: avoid;
+    break-after: avoid;
+  }
+
+  .report-table thead {
+    display: table-header-group;
+  }
+
+  /* Ссылки видны в бумажной версии: текст ссылки — сам адрес */
+  a,
+  .report-link {
+    color: #1e2a33;
+    text-decoration: underline;
+  }
+
+  * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

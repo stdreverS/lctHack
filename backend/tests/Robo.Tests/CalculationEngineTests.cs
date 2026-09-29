@@ -33,6 +33,21 @@ public class CalculationEngineTests
     }
 
     [Fact]
+    public void Calculate_RoiIsAccumulatedEffectOverCapex()
+    {
+        // П. 3.5.2 ТЗ: ROI = накопленный эффект за горизонт / CAPEX × 100 %
+        var scenarios = Run().Scenarios;
+
+        Assert.Equal(114.3m, scenarios[1].Metrics.RoiPercent.Value);
+        Assert.Equal(236m, scenarios[2].Metrics.RoiPercent.Value);
+        foreach (var s in scenarios.Skip(1))
+        {
+            var expected = Math.Round(s.Metrics.AnnualEffectRub.Value!.Value * 5 / s.Metrics.CapexRub.Value!.Value * 100, 1);
+            Assert.Equal(expected, s.Metrics.RoiPercent.Value);
+        }
+    }
+
+    [Fact]
     public void Calculate_KeepsScenarioIdsFromRequest()
     {
         var result = Run();

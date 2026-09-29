@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Search, Van } from '@element-plus/icons-vue'
+import { Plus, RefreshLeft, Search, Van } from '@element-plus/icons-vue'
 import type { ObjectType, Robot } from '@/types/api'
 import { getObjectTypes } from '@/api/objectTypes'
 import { deleteRobot, getRobots } from '@/api/robots'
+import { USE_MOCKS, resetMockData } from '@/api/http'
 import { useWizardStore } from '@/stores/wizard'
+import { clearDrafts } from '@/stores/wizardDraft'
 import AdminRobotTable from '@/components/admin/AdminRobotTable.vue'
 import RobotFormDrawer from '@/components/admin/RobotFormDrawer.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
@@ -93,13 +95,33 @@ async function remove(robot: Robot) {
   }
   catalogChanged()
 }
+
+// ---------- Сброс демо-данных (только режим моков) ----------
+async function resetDemo() {
+  try {
+    await ElMessageBox.confirm(
+      'Проекты, расчёты, изменения каталога и зарегистрированные пользователи вернутся к исходным демо-данным. Черновики мастера в этой вкладке будут очищены. Действие нельзя отменить.',
+      'Сбросить демо-данные?',
+      { type: 'warning', confirmButtonText: 'Сбросить', cancelButtonText: 'Отмена', confirmButtonClass: 'el-button--danger' },
+    )
+  } catch {
+    return
+  }
+  await resetMockData()
+  clearDrafts()
+  // Перезагрузка: все экраны и кэши начнут с исходных данных.
+  window.location.reload()
+}
 </script>
 
 <template>
   <section class="admin-robots">
     <header class="admin-robots__head">
       <h1 class="page__title admin-robots__title">Управление каталогом</h1>
-      <el-button type="primary" :icon="Plus" :disabled="!robots" @click="create">Добавить робота</el-button>
+      <div class="admin-robots__actions">
+        <el-button v-if="USE_MOCKS" :icon="RefreshLeft" @click="resetDemo">Сбросить демо-данные</el-button>
+        <el-button type="primary" :icon="Plus" :disabled="!robots" @click="create">Добавить робота</el-button>
+      </div>
     </header>
 
     <div class="admin-robots__bar">
@@ -165,6 +187,16 @@ async function remove(robot: Robot) {
 
 .admin-robots__title {
   margin-bottom: 0;
+}
+
+.admin-robots__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.admin-robots__actions .el-button + .el-button {
+  margin-left: 0;
 }
 
 .admin-robots__bar {

@@ -78,7 +78,7 @@ describe('buildSimInput', () => {
       layout, params, assumptions: DEFAULT_ASSUMPTIONS, scenario: scenario(9, { targetPerHour: 447 }), robot,
     })
     expect(robotCount).toBe(9)
-    expect(input.robots).toEqual({ count: 9, speedMps: 1.6, autonomyH: 10, chargeTimeH: 1.5 })
+    expect(input.robots).toEqual({ count: 9, speedMps: 1.6, opsPerHour: 45, autonomyH: 10, chargeTimeH: 1.5 })
     expect(input.demand).toEqual({ peakOpsPerHour: 447, avgRouteM: 120 })
     expect(input.simHours).toBe(SIM_HOURS)
     expect(input.layout).toBe(layout)
@@ -98,8 +98,10 @@ describe('buildSimInput', () => {
     expect(input.robots.speedMps).toBe(SIM_FALLBACK.speedMps)
     expect(input.robots.autonomyH).toBe(SIM_FALLBACK.autonomyH)
     expect(input.robots.chargeTimeH).toBe(SIM_FALLBACK.chargeTimeH)
-    expect(notes).toHaveLength(3)
+    expect(input.robots.opsPerHour).toBeUndefined()
+    expect(notes).toHaveLength(4)
     expect(notes.join(' ')).toContain('Скорость робота не указана')
+    expect(notes.join(' ')).toContain('Производительность робота не указана')
   })
 
   it('нет числа роботов — ноль, прогон всё равно собирается', () => {

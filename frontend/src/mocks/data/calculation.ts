@@ -32,8 +32,9 @@ import { buildRecommendation } from './recommendation'
 export const MODEL_VERSION = 'mock-1.0'
 export const DATA_VERSION = 'catalog-2026.09'
 const DISCLAIMER =
-  'Предварительная оценка на основе введённых параметров и каталожных данных. Точность ±30 %. ' +
-  'Не является инвестиционным решением: перед закупкой требуется обследование объекта и коммерческие предложения поставщиков.'
+  'Предварительная оценка, требует верификации при обследовании объекта. ' +
+  'Расчёт основан на введённых параметрах и каталожных данных и не является инвестиционным решением: ' +
+  'перед закупкой нужны коммерческие предложения поставщиков.'
 
 /** Множители для анализа чувствительности. */
 interface Factors {
@@ -162,7 +163,7 @@ function metrics(c: Computed, inputs: ModelInputs): Record<MetricKey, Metric> {
     annualEffectRub: metric('Годовой эффект', e.annualEffectRub, '₽/год', 'Экономия ФОТ − расходы на роботов',
       { inputs: { replacedStaff: e.replacedStaff, laborSavingRub: e.laborSavingRub, robotOpexRub: e.robotOpexRub } }),
     paybackYears: metric('Срок окупаемости', e.paybackYears, 'лет', 'Капитальные затраты / Годовой эффект'),
-    roiPercent: metric('ROI за горизонт расчёта', e.roiPercent, '%', '(Годовой эффект × Горизонт − Капзатраты) / Капзатраты × 100 %',
+    roiPercent: metric('ROI за горизонт расчёта', e.roiPercent, '%', 'Накопленный эффект за горизонт (Годовой эффект × Горизонт) / Капзатраты × 100 %',
       { inputs: { horizonYears: a.horizonYears } }),
     tcoRub: metric('Совокупная стоимость владения', e.tcoRub, '₽', 'Капзатраты + OPEX × Горизонт расчёта', { inputs: { horizonYears: a.horizonYears } }),
   }
@@ -185,7 +186,7 @@ function assumptionsUsed(inputs: ModelInputs): AssumptionRef[] {
   const pct = (v: number) => Math.round(v * 1000) / 10
   return [
     { key: 'horizonYears', label: 'Горизонт расчёта', value: a.horizonYears, unit: 'лет', source: 'Параметры проекта', confirmed: true },
-    { key: 'workDaysPerYear', label: 'Рабочих дней в году', value: a.workDaysPerYear, unit: 'дн.', source: 'Производственный календарь РФ', confirmed: true },
+    { key: 'workDaysPerYear', label: 'Рабочих дней в году', value: a.workDaysPerYear, unit: 'дн.', source: 'Допущение: пятидневная рабочая неделя, округлённо', confirmed: false },
     { key: 'shiftsPerDay', label: 'Смен в сутки', value: a.shiftsPerDay, unit: 'смен', source: 'Параметры проекта', confirmed: true },
     { key: 'hoursPerShift', label: 'Длительность смены', value: a.hoursPerShift, unit: 'ч', source: 'ТК РФ, ст. 91', confirmed: true },
     { key: 'utilization', label: 'Загрузка робота', value: pct(a.utilization), unit: '%', source: 'Демо-оценка по отраслевой практике', confirmed: false },

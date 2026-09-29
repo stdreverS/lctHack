@@ -11,7 +11,8 @@ public class ConfigLoaderTests
         var types = TestData.Config.ObjectTypes;
 
         Assert.Equal(["warehouse", "airport", "hospital"], types.Select(t => t.Code));
-        Assert.All(types.Skip(1), t => Assert.InRange(t.Fields.Count, 8, 10));
+        Assert.Equal(17, types[1].Fields.Count); // аэропорт по п. 3.2.1 ТЗ
+        Assert.Equal(14, types[2].Fields.Count); // больница по п. 3.2.1 ТЗ
         Assert.NotNull(types[0].Layout);
         Assert.Null(types[1].Layout);
     }

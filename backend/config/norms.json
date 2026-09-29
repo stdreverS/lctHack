@@ -2,7 +2,7 @@
   "dataVersion": "catalog-2026.09",
   "items": [
     { "key": "horizonYears", "label": "Горизонт расчёта", "value": 5, "unit": "лет", "source": "Параметры проекта (значение по умолчанию)", "confirmed": true },
-    { "key": "workDaysPerYear", "label": "Рабочих дней в году", "value": 250, "unit": "дн.", "source": "Производственный календарь РФ (округлённо)", "confirmed": true },
+    { "key": "workDaysPerYear", "label": "Рабочих дней в году", "value": 250, "unit": "дн.", "source": "Допущение: пятидневная рабочая неделя, округлённо", "confirmed": false },
     { "key": "shiftsPerDay", "label": "Смен в сутки", "value": 2, "unit": "смен", "source": "Параметры проекта (значение по умолчанию)", "confirmed": true },
     { "key": "hoursPerShift", "label": "Длительность смены", "value": 8, "unit": "ч", "source": "ТК РФ, ст. 91 (40 ч в неделю)", "confirmed": true },
     { "key": "utilization", "label": "Загрузка робота", "value": 0.85, "unit": "доля", "source": "Демо-оценка по отраслевой практике", "confirmed": false },

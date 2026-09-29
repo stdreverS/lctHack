@@ -1,4 +1,4 @@
-import { computed, ref, shallowRef } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { getObjectTypes } from '@/api/objectTypes'
 import { getProject, updateProject } from '@/api/projects'
@@ -21,6 +21,7 @@ import { DEFAULT_ASSUMPTIONS, manualParams } from '@/utils/projects'
 import { MAX_COMPARE, RAAS_DEFAULT_TERMS, patchScenario, withScenarioRobot } from '@/utils/recommendation'
 import { SENS_DELTAS, SENS_PARAMS, applyWhatIf, type WhatIfValues } from '@/utils/whatif'
 import { validateParams } from '@/utils/validateParams'
+import { readDraft, writeDraft, type WizardDraft } from './wizardDraft'
 
 /** guest — /demo без сохранения; project — /app/projects/:id с сохранением. */
 export type WizardMode = 'guest' | 'project'
@@ -464,12 +465,23 @@ export const useWizardStore = defineStore('wizard', () => {
     assumptions.value = { ...DEFAULT_ASSUMPTIONS }
     projectError.value = null
     savedSnapshot.value = null
+    draftReady = false
     resetDownstream()
   }
 
-  /** Гостевой режим. Если мастер уже в нём — прогресс сохраняется (до перезагрузки страницы). */
+  /**
+   * Гостевой режим. Если мастер уже в нём — прогресс остаётся; после перезагрузки страницы
+   * или возврата из проекта ввод восстанавливается из черновика (stores/wizardDraft.ts).
+   */
   function startGuest() {
-    if (mode.value !== 'guest') reset('guest')
+    if (mode.value === 'guest' && draftReady) return
+    reset('guest')
+    const draft = readDraft(null, WIZARD_STEP_COUNT)
+    if (draft) {
+      applyDraft(draft, true)
+      void loadObjectTypes().catch(() => undefined) // шагам нужен currentType; ошибку покажет шаг «Объект»
+    }
+    draftReady = true
   }
 
   function applyProject(project: Project, types: ObjectType[]) {
@@ -483,6 +495,10 @@ export const useWizardStore = defineStore('wizard', () => {
     processes.value = types.find((t) => t.code === project.objectType)?.processes.map((p) => p.code) ?? []
     fillMode.value = hasValues(project.params) ? 'manual' : null
     savedSnapshot.value = snapshot(projectInput())
+    // Шаг, процессы, выбор роботов и сценарии в проекте не хранятся — берём из черновика вкладки.
+    const draft = readDraft(project.id, WIZARD_STEP_COUNT)
+    if (draft && draft.objectType === project.objectType) applyDraft(draft, false)
+    draftReady = true
   }
 
   async function openProject(id: string) {
@@ -568,6 +584,48 @@ export const useWizardStore = defineStore('wizard', () => {
   function goTo(index: number) {
     step.value = Math.min(Math.max(index, 0), WIZARD_STEP_COUNT - 1)
   }
+
+  // ---------- Черновик мастера (переживает F5) ----------
+  /** false — мастер ещё не восстановлен или перезапускается: черновик не перезаписываем. */
+  let draftReady = false
+
+  /** withInput — гость: подставляются и параметры с допущениями. */
+  function applyDraft(d: WizardDraft, withInput: boolean) {
+    if (withInput) {
+      objectType.value = d.objectType
+      if (d.params) params.value = { ...d.params }
+      if (d.assumptions) assumptions.value = { ...DEFAULT_ASSUMPTIONS, ...d.assumptions }
+    }
+    processes.value = [...d.processes]
+    fillMode.value = d.fillMode
+    selectedRobotIds.value = d.selectedRobotIds.slice(0, MAX_COMPARE)
+    manualRobotIds.value = [...d.manualRobotIds]
+    scenarios.value = d.scenarios
+    simKind.value = d.simKind
+    step.value = objectType.value ? d.step : 0
+  }
+
+  const draft = computed<WizardDraft>(() => ({
+    step: step.value,
+    objectType: objectType.value,
+    processes: processes.value,
+    fillMode: fillMode.value,
+    selectedRobotIds: selectedRobotIds.value,
+    manualRobotIds: manualRobotIds.value,
+    scenarios: scenarios.value,
+    simKind: simKind.value,
+    ...(mode.value === 'guest' ? { params: params.value, assumptions: assumptions.value } : {}),
+  }))
+
+  watch(
+    draft,
+    (value) => {
+      if (!draftReady) return
+      if (mode.value === 'guest') writeDraft(null, value)
+      else if (projectId.value) writeDraft(projectId.value, value)
+    },
+    { deep: true },
+  )
 
   return {
     mode, step, projectId, projectName, projectUpdatedAt, objectType, processes, fillMode, params,

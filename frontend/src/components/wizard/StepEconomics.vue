@@ -116,7 +116,7 @@ function changeTerms(terms: NonNullable<ScenarioInput['raas']>) {
           </template>
           <template v-else>
             <RouterLink :to="{ name: 'login', query: { redirect: '/demo' } }">Войдите</RouterLink>, чтобы сохранить
-            расчёт. Без входа результаты пропадут после перезагрузки страницы.
+            расчёт. Без входа результаты пропадут, когда вы закроете вкладку.
           </template>
         </template>
       </el-alert>

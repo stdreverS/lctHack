@@ -110,10 +110,9 @@ export function economics(
   const annualEffectRub = -opexDeltaRub
   const paybackYears =
     robotCount > 0 && annualEffectRub > 0 ? Math.round((capexRub / annualEffectRub) * 100) / 100 : null
+  // ROI по п. 3.5.2 ТЗ: накопленный эффект за горизонт / CAPEX × 100 %
   const roiPercent =
-    capexRub > 0
-      ? Math.round(((annualEffectRub * a.horizonYears - capexRub) / capexRub) * 1000) / 10
-      : null
+    capexRub > 0 ? Math.round(((annualEffectRub * a.horizonYears) / capexRub) * 1000) / 10 : null
   return {
     robotCount,
     capexRub,

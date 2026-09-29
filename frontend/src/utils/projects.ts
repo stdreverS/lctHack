@@ -3,17 +3,18 @@ import type { Assumptions, ObjectType, Params, ProjectInput, Verdict } from '@/t
 
 /**
  * Допущения по умолчанию для нового проекта и мастера гостя. В API нет справочника
- * допущений, поэтому их задаёт фронтенд. Пользователь уточнит их в мастере.
+ * допущений, поэтому их задаёт фронтенд. Значения совпадают с backend/config/norms.json
+ * и defaultAssumptions моков. Пользователь уточнит их в мастере.
  */
 export const DEFAULT_ASSUMPTIONS: Readonly<Assumptions> = {
   horizonYears: 5,
-  workDaysPerYear: 360,
+  workDaysPerYear: 250,
   shiftsPerDay: 2,
   hoursPerShift: 8,
-  utilization: 0.75,
+  utilization: 0.85,
   availability: 0.95,
   reserveShare: 0.1,
-  staffReplacedShare: 0.7,
+  staffReplacedShare: 0.3,
 }
 
 /** Параметры по умолчанию из описания полей типа объекта; без default — null. */

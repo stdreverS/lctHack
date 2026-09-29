@@ -14,8 +14,9 @@ internal static class StubRecommendation
     private static Check Payload(string result, double actual, string message) =>
         new("payload", "Грузоподъёмность", true, result, 350, actual, "кг", message);
 
-    private static Check Aisle(string result, double? actual, string message) =>
-        new("aisle", "Ширина прохода", true, result, 3, actual, "м", message);
+    // Требование задаёт робот (minAisleM), фактическое значение — ширина прохода на объекте.
+    private static Check Aisle(string result, double? robotMinAisleM, string message) =>
+        new("aisle", "Ширина прохода", true, result, robotMinAisleM, 3, "м", message);
 
     private static Check Performance(string result, double? actual, string message) =>
         new("performance", "Производительность", true, result, 447, actual, "опер./ч", message);
